@@ -1,0 +1,418 @@
+<!-- Модальное окно приглашения -->
+<div class="modal-overlay" id="invitationModal">
+    <div class="modal" style="width: 400px;">
+        <div class="modal-header">
+            <h2 class="modal-title">
+                <i class="fas fa-user-plus"></i> Приглашение
+            </h2>
+        </div>
+        <div class="modal-content">
+            <div class="invitation-content">
+                <div class="invitation-icon">
+                    <i class="fas fa-envelope"></i>
+                </div>
+                <div class="invitation-message" id="invitationMessage">
+                    Пользователь <strong>Alexey</strong> приглашает вас в совместную сессию программирования
+                </div>
+                <div class="invitation-details">
+                    <div class="invitation-detail">
+                        <i class="fas fa-tasks"></i>
+                        <span id="invitationTask">Задача: Палиндром</span>
+                    </div>
+                    <div class="invitation-detail">
+                        <i class="fas fa-user"></i>
+                        <span id="invitationFrom">От: Alexey</span>
+                    </div>
+                </div>
+                <div class="invitation-actions">
+                    <button class="btn secondary" id="declineInvitationBtn">
+                        <i class="fas fa-times"></i> Отклонить
+                    </button>
+                    <button class="btn primary" id="acceptInvitationBtn">
+                        <i class="fas fa-check"></i> Принять
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Модальное окно приглашения
+    class InvitationModal {
+        constructor() {
+            this.modal = document.getElementById('invitationModal');
+            this.currentInvitation = null;
+            this.onAcceptCallback = null;
+            this.onDeclineCallback = null;
+            this.init();
+        }
+
+        init() {
+            this.bindEvents();
+        }
+
+        bindEvents() {
+            // Обработка кнопок принятия/отклонения
+            document.getElementById('acceptInvitationBtn').addEventListener('click', () => {
+                this.acceptInvitation();
+            });
+
+            document.getElementById('declineInvitationBtn').addEventListener('click', () => {
+                this.declineInvitation();
+            });
+
+            // Клик вне модального окна (закрывает окно с отклонением)
+            this.modal.addEventListener('click', (e) => {
+                if (e.target === this.modal) {
+                    this.declineInvitation();
+                }
+            });
+
+            // Закрытие по клавише ESC
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && this.modal.classList.contains('show')) {
+                    this.declineInvitation();
+                }
+            });
+        }
+
+        show(invitationData) {
+            if (!invitationData) {
+                console.error('Не переданы данные приглашения');
+                return;
+            }
+
+            this.currentInvitation = invitationData;
+
+            // Обновляем содержимое модального окна
+            this.updateContent(invitationData);
+
+            // Показываем модальное окно
+            this.modal.classList.add('show');
+
+            // Автофокус на кнопке принятия для удобства
+            setTimeout(() => {
+                document.getElementById('acceptInvitationBtn').focus();
+            }, 100);
+
+            // Автоматическое скрытие через 30 секунд
+            this.startAutoCloseTimer();
+        }
+
+        hide() {
+            this.modal.classList.remove('show');
+            this.stopAutoCloseTimer();
+        }
+
+        updateContent(invitationData) {
+            const invitationMessage = document.getElementById('invitationMessage');
+            const invitationTask = document.getElementById('invitationTask');
+            const invitationFrom = document.getElementById('invitationFrom');
+
+            // Форматируем имя пользователя
+            const fromName = invitationData.from || invitationData.fromUsername || 'Пользователь';
+            const formattedName = `<strong>${this.escapeHtml(fromName)}</strong>`;
+
+            // Обновляем сообщение
+            let message = `Пользователь ${formattedName} приглашает вас в совместную сессию программирования`;
+
+            // Если указан тип сессии, добавляем информацию
+            if (invitationData.type) {
+                const sessionType = invitationData.type === 'duel' ? 'дуэль программирования' : 'совместную сессию';
+                message = `Пользователь ${formattedName} приглашает вас в ${sessionType}`;
+            }
+
+            invitationMessage.innerHTML = message;
+
+            // Обновляем информацию о задаче
+            let taskText = 'Задача: ';
+            if (invitationData.task) {
+                taskText += invitationData.task.title || 'Совместное программирование';
+            } else {
+                taskText += 'Совместное программирование';
+            }
+            invitationTask.textContent = taskText;
+
+            // Обновляем информацию об отправителе
+            invitationFrom.textContent = `От: ${fromName}`;
+
+            // Сохраняем данные приглашения в data-атрибуте для доступа
+            this.modal.dataset.invitationData = JSON.stringify(invitationData);
+        }
+
+        acceptInvitation() {
+            if (!this.currentInvitation) return;
+
+            // Вызываем callback принятия приглашения
+            if (this.onAcceptCallback) {
+                this.onAcceptCallback(this.currentInvitation);
+            }
+
+            // Показываем анимацию принятия
+            this.showAcceptAnimation();
+
+            // Закрываем окно через 1 секунду
+            setTimeout(() => {
+                this.hide();
+                this.currentInvitation = null;
+            }, 1000);
+        }
+
+        declineInvitation() {
+            if (!this.currentInvitation) return;
+
+            // Вызываем callback отклонения приглашения
+            if (this.onDeclineCallback) {
+                this.onDeclineCallback(this.currentInvitation);
+            }
+
+            // Показываем анимацию отклонения
+            this.showDeclineAnimation();
+
+            // Закрываем окно через 1 секунду
+            setTimeout(() => {
+                this.hide();
+                this.currentInvitation = null;
+            }, 1000);
+        }
+
+        showAcceptAnimation() {
+            const content = document.querySelector('.invitation-content');
+            const originalContent = content.innerHTML;
+
+            content.innerHTML = `
+            <div class="invitation-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="invitation-message">
+                Приглашение принято!<br>
+                <small>Подготовка к сессии...</small>
+            </div>
+            <div class="invitation-details">
+                <div class="invitation-detail">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <span>Подключение...</span>
+                </div>
+            </div>
+        `;
+
+            content.classList.add('accepted');
+        }
+
+        showDeclineAnimation() {
+            const content = document.querySelector('.invitation-content');
+            const originalContent = content.innerHTML;
+
+            content.innerHTML = `
+            <div class="invitation-icon">
+                <i class="fas fa-times-circle"></i>
+            </div>
+            <div class="invitation-message">
+                Приглашение отклонено
+            </div>
+        `;
+
+            content.classList.add('declined');
+        }
+
+        startAutoCloseTimer() {
+            this.stopAutoCloseTimer(); // Останавливаем предыдущий таймер
+
+            this.autoCloseTimer = setTimeout(() => {
+                if (this.modal.classList.contains('show')) {
+                    console.log('Приглашение автоматически отклонено (таймаут)');
+                    this.declineInvitation();
+                }
+            }, 30000); // 30 секунд
+
+            // Запускаем таймер обратного отсчета
+            this.startCountdownTimer();
+        }
+
+        stopAutoCloseTimer() {
+            if (this.autoCloseTimer) {
+                clearTimeout(this.autoCloseTimer);
+                this.autoCloseTimer = null;
+            }
+
+            this.stopCountdownTimer();
+        }
+
+        startCountdownTimer() {
+            this.stopCountdownTimer();
+
+            let timeLeft = 30;
+            const countdownElement = document.createElement('div');
+            countdownElement.className = 'countdown-timer';
+            countdownElement.innerHTML = `Автоматическое отклонение через: <span class="countdown-seconds">${timeLeft}</span> сек`;
+
+            const actions = document.querySelector('.invitation-actions');
+            actions.parentNode.insertBefore(countdownElement, actions);
+
+            this.countdownInterval = setInterval(() => {
+                timeLeft--;
+                const secondsSpan = countdownElement.querySelector('.countdown-seconds');
+                if (secondsSpan) {
+                    secondsSpan.textContent = timeLeft;
+
+                    // Меняем цвет при малом времени
+                    if (timeLeft <= 10) {
+                        countdownElement.classList.add('warning');
+                    }
+                    if (timeLeft <= 5) {
+                        countdownElement.classList.add('critical');
+                    }
+                }
+
+                if (timeLeft <= 0) {
+                    this.stopCountdownTimer();
+                    countdownElement.remove();
+                }
+            }, 1000);
+        }
+
+        stopCountdownTimer() {
+            if (this.countdownInterval) {
+                clearInterval(this.countdownInterval);
+                this.countdownInterval = null;
+            }
+
+            // Удаляем элемент таймера если он есть
+            const countdownElement = document.querySelector('.countdown-timer');
+            if (countdownElement) {
+                countdownElement.remove();
+            }
+        }
+
+        escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Методы для установки callback
+        setOnAcceptCallback(callback) {
+            this.onAcceptCallback = callback;
+        }
+
+        setOnDeclineCallback(callback) {
+            this.onDeclineCallback = callback;
+        }
+
+        // Получить текущее приглашение
+        getCurrentInvitation() {
+            return this.currentInvitation;
+        }
+
+        // Проверить, открыто ли окно
+        isOpen() {
+            return this.modal.classList.contains('show');
+        }
+
+        // Метод для имитации получения приглашения (для демо)
+        simulateInvitation(fromUser = 'Alexey', taskType = 'palindrome') {
+            const tasks = {
+                palindrome: {title: "Палиндром", description: "Проверка строки на палиндром"},
+                primes: {title: "Простые числа", description: "Поиск простых чисел"},
+                anagrams: {title: "Анаграммы", description: "Проверка строк на анаграммы"}
+            };
+
+            const invitation = {
+                id: 'invite_' + Date.now(),
+                from: fromUser,
+                fromUsername: fromUser.toLowerCase(),
+                task: tasks[taskType] || tasks.palindrome,
+                type: 'collaborative',
+                sessionId: 'session_' + Date.now()
+            };
+
+            this.show(invitation);
+            return invitation;
+        }
+    }
+
+    // Инициализация модального окна при загрузке страницы
+    document.addEventListener('DOMContentLoaded', () => {
+        window.invitationModal = new InvitationModal();
+    });
+
+    // Глобальные функции для управления модальным окном
+    window.showInvitationModal = function (invitationData) {
+        if (window.invitationModal) {
+            window.invitationModal.show(invitationData);
+        }
+    };
+
+    window.hideInvitationModal = function () {
+        if (window.invitationModal) {
+            window.invitationModal.hide();
+        }
+    };
+
+    // Функция для проверки приглашения из URL
+    window.checkUrlForInvitation = function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        const inviteId = urlParams.get('invite');
+        const inviteType = urlParams.get('type');
+        const inviteName = urlParams.get('name');
+
+        if (inviteId) {
+            // Имитируем получение данных приглашения с сервера
+            setTimeout(() => {
+                const invitation = {
+                    id: inviteId,
+                    from: inviteName || 'Пользователь',
+                    type: inviteType || 'collaborative',
+                    task: {
+                        title: 'Совместное программирование',
+                        description: 'Приглашение по ссылке'
+                    },
+                    sessionId: inviteId
+                };
+
+                if (window.invitationModal) {
+                    window.invitationModal.show(invitation);
+                }
+            }, 1000);
+        }
+    };
+
+    // Проверяем URL при загрузке страницы
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+            window.checkUrlForInvitation();
+        }, 500);
+    });
+
+    // Пример использования:
+    /*
+    // Показать приглашение
+    showInvitationModal({
+        id: 'invite_123',
+        from: 'Alexey',
+        fromUsername: 'alexey',
+        task: {
+            title: 'Палиндром',
+            description: 'Проверка строки на палиндром'
+        },
+        type: 'collaborative',
+        sessionId: 'session_123'
+    });
+
+    // Установить обработчики
+    window.invitationModal.setOnAcceptCallback((invitation) => {
+        console.log('Принято приглашение от:', invitation.from);
+        // Здесь переходим к совместной сессии
+        // Например: startCollaborationSession(invitation);
+    });
+
+    window.invitationModal.setOnDeclineCallback((invitation) => {
+        console.log('Отклонено приглашение от:', invitation.from);
+        // Здесь можно отправить уведомление об отказе
+    });
+
+    // Имитировать приглашение (для тестов)
+    window.invitationModal.simulateInvitation('Maria', 'primes');
+    */
+</script>

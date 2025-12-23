@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Terminal v1.0.2</title>
+    <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+    <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+</head>
+<body onclick="document.getElementById('command-input').focus()">
+<div id="terminal">
+    <div class="line system">Terminal Session [Version 1.0.24]</div>
+    <div class="line system">Starting core modules... OK</div>
+    <div class="line">--------------------------------------------------</div>
+</div>
+
+<div class="input-area">
+    <span class="prompt">admin@system:~$</span>
+    <input type="text" id="command-input" autofocus autocomplete="off" spellcheck="false">
+</div>
+
+<script>
+    const input = document.getElementById('command-input');
+    const terminal = document.getElementById('terminal');
+
+    let multiStepState = {
+        isActive: false,
+        commandType: '',
+        currentQuestion: '',
+        isPasswordField: false,
+        isSensitiveInput: false,
+        canSkip: false
+    };
+
+    let commandHistory = [];
+    let historyIndex = -1;
+
+    let realInput = '';
+    let actualInput = '';
+    let isMaskingMode = false;
+
+    let lastKeyPressed = '';
+    let lastKeyWasBackspace = false;
+
+    input.addEventListener('keypress', function (e) {
+        if (multiStepState.isPasswordField || multiStepState.isSensitiveInput) {
+            lastKeyPressed = e.key;
+            lastKeyWasBackspace = false;
+        }
+    });
+
+    input.addEventListener('keydown', function (e) {
+        if (e.key === 'Backspace' || e.key === 'Delete') {
+            lastKeyWasBackspace = true;
+        }
+
+        if (e.key === 'Enter') {
+            const rawInput = this.value;
+            const fullCommand = rawInput.trim();
+
+            let commandToSend = fullCommand;
+
+            if ((multiStepState.isPasswordField || multiStepState.isSensitiveInput) &&
+                multiStepState.isActive) {
+                commandToSend = actualInput || fullCommand;
+            }
+
+            // Определяем, как отображать введенную команду
+            if (multiStepState.isSensitiveInput && multiStepState.isActive) {
+                displaySensitiveInput(commandToSend);
+            } else if (multiStepState.isPasswordField && commandToSend !== '') {
+                printLine(`<span class="prompt">admin@system:~$</span> ${'*'.repeat(commandToSend.length)}`);
+            } else {
+                printLine(`<span class="prompt">admin@system:~$</span> ${rawInput}`);
+            }
+
+            if (commandToSend !== '' && !multiStepState.isSensitiveInput && !multiStepState.isPasswordField) {
+                commandHistory.push(commandToSend);
+                historyIndex = commandHistory.length;
+            }
+
+            if (fullCommand.toLowerCase() === 'clear') {
+                terminal.innerHTML = '';
+                resetMultiStepState();
+                resetInputMode();
+            } else {
+                sendCommand(commandToSend);
+            }
+
+            this.value = '';
+            realInput = '';
+            actualInput = '';
+            lastKeyPressed = '';
+            lastKeyWasBackspace = false;
+            terminal.scrollTop = terminal.scrollHeight;
+
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            if (commandHistory.length > 0 && !multiStepState.isSensitiveInput && !multiStepState.isPasswordField) {
+                if (historyIndex > 0) {
+                    historyIndex--;
+                } else if (historyIndex === -1) {
+                    historyIndex = commandHistory.length - 1;
+                }
+                this.value = commandHistory[historyIndex];
+                realInput = this.value;
+                actualInput = this.value;
+            }
+
+        } else if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            if (commandHistory.length > 0 && !multiStepState.isSensitiveInput && !multiStepState.isPasswordField) {
+                if (historyIndex < commandHistory.length - 1) {
+                    historyIndex++;
+                    this.value = commandHistory[historyIndex];
+                    realInput = this.value;
+                    actualInput = this.value;
+                } else {
+                    historyIndex = commandHistory.length;
+                    this.value = '';
+                    realInput = '';
+                    actualInput = '';
+                }
+            }
+        } else if (e.key === 'Tab') {
+            e.preventDefault();
+            const currentInput = this.value.toLowerCase();
+            const commands = ['status', 'auth', 'login', 'register', 'signup', 'logout', 'help', 'clear', 'create user', 'add user', 'cancel'];
+            const matched = commands.filter(cmd => cmd.startsWith(currentInput));
+
+            if (matched.length === 1) {
+                this.value = matched[0];
+                realInput = this.value;
+                actualInput = this.value;
+            }
+        } else if (e.key === 'Escape') {
+            if (multiStepState.isActive) {
+                sendCommand('cancel');
+                resetMultiStepState();
+                resetInputMode();
+                this.value = '';
+                realInput = '';
+                actualInput = '';
+            }
+        }
+    });
+
+    input.addEventListener('input', function () {
+        if (multiStepState.isSensitiveInput && multiStepState.isActive) {
+            handleSensitiveInput(this);
+        } else if (multiStepState.isPasswordField) {
+            handlePasswordInput(this);
+        } else {
+            realInput = this.value;
+            actualInput = this.value;
+        }
+    });
+
+    function handleSensitiveInput(inputElement) {
+        const cursorPos = inputElement.selectionStart;
+        const newValue = inputElement.value;
+
+        const parts = newValue.split(' ');
+
+        if (parts.length <= 1) {
+            actualInput = newValue;
+        } else {
+            const username = parts[0];
+
+            if (lastKeyPressed && !lastKeyWasBackspace) {
+                if (actualInput.split(' ').length <= 1) {
+                    actualInput = username + ' ' + lastKeyPressed;
+                } else {
+                    const currentParts = actualInput.split(' ');
+                    if (currentParts.length > 1) {
+                        currentParts[1] += lastKeyPressed;
+                        actualInput = currentParts.join(' ');
+                    }
+                }
+            } else if (lastKeyWasBackspace) {
+                if (actualInput.split(' ').length > 1) {
+                    const currentParts = actualInput.split(' ');
+                    if (currentParts[1].length > 0) {
+                        currentParts[1] = currentParts[1].slice(0, -1);
+                        actualInput = currentParts.join(' ');
+                    }
+                }
+            }
+
+            lastKeyPressed = '';
+            lastKeyWasBackspace = false;
+        }
+
+        realInput = newValue;
+
+        const maskedValue = maskSensitiveInput(actualInput);
+        inputElement.value = maskedValue;
+
+        const newCursorPos = Math.min(cursorPos, maskedValue.length);
+        inputElement.setSelectionRange(newCursorPos, newCursorPos);
+    }
+
+    function handlePasswordInput(inputElement) {
+        const cursorPos = inputElement.selectionStart;
+        const newValue = inputElement.value;
+
+        if (lastKeyPressed && !lastKeyWasBackspace) {
+            actualInput += lastKeyPressed;
+        } else if (lastKeyWasBackspace) {
+            if (actualInput.length > 0) {
+                actualInput = actualInput.slice(0, -1);
+            }
+        }
+
+        lastKeyPressed = '';
+        lastKeyWasBackspace = false;
+        realInput = newValue;
+
+        const maskedValue = '*'.repeat(actualInput.length);
+        inputElement.value = maskedValue;
+
+        const newCursorPos = Math.min(cursorPos, maskedValue.length);
+        inputElement.setSelectionRange(newCursorPos, newCursorPos);
+    }
+
+    function maskSensitiveInput(input) {
+        if (!input) return '';
+
+        const parts = input.split(' ');
+        if (parts.length <= 1) {
+            return input;
+        }
+
+        const username = parts[0];
+        const password = parts.slice(1).join(' ');
+
+        const maskedPassword = '*'.repeat(password.length);
+
+        return username + ' ' + maskedPassword;
+    }
+
+    function displaySensitiveInput(input) {
+        const masked = maskSensitiveInput(input);
+        printLine(`<span class="prompt">admin@system:~$</span> ${masked}`);
+    }
+
+    function sendCommand(cmd) {
+        console.log('Sending command to server:', cmd); // Для отладки
+
+        $.ajax({
+            url: '{% url "user:commands" %}',
+            type: 'POST',
+            data: {
+                "cmd": cmd
+            },
+            success: function (response) {
+                printLine(response.msg, response.type_msg);
+
+                if (response.redirect && response.redirect_url) {
+                    printLine("Success! Redirecting...", "success");
+                    setTimeout(() => {
+                        window.location.href = response.redirect_url;
+                    }, 2000);
+                    return;
+                }
+
+                if (response.save && response.save_data) {
+                    const safeData = {...response.save_data};
+                    if (safeData.password) {
+                        safeData.password = '********';
+                    }
+                    if (safeData.confirm_password) {
+                        safeData.confirm_password = '********';
+                    }
+                    printLine(`Account data: ${JSON.stringify(safeData, null, 2)}`, 'info');
+                }
+
+                if (response.ask_next && response.next_question) {
+                    multiStepState.isActive = true;
+                    multiStepState.commandType = response.command_type;
+                    multiStepState.currentQuestion = response.next_question;
+
+                    multiStepState.isPasswordField = response.is_password || false;
+                    multiStepState.isSensitiveInput = response.is_sensitive || false;
+
+                    const question = response.next_question.toLowerCase();
+                    multiStepState.canSkip = question.includes('(optional') ||
+                        question.includes('press enter to skip') ||
+                        question.includes('optional') ||
+                        question.includes('skip');
+
+                    printLine(response.next_question, 'info');
+
+                    if (response.is_password || response.is_sensitive) {
+                        enableSensitiveMode(response.command_type);
+                    } else {
+                        disableSensitiveMode();
+                    }
+
+                } else {
+                    resetMultiStepState();
+                    resetInputMode();
+                }
+            },
+            error: function (xhr, status, error) {
+                printLine(`Error: ${error}`, 'error');
+                resetMultiStepState();
+                resetInputMode();
+            }
+        });
+    }
+
+    function enableSensitiveMode(commandType) {
+        input.type = 'text';
+
+        if (commandType === 'auth') {
+            isMaskingMode = true;
+        } else {
+            isMaskingMode = false;
+        }
+
+        realInput = '';
+        actualInput = '';
+        lastKeyPressed = '';
+        lastKeyWasBackspace = false;
+    }
+
+    function disableSensitiveMode() {
+        input.type = 'text';
+        isMaskingMode = false;
+        realInput = '';
+        actualInput = '';
+        lastKeyPressed = '';
+        lastKeyWasBackspace = false;
+    }
+
+    function resetInputMode() {
+        disableSensitiveMode();
+    }
+
+    function resetMultiStepState() {
+        multiStepState = {
+            isActive: false,
+            commandType: '',
+            currentQuestion: '',
+            isPasswordField: false,
+            isSensitiveInput: false,
+            canSkip: false
+        };
+    }
+
+    function printLine(text, type = '') {
+        const div = document.createElement('div');
+        div.className = 'line';
+
+        if (type) {
+            const normalizedType = type.toLowerCase().trim();
+
+            switch (normalizedType) {
+                case 'success':
+                    div.classList.add('success');
+                    break;
+                case 'error':
+                    div.classList.add('error');
+                    break;
+                case 'warning':
+                    div.classList.add('warning');
+                    break;
+                case 'info':
+                    div.classList.add('info');
+                    break;
+                case 'system':
+                    div.classList.add('system');
+                    break;
+                default:
+                    div.classList.add('info');
+            }
+        }
+
+        if (typeof text === 'string') {
+            const lines = text.split('\n');
+
+            if (lines.length > 1) {
+                lines.forEach((line, index) => {
+                    const lineSpan = document.createElement('span');
+
+                    if (line.includes('<') && line.includes('>')) {
+                        lineSpan.innerHTML = line;
+                    } else {
+                        lineSpan.textContent = line;
+                    }
+
+                    div.appendChild(lineSpan);
+
+                    if (index < lines.length - 1) {
+                        div.appendChild(document.createElement('br'));
+                    }
+                });
+            } else {
+                if (text.includes('<') && text.includes('>')) {
+                    div.innerHTML = text;
+                } else {
+                    div.textContent = text;
+                }
+            }
+        } else {
+            div.textContent = String(text);
+        }
+
+        terminal.appendChild(div);
+        terminal.scrollTop = terminal.scrollHeight;
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        input.focus();
+        printLine('Welcome to Admin Console. Type "help" for available commands.', 'system');
+        printLine('🔒 Type "auth" to login or "register" to create new account.', 'info');
+    });
+</script>
+</body>
+</html>

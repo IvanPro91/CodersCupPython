@@ -1,0 +1,32 @@
+[tool.poetry]
+name = "coderscuppython"
+version = "0.1.0"
+description = ""
+authors = ["Ivan <ivan-don4encko@ya.ru>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.14"
+
+
+[tool.poetry.group.dev.dependencies]
+django = "^6.0"
+python-dotenv = "^1.2.1"
+pillow = "^12.0.0"
+psycopg2-binary = "^2.9.11"
+python-socketio = "^5.15.1"
+eventlet = "^0.40.4"
+django-cors-headers = "^4.9.0"
+channels = {extras = ["daphne"], version = "^4.3.2"}
+whitenoise = "^6.11.0"
+
+
+[tool.poetry.group.lint.dependencies]
+isort = "^7.0.0"
+black = "^25.12.0"
+flake8 = "^7.3.0"
+mypy = "^1.19.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

@@ -1,0 +1,518 @@
+<!-- Модальное окно создания нового таба -->
+<div class="modal-overlay" id="newTabModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 class="modal-title">
+                <i class="fas fa-plus-circle"></i> Создать новый таб
+            </h2>
+            <button class="close-modal" id="closeNewTabModal">&times;</button>
+        </div>
+        <div class="modal-content">
+            <div class="tab-options">
+                <div class="tab-option" data-type="single">
+                    <div class="option-icon">
+                        <i class="fas fa-file-code"></i>
+                    </div>
+                    <div class="option-content">
+                        <div class="option-title">Одиночный редактор</div>
+                        <div class="option-description">Один пользователь, одна задача</div>
+                    </div>
+                </div>
+                <div class="tab-option" data-type="duel">
+                    <div class="option-icon collaborative">
+                        <i class="fas fa-user-friends"></i>
+                    </div>
+                    <div class="option-content">
+                        <div class="option-title">Дуэль программирования</div>
+                        <div class="option-description">2 участника, случайная задача, отсчет времени</div>
+                    </div>
+                </div>
+                <div class="tab-option" data-type="collaborative">
+                    <div class="option-icon collaborative">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="option-content">
+                        <div class="option-title">Совместное программирование</div>
+                        <div class="option-description">Пригласите друга по username для совместной работы</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Форма для одиночного редактора -->
+            <div class="modal-form" id="singleForm" style="display: none;">
+                <div class="form-group">
+                    <label class="form-label">Название файла</label>
+                    <input type="text" class="form-input" id="singleFileName" placeholder="script.py" value="script.py">
+                </div>
+            </div>
+
+            <!-- Форма для дуэли программирования -->
+            <div class="modal-form" id="duelForm" style="display: none;">
+                <div class="form-group">
+                    <label class="form-label">Название сессии</label>
+                    <input type="text" class="form-input" id="sessionName" placeholder="Дуэль программирования">
+                </div>
+                <div class="form-group">
+                    <div class="info-box">
+                        <i class="fas fa-info-circle"></i> Будет создана сессия для 2 участников с случайной задачей
+                    </div>
+                </div>
+            </div>
+
+            <!-- Форма для совместного программирования -->
+            <div class="modal-form" id="collaborativeForm" style="display: none;">
+                <div class="form-group">
+                    <label class="form-label">Название сессии</label>
+                    <input type="text" class="form-input" id="collabSessionName" placeholder="Совместная работа">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Имя пользователя для приглашения</label>
+                    <div class="username-input-container">
+                        <input type="text" class="form-input" id="inviteUsername" placeholder="Введите username друга">
+                        <button class="search-btn" id="searchUserBtn" type="button">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Выберите задачу</label>
+                    <select class="form-select" id="taskSelect">
+                        <option value="random">Случайная задача</option>
+                        <option value="palindrome">Палиндром</option>
+                        <option value="primes">Простые числа</option>
+                        <option value="anagrams">Анаграммы</option>
+                        <option value="fibonacci">Числа Фибоначчи</option>
+                        <option value="unique">Уникальные символы</option>
+                        <option value="custom">Своя задача</option>
+                    </select>
+                </div>
+                <div class="form-group" id="customTaskGroup" style="display: none;">
+                    <label class="form-label">Описание задачи</label>
+                    <textarea class="form-input" id="customTaskDescription" rows="3"
+                              placeholder="Опишите задачу..."></textarea>
+                </div>
+                <div class="user-search-results" id="userSearchResults" style="display: none;"></div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="modal-btn secondary" id="cancelNewTab">Отмена</button>
+                <button class="modal-btn primary" id="createTab">Создать</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    // Модальное окно создания нового таба
+    class NewTabModal {
+        constructor(web_socket) {
+            this.currentTabType = null;
+            this.web_socket = web_socket;
+            this.modal = $('#newTabModal');
+            this.init();
+        }
+
+        init() {
+            this.bindEvents();
+        }
+
+        bindEvents() {
+            const self = this;
+
+            // Закрытие модального окна
+            $('#closeNewTabModal, #cancelNewTab').on('click', function() {
+                self.hide();
+            });
+
+            // Клик вне модального окна
+            this.modal.on('click', function(e) {
+                if ($(e.target).is(this)) {
+                    self.hide();
+                }
+            });
+
+            // Выбор типа таба
+            $('.tab-option').on('click', function(e) {
+                self.onTabOptionClick($(this));
+            });
+
+            // Изменение выбора задачи для совместного программирования
+            $('#taskSelect').on('change', function(e) {
+                self.onTaskSelectChange($(this).val());
+            });
+
+            // Кнопка поиска пользователя
+            $('#searchUserBtn').on('click', function() {
+                self.onSearchUser();
+            });
+
+            // Делегирование событий для кнопок приглашения из результатов поиска
+            $('#userSearchResults').on('click', '.invite-btn-small', function(e) {
+                self.onInviteUser($(this));
+            });
+
+            // Кнопка создания таба
+            $('#createTab').on('click', function() {
+                self.onCreateTab();
+            });
+
+            // Автофокус при показе форм
+            $(document).on('shown.bs.modal', function() {
+                self.setupAutoFocus();
+            });
+        }
+
+        show() {
+            this.modal.addClass('show');
+            this.resetForm();
+        }
+
+        hide() {
+            this.modal.removeClass('show');
+        }
+
+        resetForm() {
+            // Сброс выбора
+            $('.tab-option').removeClass('selected');
+
+            // Скрываем все формы
+            $('.modal-form').hide();
+
+            // Скрываем результаты поиска
+            $('#userSearchResults').hide().empty();
+
+            // Скрываем кастомную задачу
+            $('#customTaskGroup').hide();
+
+            // Делаем кнопку создания неактивной
+            $('#createTab').prop('disabled', true);
+
+            // Сбрасываем текущий тип
+            this.currentTabType = null;
+
+            // Очищаем ошибки
+            this.clearErrors();
+        }
+
+        onTabOptionClick($option) {
+            const type = $option.data('type');
+
+            // Снимаем выделение со всех опций
+            $('.tab-option').removeClass('selected');
+
+            // Выделяем выбранную опцию
+            $option.addClass('selected');
+            this.currentTabType = type;
+
+            // Показываем соответствующую форму
+            this.showForm(type);
+
+            // Активируем кнопку создания
+            $('#createTab').prop('disabled', false);
+        }
+
+        showForm(type) {
+            // Скрываем все формы
+            $('.modal-form').hide();
+
+            // Показываем нужную форму
+            if (type === 'single') {
+                $('#singleForm').show();
+                this.setupAutoFocus('#singleFileName');
+            } else if (type === 'duel') {
+                $('#duelForm').show();
+                this.setupAutoFocus('#sessionName');
+            } else if (type === 'collaborative') {
+                $('#collaborativeForm').show();
+                this.setupAutoFocus('#collabSessionName');
+                // Скрываем результаты поиска
+                $('#userSearchResults').hide();
+            }
+        }
+
+        setupAutoFocus(selector) {
+            if (selector) {
+                setTimeout(() => {
+                    $(selector).focus();
+                }, 100);
+            }
+        }
+
+        onTaskSelectChange(taskType) {
+            if (taskType === 'custom') {
+                $('#customTaskGroup').show();
+                this.setupAutoFocus('#customTaskDescription');
+            } else {
+                $('#customTaskGroup').hide();
+            }
+        }
+
+        onSearchUser() {
+            const $usernameInput = $('#inviteUsername');
+            const username = $usernameInput.val().trim();
+
+            if (!username) {
+                this.showError($usernameInput, 'Введите username для поиска');
+                return;
+            }
+
+            // Имитация поиска пользователя
+            this.simulateUserSearch(username);
+        }
+
+        simulateUserSearch(username) {
+            const $resultsContainer = $('#userSearchResults');
+
+            // Показываем индикатор загрузки
+            $resultsContainer.html(`
+                <div class="search-loading">
+                    <i class="fas fa-spinner fa-spin"></i> Поиск пользователя "${username}"...
+                </div>
+            `).show();
+
+            // Имитация задержки поиска
+            setTimeout(() => {
+                // Случайный результат для демо
+                const users = this.getMockUsers(username);
+
+                if (users.length > 0) {
+                    const html = users.map(user => `
+                        <div class="search-result-item">
+                            <div class="user-avatar-small">${user.avatar}</div>
+                            <div class="user-info-small">
+                                <div class="user-name">${user.name}</div>
+                                <div class="user-status-text">${user.status}</div>
+                            </div>
+                            <button class="invite-btn-small" data-username="${user.username}">
+                                <i class="fas fa-user-plus"></i> Пригласить
+                            </button>
+                        </div>
+                    `).join('');
+
+                    $resultsContainer.html(html);
+                } else {
+                    $resultsContainer.html(`
+                        <div class="search-no-results">
+                            <i class="fas fa-user-slash"></i> Пользователь "${username}" не найден
+                        </div>
+                    `);
+                }
+            }, 1000);
+        }
+
+        getMockUsers(searchTerm) {
+            // Моковые данные пользователей для демо
+            const mockUsers = [
+                {username: 'alexey', name: 'Alexey', avatar: 'A', status: 'Online'},
+                {username: 'maria', name: 'Maria', avatar: 'M', status: 'Был(а) 5 мин назад'},
+                {username: 'ivan', name: 'Ivan', avatar: 'I', status: 'Оффлайн'},
+                {username: 'anna', name: 'Anna', avatar: 'A', status: 'Online'},
+                {username: 'dmitry', name: 'Dmitry', avatar: 'D', status: 'Занят'}
+            ];
+
+            // Фильтруем по поисковому запросу
+            return mockUsers.filter(user =>
+                user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                user.name.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+        }
+
+        onInviteUser($button) {
+            const username = $button.data('username');
+
+            // Устанавливаем username в поле ввода
+            $('#inviteUsername').val(username);
+
+            // Показываем сообщение об успехе
+            const originalText = $button.html();
+            $button.html('<i class="fas fa-check"></i> Приглашен');
+            $button.prop('disabled', true);
+
+            // Скрываем результаты поиска
+            setTimeout(() => {
+                $('#userSearchResults').hide();
+                $button.html(originalText);
+                $button.prop('disabled', false);
+            }, 2000);
+        }
+
+        onCreateTab() {
+            // Создание нового таба с выбором режима.
+            const $selectedOption = $('.tab-option.selected');
+            if (!$selectedOption.length || !this.currentTabType) {
+                this.showError(null, 'Выберите тип таба');
+                return;
+            }
+
+            const type = this.currentTabType;
+            let data = {};
+
+            try {
+                if (type === 'single') {
+                    data = this.getSingleTabData();
+                } else if (type === 'duel') {
+                    data = this.getDuelTabData();
+                } else if (type === 'collaborative') {
+                    data = this.getCollaborativeTabData();
+                }
+
+                this.SendingDataToServer(type, data);
+                //this.hide();
+
+            } catch (error) {
+                this.showError(null, error.message);
+            }
+        }
+
+        SendingDataToServer(type, data){
+            this.web_socket.send(
+                JSON.stringify({action: "create_new_code_tab", type: type, data: data})
+            )
+        }
+
+        getSingleTabData() {
+            const fileName = $('#singleFileName').val().trim();
+
+            if (!fileName) {
+                throw new Error('Введите название файла');
+            }
+
+            return {
+                name: fileName,
+                template: ``
+            };
+        }
+
+        getDuelTabData() {
+            const sessionName = $('#sessionName').val().trim();
+
+            if (!sessionName) {
+                throw new Error('Введите название сессии');
+            }
+
+            return {
+                name: sessionName || 'Дуэль программирования'
+            };
+        }
+
+        getCollaborativeTabData() {
+            const sessionName = $('#collabSessionName').val().trim();
+            const username = $('#inviteUsername').val().trim();
+            const taskType = $('#taskSelect').val();
+
+            if (!sessionName) {
+                throw new Error('Введите название сессии');
+            }
+
+            const data = {
+                name: sessionName,
+                invitedUsername: username || null,
+                taskType: taskType
+            };
+
+            if (taskType === 'custom') {
+                const customTask = $('#customTaskDescription').val().trim();
+                if (!customTask) {
+                    throw new Error('Введите описание задачи');
+                }
+                data.customTask = customTask;
+            }
+            return data;
+        }
+
+        showError($inputElement, message) {
+            // Убираем предыдущие ошибки
+            this.clearErrors();
+
+            // Показываем сообщение об ошибке
+            const $errorElement = $(`
+                <div class="form-error">
+                    <i class="fas fa-exclamation-circle"></i> ${message}
+                </div>
+            `);
+
+            if ($inputElement && $inputElement.length) {
+                $inputElement.parent().append($errorElement);
+                $inputElement.addClass('error');
+                $inputElement.focus();
+            } else {
+                // Вставляем ошибку перед кнопками действий
+                $('.modal-actions').before($errorElement);
+            }
+
+            // Удаляем ошибку через 5 секунд
+            setTimeout(() => {
+                $errorElement.remove();
+                if ($inputElement && $inputElement.length) {
+                    $inputElement.removeClass('error');
+                }
+            }, 5000);
+        }
+
+        clearErrors() {
+            // Удаляем все сообщения об ошибках
+            $('.form-error').remove();
+
+            // Убираем класс error со всех полей
+            $('.form-input.error').removeClass('error');
+        }
+
+        // Метод для получения текущего выбранного типа
+        getCurrentTabType() {
+            return this.currentTabType;
+        }
+
+        // Метод для предзаполнения формы
+        prefillForm(type, data) {
+            this.resetForm();
+
+            // Выбираем соответствующий тип
+            const $option = $(`.tab-option[data-type="${type}"]`);
+            if ($option.length) {
+                $option.trigger('click');
+
+                // Заполняем данные в зависимости от типа
+                if (type === 'single' && data.name) {
+                    $('#singleFileName').val(data.name);
+                } else if (type === 'duel' && data.name) {
+                    $('#sessionName').val(data.name);
+                } else if (type === 'collaborative') {
+                    if (data.name) $('#collabSessionName').val(data.name);
+                    if (data.username) $('#inviteUsername').val(data.username);
+                    if (data.taskType) {
+                        $('#taskSelect').val(data.taskType);
+                        if (data.taskType === 'custom' && data.customTask) {
+                            $('#customTaskDescription').val(data.customTask);
+                            $('#customTaskGroup').show();
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+
+    // Пример использования:
+    /*
+    // Показать модальное окно
+    showNewTabModal();
+
+    // Установить обработчик создания таба
+    window.newTabModal.setOnCreateCallback((type, data) => {
+        console.log('Создается таб типа:', type);
+        console.log('Данные:', data);
+
+        // Здесь можно создать таб в основном приложении
+        // Например: createTab(type, data);
+    });
+
+    // Предзаполнить форму
+    window.newTabModal.prefillForm('collaborative', {
+        name: 'Моя сессия',
+        username: 'friend123',
+        taskType: 'palindrome'
+    });
+    */
+</script>

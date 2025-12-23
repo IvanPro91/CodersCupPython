@@ -1,0 +1,107 @@
+<style>
+    /* Профиль пользователя */
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background-color: #2d2d30;
+    padding: 5px 15px;
+    border-radius: 20px;
+    border: 1px solid #3e3e42;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0e639c, #68217a);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 16px;
+}
+
+.user-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.user-name {
+    font-weight: 500;
+    font-size: 13px;
+    color: #d4d4d4;
+}
+
+.user-level {
+    font-size: 11px;
+    color: #858585;
+}
+
+.level-value {
+    color: #dcdcaa;
+    font-weight: bold;
+    margin-left: 2px;
+}
+
+.user-stats {
+    display: flex;
+    gap: 10px;
+    border-left: 1px solid #3e3e42;
+    padding-left: 10px;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.stat-label {
+    font-size: 10px;
+    color: #858585;
+}
+
+.stat-value {
+    font-size: 12px;
+    font-weight: bold;
+    color: #b5cea8;
+}
+</style>
+
+<div class="header">
+    <div class="logo">
+        <i class="fas fa-code logo-icon"></i>
+        <span>Python Editor</span>
+    </div>
+
+    <div class="user-profile">
+        <div class="user-info">
+            <div class="user-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="user-details">
+                <div class="user-name">{{ user.username }}</div>
+                <div class="user-level">Уровень <span class="level-value">3</span></div>
+            </div>
+        </div>
+        <div class="user-stats">
+            <div class="stat-item">
+                <span class="stat-label">Баллы:</span>
+                <span class="stat-value">1250</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Задач:</span>
+                <span class="stat-value">18</span>
+            </div>
+        </div>
+    </div>
+</div>
