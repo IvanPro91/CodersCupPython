@@ -17,8 +17,9 @@ psycopg2-binary = "^2.9.11"
 python-socketio = "^5.15.1"
 eventlet = "^0.40.4"
 django-cors-headers = "^4.9.0"
-channels = {extras = ["daphne"], version = "^4.3.2"}
 whitenoise = "^6.11.0"
+channels = {extras = ["daphne"], version = "^4.3.2"}
+pyjwt = "^2.10.1"
 
 
 [tool.poetry.group.lint.dependencies]

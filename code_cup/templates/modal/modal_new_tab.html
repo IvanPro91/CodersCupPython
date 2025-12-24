@@ -106,9 +106,10 @@
 <script>
     // Модальное окно создания нового таба
     class NewTabModal {
-        constructor(web_socket) {
+        constructor(web_socket, cls_editor) {
             this.currentTabType = null;
             this.web_socket = web_socket;
+            this.cls_editor = cls_editor;
             this.modal = $('#newTabModal');
             this.init();
         }
@@ -358,17 +359,11 @@
                 }
 
                 this.SendingDataToServer(type, data);
-                //this.hide();
+                this.hide();
 
             } catch (error) {
                 this.showError(null, error.message);
             }
-        }
-
-        SendingDataToServer(type, data){
-            this.web_socket.send(
-                JSON.stringify({action: "create_new_code_tab", type: type, data: data})
-            )
         }
 
         getSingleTabData() {
@@ -384,7 +379,7 @@
             };
         }
 
-        getDuelTabData() {
+         getDuelTabData() {
             const sessionName = $('#sessionName').val().trim();
 
             if (!sessionName) {
@@ -394,6 +389,11 @@
             return {
                 name: sessionName || 'Дуэль программирования'
             };
+        }
+
+        async SendingDataToServer(type, data){
+            let status_create = await this.web_socket.send("create_new_code_tab", {type: type, data_action: data})
+            this.cls_editor.addNewTab(status_create)
         }
 
         getCollaborativeTabData() {
