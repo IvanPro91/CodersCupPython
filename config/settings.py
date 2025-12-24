@@ -1,13 +1,12 @@
 import os
+from datetime import timedelta
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-SECRET_KEY = "django-insecure-dm3lb9-h8*#7_bnyc8of^kgrkevrv-ujk%2xrst_y%g&73=gcj"
-
+SECRET_KEY = "django-insecure"
 DEBUG = True
-
 ALLOWED_HOSTS = ["*"]
 
 
@@ -96,8 +95,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 STATIC_URL = "static/"
 STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 CORS_ALLOW_ALL_ORIGINS = True
-# Куда перенаправлять после выхода
-LOGOUT_REDIRECT_URL = "/"  # Главная страница
+LOGOUT_REDIRECT_URL = "/"
 
 # CELERY
 CELERY_TIMEZONE = TIME_ZONE
@@ -106,21 +104,6 @@ CELERY_TASK_TIME_LIMIT = 30 * 60
 CELERY_BROKER_URL = "redis://127.0.0.1:6379/1"
 CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379/1"
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
-#
-# CELERY_BEAT_SCHEDULE = {
-#     "[Integrator] Синхронизация пользователей": {
-#         "task": "aismrs.tasks.sync_mfc_system_users",
-#         "schedule": timedelta(minutes=1),
-#     },
-#     "[Integrator] Синхронизация списка МФЦ": {
-#         "task": "aismrs.tasks.sync_mfc",
-#         "schedule": timedelta(minutes=2),
-#     },
-#     "[Integrator] Получение списка подразделений": {
-#         "task": "aismrs.tasks.sync_get_podr",
-#         "schedule": timedelta(minutes=2),
-#     },
-# }
 
 CACHES = {
     "default": {
@@ -133,6 +116,28 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels.layers.InMemoryChannelLayer",  # для разработки
     },
+}
+
+# Настройки DRF
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
+
+# Настройки SimpleJWT
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=60),  # Время жизни access-токена
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': False,
+
+    'ALGORITHM': 'HS256',  # Алгоритм шифрования
+    'SIGNING_KEY': SECRET_KEY,  # Использует ваш стандартный SECRET_KEY из settings.py
+
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',  # Ключ в токене, где лежит ID пользователя
 }
 # daphne config.asgi:application --port 8000
 # celery -A config worker --pool=solo -l INFO --task-events
