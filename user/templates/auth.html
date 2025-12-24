@@ -260,8 +260,9 @@
                 if (response.redirect && response.redirect_url) {
                     printLine("Success! Redirecting...", "success");
                     setTimeout(() => {
+                        localStorage.setItem('accessToken', response.access_token);
                         window.location.href = response.redirect_url;
-                    }, 2000);
+                    }, 1000);
                     return;
                 }
 

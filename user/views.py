@@ -11,6 +11,7 @@ from django.http import JsonResponse, QueryDict
 from django.shortcuts import redirect, render
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from user.models import User
 
@@ -22,6 +23,7 @@ user_temp_data = {}
 class CmdUser:
     status: bool
     msg: str
+    access_token: str
     type_msg: str
     save: bool
     save_data: dict | None
@@ -139,6 +141,7 @@ def commands(request: WSGIRequest):
         status=False,
         msg=f"Command not found: {cmd}",
         type_msg="error",
+        access_token="",
         save=False,
         save_data=None,
         ask_next=False,
@@ -321,6 +324,7 @@ def process_multi_step_command(
             status=False,
             msg="Session expired. Please start over.",
             type_msg="error",
+            access_token="",
             save=False,
             save_data=None,
             ask_next=False,
@@ -343,6 +347,7 @@ def process_multi_step_command(
         save_data=None,
         ask_next=False,
         next_question="",
+        access_token="",
         command_type=command_type,
         is_password=False,
         is_sensitive=False,
@@ -390,10 +395,13 @@ def process_multi_step_command(
 
                 data.status = True
                 data.msg = f"Authentication successful!\n👤 Welcome, {user.username}!"
+                refresh = RefreshToken.for_user(user)
+                access_token = str(refresh.access_token)
                 if user.is_staff:
                     data.msg += "\n⚡ Admin privileges granted."
                 data.type_msg = "success"
                 data.redirect = True
+                data.access_token = access_token
                 data.redirect_url = "/code_cup/main/"
 
                 del user_temp_data[session_id]
@@ -566,6 +574,8 @@ def process_multi_step_command(
                     token=str(uuid.uuid4()),
                 )
                 login(request, user)
+                refresh = RefreshToken.for_user(user)
+                access_token = str(refresh.access_token)
                 data.status = True
                 data.msg = (
                     f"Registration successful!\n"
@@ -577,6 +587,7 @@ def process_multi_step_command(
                 )
                 data.type_msg = "success"
                 data.save = True
+                data.access_token = access_token
                 data.save_data = {
                     "id": user.id,
                     "username": user.username,
