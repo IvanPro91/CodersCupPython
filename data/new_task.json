@@ -1,0 +1,880 @@
+[
+  {
+    "num": "1.1",
+    "name": "Палиндромная сумма",
+    "code": "def palindrome_sum(n: int) -> int:\n    \"\"\"\n    Возвращает сумму всех чисел-палиндромов от 1 до n включительно.\n    \"\"\"\n    # Ваш код здесь\n    pass",
+    "exclude": ["import"],
+    "level": "junior",
+    "task_text": "Напишите функцию palindrome_sum(n: int) -> int, которая возвращает сумму всех чисел-палиндромов от 1 до n включительно.\n\nЧисло-палиндром читается одинаково слева направо и справа налево.\n\nПримеры:\n10 → 45 (палиндромы: 1,2,3,4,5,6,7,8,9)\n20 → 99 (добавляется 11)\n100 → 540 (добавляются 22,33,44,55,66,77,88,99)\n0 → 0",
+    "hints": {
+      "60": "Проверьте, равна ли строка числа своей обратной версии",
+      "120": "Можно обойтись без преобразования в строку, переворачивая число математически"
+    },
+    "test_code": [
+      "def test_palindrome_sum_10(): assert palindrome_sum(10) == 45",
+      "def test_palindrome_sum_20(): assert palindrome_sum(20) == 99",
+      "def test_palindrome_sum_100(): assert palindrome_sum(100) == 540",
+      "def test_palindrome_sum_0(): assert palindrome_sum(0) == 0",
+      "def test_palindrome_sum_1(): assert palindrome_sum(1) == 1",
+      "def test_palindrome_sum_11(): assert palindrome_sum(11) == 66",
+      "def test_palindrome_sum_50(): assert palindrome_sum(50) == 246",
+      "def test_palindrome_sum_99(): assert palindrome_sum(99) == 540",
+      "def test_palindrome_sum_200(): assert palindrome_sum(200) == 1181",
+      "def test_palindrome_sum_1000(): assert palindrome_sum(1000) == 50040"
+    ]
+  },
+  {
+    "num": "1.2",
+    "name": "Минимальные шаги к 1",
+    "code": "def min_steps_to_one(n: int) -> int:\n    \"\"\"\n    Возвращает минимальное количество шагов для приведения числа n к 1.\n    \"\"\"\n    # Ваш код здесь\n    pass",
+    "exclude": ["import"],
+    "level": "middle",
+    "task_text": "Напишите функцию min_steps_to_one(n: int) -> int, которая возвращает минимальное количество шагов для приведения числа n к 1, используя следующие операции:\n1. Вычесть 1\n2. Разделить на 2 (если делится нацело)\n3. Разделить на 3 (если делится нацело)\n\nПримеры:\n1 → 0 (уже 1)\n2 → 1 (2 → 1)\n3 → 1 (3 → 1)\n4 → 2 (4 → 2 → 1 или 4 → 3 → 1)\n10 → 3 (10 → 9 → 3 → 1)\n15 → 4 (15 → 5 → 4 → 2 → 1)",
+    "hints": {
+      "60": "Используйте динамическое программирование",
+      "120": "Начните с 1 и двигайтесь к n, запоминая минимальные шаги для каждого числа"
+    },
+    "test_code": [
+      "def test_min_steps_1(): assert min_steps_to_one(1) == 0",
+      "def test_min_steps_2(): assert min_steps_to_one(2) == 1",
+      "def test_min_steps_3(): assert min_steps_to_one(3) == 1",
+      "def test_min_steps_4(): assert min_steps_to_one(4) == 2",
+      "def test_min_steps_10(): assert min_steps_to_one(10) == 3",
+      "def test_min_steps_15(): assert min_steps_to_one(15) == 4",
+      "def test_min_steps_20(): assert min_steps_to_one(20) == 4",
+      "def test_min_steps_27(): assert min_steps_to_one(27) == 3",
+      "def test_min_steps_30(): assert min_steps_to_one(30) == 4",
+      "def test_min_steps_100(): assert min_steps_to_one(100) == 7"
+    ]
+  },
+  {
+    "num": "1.3",
+    "name": "Сумма цифр факториала",
+    "code": "def factorial_digit_sum(n: int) -> int:\n    \"\"\"\n    Возвращает сумму цифр факториала числа n.\n    \"\"\"\n    # Ваш код здесь\n    pass",
+    "exclude": ["import", "math"],
+    "level": "middle",
+    "task_text": "Напишите функцию factorial_digit_sum(n: int) -> int, которая возвращает сумму цифр факториала числа n.\n\nФакториал n! = 1 × 2 × 3 × ... × n\n\nПримеры:\n5 → 3 (5! = 120, сумма цифр 1+2+0=3)\n10 → 27 (10! = 3628800, сумма цифр 3+6+2+8+8+0+0=27)\n6 → 9 (6! = 720, сумма цифр 7+2+0=9)\n8 → 9 (8! = 40320, сумма цифр 4+0+3+2+0=9)",
+    "hints": {
+      "60": "Сначала вычислите факториал, затем найдите сумму цифр",
+      "120": "Для больших чисел вычисляйте факториал итеративно"
+    },
+    "test_code": [
+      "def test_factorial_sum_5(): assert factorial_digit_sum(5) == 3",
+      "def test_factorial_sum_10(): assert factorial_digit_sum(10) == 27",
+      "def test_factorial_sum_6(): assert factorial_digit_sum(6) == 9",
+      "def test_factorial_sum_8(): assert factorial_digit_sum(8) == 9",
+      "def test_factorial_sum_1(): assert factorial_digit_sum(1) == 1",
+      "def test_factorial_sum_2(): assert factorial_digit_sum(2) == 2",
+      "def test_factorial_sum_3(): assert factorial_digit_sum(3) == 6",
+      "def test_factorial_sum_4(): assert factorial_digit_sum(4) == 6",
+      "def test_factorial_sum_7(): assert factorial_digit_sum(7) == 9",
+      "def test_factorial_sum_12(): assert factorial_digit_sum(12) == 27"
+    ]
+  },
+  {
+    "num": "1.4",
+    "name": "Наибольший палиндром произведения",
+    "code": "def largest_palindrome_product(n: int) -> int:\n    \"\"\"\n    Возвращает наибольший палиндром, который можно получить как произведение двух n-значных чисел.\n    \"\"\"\n    # Ваш код здесь\n    pass",
+    "exclude": ["import"],
+    "level": "middle",
+    "task_text": "Напишите функцию largest_palindrome_product(n: int) -> int, которая возвращает наибольший палиндром, который можно получить как произведение двух n-значных чисел.\n\nn-значные числа: от 10^(n-1) до 10^n - 1\n\nПримеры:\n2 → 9009 (99 × 91)\n1 → 9 (3 × 3)\n3 → 906609 (913 × 993)\nПримечание: Для n=2: максимальный палиндром 9009 = 99 × 91",
+    "hints": {
+      "60": "Перебирайте произведения от максимальных к минимальным",
+      "120": "Сначала проверяйте большие числа, чтобы быстрее найти ответ"
+    },
+    "test_code": [
+      "def test_largest_palindrome_1(): assert largest_palindrome_product(1) == 9",
+      "def test_largest_palindrome_2(): assert largest_palindrome_product(2) == 9009",
+      "def test_largest_palindrome_3(): assert largest_palindrome_product(3) == 906609",
+      "def test_largest_palindrome_4(): assert largest_palindrome_product(4) == 99000099",
+      "def test_largest_palindrome_5(): assert largest_palindrome_product(5) == 9966006699"
+    ]
+  },
+  {
+    "num": "1.5",
+    "name": "Сумма кратных чисел",
+    "code": "def sum_multiples(n: int) -> int:\n    \"\"\"\n    Возвращает сумму всех чисел меньше n, кратных 3 или 5.\n    \"\"\"\n    # Ваш код здесь\n    pass",
+    "exclude": ["import"],
+    "level": "junior",
+    "task_text": "Напишите функцию sum_multiples(n: int) -> int, которая возвращает сумму всех натуральных чисел меньше n, которые делятся на 3 или 5 (или на оба).\n\nПримеры:\n10 → 23 (3, 5, 6, 9)\n15 → 45 (3, 5, 6, 9, 10, 12)\n20 → 78 (3, 5, 6, 9, 10, 12, 15, 18)\n1000 → 233168\n1 → 0",
+    "hints": {
+      "60": "Используйте формулу суммы арифметической прогрессии",
+      "120": "Не забудьте вычесть числа, кратные 15, чтобы не учитывать их дважды"
+    },
+    "test_code": [
+      "def test_sum_multiples_10(): assert sum_multiples(10) == 23",
+      "def test_sum_multiples_15(): assert sum_multiples(15) == 45",
+      "def test_sum_multiples_20(): assert sum_multiples(20) == 78",
+      "def test_sum_multiples_1(): assert sum_multiples(1) == 0",
+      "def test_sum_multiples_3(): assert sum_multiples(3) == 0",
+      "def test_sum_multiples_6(): assert sum_multiples(6) == 8",
+      "def test_sum_multiples_16(): assert sum_multiples(16) == 60",
+      "def test_sum_multiples_100(): assert sum_multiples(100) == 2318",
+      "def test_sum_multiples_1000(): assert sum_multiples(1000) == 233168",
+      "def test_sum_multiples_30(): assert sum_multiples(30) == 195"
+    ]
+  },
+  {
+    "num": "2.1",
+    "name": "Проверка скобочной последовательности",
+    "code": "def is_valid_parentheses(s: str) -> bool:\n    \"\"\"\n    Проверяет, является ли строка s валидной скобочной последовательностью.\n    \"\"\"\n    pass",
+    "exclude": ["import"],
+    "level": "junior",
+    "task_text": "Напишите функцию is_valid_parentheses(s: str) -> bool, которая проверяет, является ли строка s валидной скобочной последовательностью.\n\nСтрока состоит только из символов '(', ')', '{', '}', '[' и ']'.\n\nПравила:\n1. Открывающие скобки должны закрываться скобками того же типа\n2. Открывающие скобки должны закрываться в правильном порядке\n\nПримеры:\n\"()\" → True\n\"()[]{}\" → True\n\"(]\" → False\n\"([)]\" → False\n\"{[]}\" → True",
+    "hints": {
+      "60": "Используйте стек для отслеживания открывающих скобок",
+      "120": "Сопоставляйте закрывающие скобки с последней открытой в стеке"
+    },
+    "test_code": [
+      "def test_parentheses_1(): assert is_valid_parentheses('()') == True",
+      "def test_parentheses_2(): assert is_valid_parentheses('()[]{}') == True",
+      "def test_parentheses_3(): assert is_valid_parentheses('(]') == False",
+      "def test_parentheses_4(): assert is_valid_parentheses('([)]') == False",
+      "def test_parentheses_5(): assert is_valid_parentheses('{[]}') == True",
+      "def test_parentheses_6(): assert is_valid_parentheses('') == True",
+      "def test_parentheses_7(): assert is_valid_parentheses('((()))') == True",
+      "def test_parentheses_8(): assert is_valid_parentheses('([{}])') == True",
+      "def test_parentheses_9(): assert is_valid_parentheses('([)])') == False",
+      "def test_parentheses_10(): assert is_valid_parentheses(']') == False"
+    ]
+  },
+  {
+    "num": "2.2",
+    "name": "Поиск пропущенного числа",
+    "code": "def find_missing_number(nums: list) -> int:\n    \"\"\"\n    Находит пропущенное число в последовательности от 0 до n.\n    \"\"\"\n    pass",
+    "exclude": ["import"],
+    "level": "junior",
+    "task_text": "Напишите функцию find_missing_number(nums: list) -> int, которая находит пропущенное число в последовательности от 0 до n, где n = длина списка.\n\nДана последовательность из n различных чисел, взятых из диапазона [0, n]. Найдите число, отсутствующее в массиве.\n\nПримеры:\n[3,0,1] → 2\n[0,1] → 2\n[9,6,4,2,3,5,7,0,1] → 8\n[0] → 1",
+    "hints": {
+      "60": "Используйте математическую формулу суммы арифметической прогрессии",
+      "120": "Можно использовать XOR для нахождения пропущенного числа без переполнения"
+    },
+    "test_code": [
+      "def test_missing_1(): assert find_missing_number([3,0,1]) == 2",
+      "def test_missing_2(): assert find_missing_number([0,1]) == 2",
+      "def test_missing_3(): assert find_missing_number([9,6,4,2,3,5,7,0,1]) == 8",
+      "def test_missing_4(): assert find_missing_number([0]) == 1",
+      "def test_missing_5(): assert find_missing_number([1]) == 0",
+      "def test_missing_6(): assert find_missing_number([0,1,2,3,5]) == 4",
+      "def test_missing_7(): assert find_missing_number([1,2,3,4]) == 0",
+      "def test_missing_8(): assert find_missing_number([0,2,3,4]) == 1",
+      "def test_missing_9(): assert find_missing_number([0,1,2,3,4,6,7,8,9]) == 5",
+      "def test_missing_10(): assert find_missing_number([0,1,2,3,4,5,6,7,9]) == 8"
+    ]
+  },
+  {
+    "num": "2.3",
+    "name": "Поворот массива",
+    "code": "def rotate_array(nums: list, k: int) -> list:\n    \"\"\"\n    Поворачивает массив nums вправо на k шагов.\n    \"\"\"\n    pass",
+    "exclude": ["import"],
+    "level": "middle",
+    "task_text": "Напишите функцию rotate_array(nums: list, k: int) -> list, которая поворачивает массив nums вправо на k шагов.\n\nПримеры:\nnums = [1,2,3,4,5,6,7], k = 3 → [5,6,7,1,2,3,4]\nnums = [-1,-100,3,99], k = 2 → [3,99,-1,-100]\nnums = [1,2], k = 3 → [2,1] (k = 3 эквивалентно k = 1 при длине 2)\nnums = [1], k = 5 → [1]",
+    "hints": {
+      "60": "Поворот на k вправо = поворот на n-k влево",
+      "120": "Используйте тройной реверс: reverse(все), reverse(первые k), reverse(последние n-k)"
+    },
+    "test_code": [
+      "def test_rotate_1(): assert rotate_array([1,2,3,4,5,6,7], 3) == [5,6,7,1,2,3,4]",
+      "def test_rotate_2(): assert rotate_array([-1,-100,3,99], 2) == [3,99,-1,-100]",
+      "def test_rotate_3(): assert rotate_array([1,2], 3) == [2,1]",
+      "def test_rotate_4(): assert rotate_array([1], 5) == [1]",
+      "def test_rotate_5(): assert rotate_array([1,2,3,4], 0) == [1,2,3,4]",
+      "def test_rotate_6(): assert rotate_array([1,2,3,4], 4) == [1,2,3,4]",
+      "def test_rotate_7(): assert rotate_array([], 3) == []",
+      "def test_rotate_8(): assert rotate_array([1,2,3,4,5], 2) == [4,5,1,2,3]",
+      "def test_rotate_9(): assert rotate_array([1,2,3,4,5,6], 4) == [3,4,5,6,1,2]",
+      "def test_rotate_10(): assert rotate_array([1,2,3,4,5,6,7,8,9,10], 7) == [4,5,6,7,8,9,10,1,2,3]"
+    ]
+  },
+  {
+    "num": "2.4",
+    "name": "Максимальная сумма подмассива",
+    "code": "def max_subarray_sum(nums: list) -> int:\n    \"\"\"\n    Находит максимальную сумму непрерывного подмассива.\n    \"\"\"\n    pass",
+    "exclude": ["import"],
+    "level": "middle",
+    "task_text": "Напишите функцию max_subarray_sum(nums: list) -> int, которая находит максимальную сумму непрерывного подмассива (алгоритм Кадане).\n\nПримеры:\n[-2,1,-3,4,-1,2,1,-5,4] → 6 (подмассив [4,-1,2,1])\n[1] → 1\n[5,4,-1,7,8] → 23 (весь массив)\n[-1,-2,-3] → -1 (подмассив [-1])\n[1,2,3,-2,5] → 9",
+    "hints": {
+      "60": "Храните текущую сумму и максимальную сумму",
+      "120": "Если текущая сумма становится отрицательной, сбрасывайте её к 0"
+    },
+    "test_code": [
+      "def test_max_sub_1(): assert max_subarray_sum([-2,1,-3,4,-1,2,1,-5,4]) == 6",
+      "def test_max_sub_2(): assert max_subarray_sum([1]) == 1",
+      "def test_max_sub_3(): assert max_subarray_sum([5,4,-1,7,8]) == 23",
+      "def test_max_sub_4(): assert max_subarray_sum([-1,-2,-3]) == -1",
+      "def test_max_sub_5(): assert max_subarray_sum([1,2,3,-2,5]) == 9",
+      "def test_max_sub_6(): assert max_subarray_sum([-2, -3, 4, -1, -2, 1, 5, -3]) == 7",
+      "def test_max_sub_7(): assert max_subarray_sum([0,0,0,0]) == 0",
+      "def test_max_sub_8(): assert max_subarray_sum([2,-1,2,3,4,-5]) == 10",
+      "def test_max_sub_9(): assert max_subarray_sum([-5,-4,-3,-2]) == -2",
+      "def test_max_sub_10(): assert max_subarray_sum([1,-2,3,-4,5,-6,7]) == 7"
+    ]
+  },
+  {
+    "num": "2.5",
+    "name": "Слияние интервалов",
+    "code": "def merge_intervals(intervals: list) -> list:\n    \"\"\"\n    Объединяет все перекрывающиеся интервалы.\n    \"\"\"\n    pass",
+    "exclude": ["import"],
+    "level": "middle",
+    "task_text": "Напишите функцию merge_intervals(intervals: list) -> list, которая объединяет все перекрывающиеся интервалы.\n\nКаждый интервал представлен как [start, end]. Интервалы считаются перекрывающимися, если start нового интервала <= end предыдущего.\n\nПримеры:\n[[1,3],[2,6],[8,10],[15,18]] → [[1,6],[8,10],[15,18]]\n[[1,4],[4,5]] → [[1,5]]\n[[1,4],[0,4]] → [[0,4]]\n[[1,4],[2,3]] → [[1,4]]",
+    "hints": {
+      "60": "Сначала отсортируйте интервалы по start",
+      "120": "Проходите по отсортированным интервалам и объединяйте, если они перекрываются"
+    },
+    "test_code": [
+      "def test_merge_1(): assert merge_intervals([[1,3],[2,6],[8,10],[15,18]]) == [[1,6],[8,10],[15,18]]",
+      "def test_merge_2(): assert merge_intervals([[1,4],[4,5]]) == [[1,5]]",
+      "def test_merge_3(): assert merge_intervals([[1,4],[0,4]]) == [[0,4]]",
+      "def test_merge_4(): assert merge_intervals([[1,4],[2,3]]) == [[1,4]]",
+      "def test_merge_5(): assert merge_intervals([[1,4],[5,6]]) == [[1,4],[5,6]]",
+      "def test_merge_6(): assert merge_intervals([]) == []",
+      "def test_merge_7(): assert merge_intervals([[1,2]]) == [[1,2]]",
+      "def test_merge_8(): assert merge_intervals([[1,10],[2,3],[4,5],[6,7],[8,9]]) == [[1,10]]",
+      "def test_merge_9(): assert merge_intervals([[1,2],[2,3],[3,4],[4,5]]) == [[1,5]]",
+      "def test_merge_10(): assert merge_intervals([[1,2],[3,4],[5,6]]) == [[1,2],[3,4],[5,6]]"
+    ]
+  },
+  {
+    "num": "2.6",
+    "name": "Анаграммы",
+    "code": "def is_anagram(s: str, t: str) -> bool:\n    \"\"\"\n    Проверяет, являются ли строки s и t анаграммами.\n    \"\"\"\n    pass",
+    "exclude": ["import", "collections"],
+    "level": "junior",
+    "task_text": "Напишите функцию is_anagram(s: str, t: str) -> bool, которая проверяет, являются ли строки s и t анаграммами.\n\nАнаграмма — это слово или фраза, образованная перестановкой букв другого слова или фразы.\n\nПримеры:\n\"anagram\", \"nagaram\" → True\n\"rat\", \"car\" → False\n\"\", \"\" → True\n\"a\", \"a\" → True\n\"hello\", \"olelh\" → True",
+    "hints": {
+      "60": "Отсортируйте обе строки и сравните",
+      "120": "Используйте словарь для подсчёта символов"
+    },
+    "test_code": [
+      "def test_anagram_1(): assert is_anagram('anagram', 'nagaram') == True",
+      "def test_anagram_2(): assert is_anagram('rat', 'car') == False",
+      "def test_anagram_3(): assert is_anagram('', '') == True",
+      "def test_anagram_4(): assert is_anagram('a', 'a') == True",
+      "def test_anagram_5(): assert is_anagram('hello', 'olelh') == True",
+      "def test_anagram_6(): assert is_anagram('listen', 'silent') == True",
+      "def test_anagram_7(): assert is_anagram('abc', 'def') == False",
+      "def test_anagram_8(): assert is_anagram('abc', 'abcd') == False",
+      "def test_anagram_9(): assert is_anagram('aaa', 'aaa') == True",
+      "def test_anagram_10(): assert is_anagram('aacc', 'ccac') == False"
+    ]
+  },
+  {
+    "num": "2.7",
+    "name": "Самая длинная подстрока без повторений",
+    "code": "def length_of_longest_substring(s: str) -> int:\n    \"\"\"\n    Находит длину самой длинной подстроки без повторяющихся символов.\n    \"\"\"\n    pass",
+    "exclude": ["import"],
+    "level": "middle",
+    "task_text": "Напишите функцию length_of_longest_substring(s: str) -> int, которая находит длину самой длинной подстроки без повторяющихся символов.\n\nПримеры:\n\"abcabcbb\" → 3 (\"abc\")\n\"bbbbb\" → 1 (\"b\")\n\"pwwkew\" → 3 (\"wke\" или \"kew\")\n\"\" → 0\n\"dvdf\" → 3 (\"vdf\")",
+    "hints": {
+      "60": "Используйте метод скользящего окна",
+      "120": "Храните последнее вхождение каждого символа в словаре"
+    },
+    "test_code": [
+      "def test_longest_sub_1(): assert length_of_longest_substring('abcabcbb') == 3",
+      "def test_longest_sub_2(): assert length_of_longest_substring('bbbbb') == 1",
+      "def test_longest_sub_3(): assert length_of_longest_substring('pwwkew') == 3",
+      "def test_longest_sub_4(): assert length_of_longest_substring('') == 0",
+      "def test_longest_sub_5(): assert length_of_longest_substring('dvdf') == 3",
+      "def test_longest_sub_6(): assert length_of_longest_substring('a') == 1",
+      "def test_longest_sub_7(): assert length_of_longest_substring('au') == 2",
+      "def test_longest_sub_8(): assert length_of_longest_substring('abcde') == 5",
+      "def test_longest_sub_9(): assert length_of_longest_substring('abba') == 2",
+      "def test_longest_sub_10(): assert length_of_longest_substring('tmmzuxt') == 5"
+    ]
+  },
+  {
+    "num": "2.8",
+    "name": "Обращение слов в строке",
+    "code": "def reverse_words(s: str) -> str:\n    \"\"\"\n    Обращает порядок слов в строке.\n    \"\"\"\n    pass",
+    "exclude": ["import"],
+    "level": "junior",
+    "task_text": "Напишите функцию reverse_words(s: str) -> str, которая обращает порядок слов в строке.\n\nСлово — это последовательность не-пробельных символов. Строка может содержать ведущие/конечные пробелы и множественные пробелы между словами.\n\nПримеры:\n\"the sky is blue\" → \"blue is sky the\"\n\"  hello world  \" → \"world hello\"\n\"a good   example\" → \"example good a\"\n\"\" → \"\"\n\"single\" → \"single\"",
+    "hints": {
+      "60": "Разделите строку на слова, затем объедините в обратном порядке",
+      "120": "Удалите лишние пробелы при обработке"
+    },
+    "test_code": [
+      "def test_reverse_words_1(): assert reverse_words('the sky is blue') == 'blue is sky the'",
+      "def test_reverse_words_2(): assert reverse_words('  hello world  ') == 'world hello'",
+      "def test_reverse_words_3(): assert reverse_words('a good   example') == 'example good a'",
+      "def test_reverse_words_4(): assert reverse_words('') == ''",
+      "def test_reverse_words_5(): assert reverse_words('single') == 'single'",
+      "def test_reverse_words_6(): assert reverse_words('  test  ') == 'test'",
+      "def test_reverse_words_7(): assert reverse_words('one   two   three') == 'three two one'",
+      "def test_reverse_words_8(): assert reverse_words('multiple spaces between') == 'between spaces multiple'",
+      "def test_reverse_words_9(): assert reverse_words('   ') == ''",
+      "def test_reverse_words_10(): assert reverse_words('a b c d e') == 'e d c b a'"
+    ]
+  },
+  {
+    "num": "2.9",
+    "name": "Проверка степени двойки",
+    "code": "def is_power_of_two(n: int) -> bool:\n    \"\"\"\n    Проверяет, является ли число степенью двойки.\n    \"\"\"\n    pass",
+    "exclude": ["import", "math"],
+    "level": "junior",
+    "task_text": "Напишите функцию is_power_of_two(n: int) -> bool, которая проверяет, является ли положительное целое число степенью двойки.\n\nПримеры:\n1 → True (2⁰)\n16 → True (2⁴)\n3 → False\n0 → False (по определению)\n1024 → True\n-8 → False (только положительные числа)",
+    "hints": {
+      "60": "Степень двойки имеет только одну единицу в двоичном представлении",
+      "120": "Используйте побитовые операции: n & (n-1) == 0 для n > 0"
+    },
+    "test_code": [
+      "def test_power_two_1(): assert is_power_of_two(1) == True",
+      "def test_power_two_2(): assert is_power_of_two(16) == True",
+      "def test_power_two_3(): assert is_power_of_two(3) == False",
+      "def test_power_two_4(): assert is_power_of_two(0) == False",
+      "def test_power_two_5(): assert is_power_of_two(1024) == True",
+      "def test_power_two_6(): assert is_power_of_two(-8) == False",
+      "def test_power_two_7(): assert is_power_of_two(64) == True",
+      "def test_power_two_8(): assert is_power_of_two(128) == True",
+      "def test_power_two_9(): assert is_power_of_two(100) == False",
+      "def test_power_two_10(): assert is_power_of_two(256) == True"
+    ]
+  },
+  {
+    "num": "2.10",
+    "name": "Обращение целого числа",
+    "code": "def reverse_integer(x: int) -> int:\n    \"\"\"\n    Обращает цифры целого числа.\n    \"\"\"\n    pass",
+    "exclude": ["import"],
+    "level": "junior",
+    "task_text": "Напишите функцию reverse_integer(x: int) -> int, которая обращает цифры целого числа.\n\nЕсли обращённое число выходит за пределы 32-битного целого со знаком [-2³¹, 2³¹-1], верните 0.\n\nПримеры:\n123 → 321\n-123 → -321\n120 → 21\n0 → 0\n1534236469 → 0 (выходит за пределы)\n-2147483648 → 0",
+    "hints": {
+      "60": "Работайте с абсолютным значением числа",
+      "120": "Проверяйте переполнение перед возвратом результата"
+    },
+    "test_code": [
+      "def test_reverse_int_1(): assert reverse_integer(123) == 321",
+      "def test_reverse_int_2(): assert reverse_integer(-123) == -321",
+      "def test_reverse_int_3(): assert reverse_integer(120) == 21",
+      "def test_reverse_int_4(): assert reverse_integer(0) == 0",
+      "def test_reverse_int_5(): assert reverse_integer(1534236469) == 0",
+      "def test_reverse_int_6(): assert reverse_integer(-2147483648) == 0",
+      "def test_reverse_int_7(): assert reverse_integer(901000) == 109",
+      "def test_reverse_int_8(): assert reverse_integer(2147483647) == 0",
+      "def test_reverse_int_9(): assert reverse_integer(-901000) == -109",
+      "def test_reverse_int_10(): assert reverse_integer(1000000003) == 0"
+    ]
+  },
+  {
+    "num": "2.11",
+    "name": "Римские цифры в целое",
+    "code": "def roman_to_int(s: str) -> int:\n    \"\"\"\n    Преобразует римское число в целое.\n    \"\"\"\n    pass",
+    "exclude": ["import"],
+    "level": "middle",
+    "task_text": "Напишите функцию roman_to_int(s: str) -> int, которая преобразует римское число в целое.\n\nПравила:\nI = 1, V = 5, X = 10, L = 50, C = 100, D = 500, M = 1000\nЕсли меньшая цифра стоит перед большей, она вычитается\n\nПримеры:\n\"III\" → 3\n\"IV\" → 4\n\"IX\" → 9\n\"LVIII\" → 58\n\"MCMXCIV\" → 1994",
+    "hints": {
+      "60": "Проходите строку справа налево",
+      "120": "Если текущий символ меньше предыдущего, вычитайте его значение"
+    },
+    "test_code": [
+      "def test_roman_1(): assert roman_to_int('III') == 3",
+      "def test_roman_2(): assert roman_to_int('IV') == 4",
+      "def test_roman_3(): assert roman_to_int('IX') == 9",
+      "def test_roman_4(): assert roman_to_int('LVIII') == 58",
+      "def test_roman_5(): assert roman_to_int('MCMXCIV') == 1994",
+      "def test_roman_6(): assert roman_to_int('I') == 1",
+      "def test_roman_7(): assert roman_to_int('MMXXIII') == 2023",
+      "def test_roman_8(): assert roman_to_int('XL') == 40",
+      "def test_roman_9(): assert roman_to_int('XC') == 90",
+      "def test_roman_10(): assert roman_to_int('CD') == 400"
+    ]
+  },
+  {
+    "num": "2.12",
+    "name": "Целое в римские цифры",
+    "code": "def int_to_roman(num: int) -> str:\n    \"\"\"\n    Преобразует целое число в римское.\n    \"\"\"\n    pass",
+    "exclude": ["import"],
+    "level": "middle",
+    "task_text": "Напишите функцию int_to_roman(num: int) -> str, которая преобразует целое число от 1 до 3999 в римское.\n\nПравила:\nI=1, V=5, X=10, L=50, C=100, D=500, M=1000\nЧисла записываются как комбинации символов, где меньшие могут стоять перед большими для вычитания\n\nПримеры:\n3 → \"III\"\n4 → \"IV\"\n9 → \"IX\"\n58 → \"LVIII\"\n1994 → \"MCMXCIV\"",
+    "hints": {
+      "60": "Используйте словарь с парами значение-символ в порядке убывания",
+      "120": "Для каждой пары добавляйте символ, пока число >= значению"
+    },
+    "test_code": [
+      "def test_int_roman_1(): assert int_to_roman(3) == 'III'",
+      "def test_int_roman_2(): assert int_to_roman(4) == 'IV'",
+      "def test_int_roman_3(): assert int_to_roman(9) == 'IX'",
+      "def test_int_roman_4(): assert int_to_roman(58) == 'LVIII'",
+      "def test_int_roman_5(): assert int_to_roman(1994) == 'MCMXCIV'",
+      "def test_int_roman_6(): assert int_to_roman(1) == 'I'",
+      "def test_int_roman_7(): assert int_to_roman(2023) == 'MMXXIII'",
+      "def test_int_roman_8(): assert int_to_roman(40) == 'XL'",
+      "def test_int_roman_9(): assert int_to_roman(90) == 'XC'",
+      "def test_int_roman_10(): assert int_to_roman(3999) == 'MMMCMXCIX'"
+    ]
+  },
+  {
+    "num": "2.13",
+    "name": "Счастливые билеты",
+    "code": "def lucky_tickets_count(n: int) -> int:\n    \"\"\"\n    Считает количество счастливых билетов для n-значных чисел.\n    \"\"\"\n    pass",
+    "exclude": ["import", "math"],
+    "level": "hard",
+    "task_text": "Напишите функцию lucky_tickets_count(n: int) -> int, которая считает количество счастливых n-значных билетов.\n\nСчастливым считается билет, у которого сумма первых n/2 цифр равна сумме последних n/2 цифр.\nЧисло n всегда чётное. Билеты могут начинаться с нуля.\n\nПримеры:\nn=2 → 10 (00, 11, 22, 33, 44, 55, 66, 77, 88, 99)\nn=4 → 670\nn=6 → 55252\nn=8 → 4816030",
+    "hints": {
+      "60": "Используйте динамическое программирование для подсчёта сумм",
+      "120": "Для каждой возможной суммы считайте количество способов её получить"
+    },
+    "test_code": [
+      "def test_lucky_2(): assert lucky_tickets_count(2) == 10",
+      "def test_lucky_4(): assert lucky_tickets_count(4) == 670",
+      "def test_lucky_6(): assert lucky_tickets_count(6) == 55252",
+      "def test_lucky_8(): assert lucky_tickets_count(8) == 4816030",
+      "def test_lucky_10(): assert lucky_tickets_count(10) == 432457640"
+    ]
+  },
+  {
+    "num": "2.14",
+    "name": "Поиск пикового элемента",
+    "code": "def find_peak_element(nums: list) -> int:\n    \"\"\"\n    Находит индекс любого пикового элемента в массиве.\n    \"\"\"\n    pass",
+    "exclude": ["import"],
+    "level": "middle",
+    "task_text": "Напишите функцию find_peak_element(nums: list) -> int, которая находит индекс любого пикового элемента в массиве.\n\nПиковый элемент — это элемент, который больше своих соседей. Для граничных элементов достаточно быть больше одного соседа.\n\nПримеры:\n[1,2,3,1] → 2 (элемент 3)\n[1,2,1,3,5,6,4] → 1 или 5 (элементы 2 или 6)\n[1] → 0\n[1,2] → 1\n[2,1] → 0",
+    "hints": {
+      "60": "Используйте бинарный поиск",
+      "120": "Если серединный элемент меньше правого соседа, пик находится справа"
+    },
+    "test_code": [
+      "def test_peak_1(): assert find_peak_element([1,2,3,1]) == 2",
+      "def test_peak_2(): result = find_peak_element([1,2,1,3,5,6,4]); assert result in [1,5]",
+      "def test_peak_3(): assert find_peak_element([1]) == 0",
+      "def test_peak_4(): assert find_peak_element([1,2]) == 1",
+      "def test_peak_5(): assert find_peak_element([2,1]) == 0",
+      "def test_peak_6(): result = find_peak_element([1,3,2,1]); assert result == 1",
+      "def test_peak_7(): assert find_peak_element([1,2,3,4,5]) == 4",
+      "def test_peak_8(): assert find_peak_element([5,4,3,2,1]) == 0",
+      "def test_peak_9(): result = find_peak_element([1,6,5,4,3,2,1]); assert result == 1",
+      "def test_peak_10(): assert find_peak_element([1,2,3,4,3,2,1]) == 3"
+    ]
+  },
+  {
+    "num": "2.15",
+    "name": "Вращение матрицы",
+    "code": "def rotate_matrix(matrix: list) -> list:\n    \"\"\"\n    Поворачивает матрицу на 90 градусов по часовой стрелке.\n    \"\"\"\n    pass",
+    "exclude": ["import"],
+    "level": "middle",
+    "task_text": "Напишите функцию rotate_matrix(matrix: list) -> list, которая поворачивает квадратную матрицу n×n на 90 градусов по часовой стрелке.\n\nПримеры:\n[[1,2,3],[4,5,6],[7,8,9]] → [[7,4,1],[8,5,2],[9,6,3]]\n[[1,2],[3,4]] → [[3,1],[4,2]]\n[[1]] → [[1]]\n[] → []",
+    "hints": {
+      "60": "Транспонируйте матрицу, затем отразите по вертикали",
+      "120": "Можно вращать попиксельно: matrix[i][j] → matrix[j][n-1-i]"
+    },
+    "test_code": [
+      "def test_rotate_matrix_1(): assert rotate_matrix([[1,2,3],[4,5,6],[7,8,9]]) == [[7,4,1],[8,5,2],[9,6,3]]",
+      "def test_rotate_matrix_2(): assert rotate_matrix([[1,2],[3,4]]) == [[3,1],[4,2]]",
+      "def test_rotate_matrix_3(): assert rotate_matrix([[1]]) == [[1]]",
+      "def test_rotate_matrix_4(): assert rotate_matrix([]) == []",
+      "def test_rotate_matrix_5(): assert rotate_matrix([[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16]]) == [[13,9,5,1],[14,10,6,2],[15,11,7,3],[16,12,8,4]]",
+      "def test_rotate_matrix_6(): assert rotate_matrix([[1,2,3],[4,5,6],[7,8,9]]) == [[7,4,1],[8,5,2],[9,6,3]]",
+      "def test_rotate_matrix_7(): assert rotate_matrix([[1,2],[3,4]]) == [[3,1],[4,2]]",
+      "def test_rotate_matrix_8(): assert rotate_matrix([[1,2,3],[4,5,6],[7,8,9]]) == [[7,4,1],[8,5,2],[9,6,3]]",
+      "def test_rotate_matrix_9(): assert rotate_matrix([[1]]) == [[1]]",
+      "def test_rotate_matrix_10(): assert rotate_matrix([[]]) == [[]]"
+    ]
+  },
+  {
+    "num": "2.16",
+    "name": "Спиральный обход матрицы",
+    "code": "def spiral_order(matrix: list) -> list:\n    \"\"\"\n    Возвращает элементы матрицы в порядке спирального обхода.\n    \"\"\"\n    pass",
+    "exclude": ["import"],
+    "level": "middle",
+    "task_text": "Напишите функцию spiral_order(matrix: list) -> list, которая возвращает элементы матрицы m×n в порядке спирального обхода (по часовой стрелке, начиная с верхнего левого угла).\n\nПримеры:\n[[1,2,3],[4,5,6],[7,8,9]] → [1,2,3,6,9,8,7,4,5]\n[[1,2,3,4],[5,6,7,8],[9,10,11,12]] → [1,2,3,4,8,12,11,10,9,5,6,7]\n[[1]] → [1]\n[] → []",
+    "hints": {
+      "60": "Определите границы: top, bottom, left, right",
+      "120": "Проходите по периметру, затем сдвигайте границы внутрь"
+    },
+    "test_code": [
+      "def test_spiral_1(): assert spiral_order([[1,2,3],[4,5,6],[7,8,9]]) == [1,2,3,6,9,8,7,4,5]",
+      "def test_spiral_2(): assert spiral_order([[1,2,3,4],[5,6,7,8],[9,10,11,12]]) == [1,2,3,4,8,12,11,10,9,5,6,7]",
+      "def test_spiral_3(): assert spiral_order([[1]]) == [1]",
+      "def test_spiral_4(): assert spiral_order([]) == []",
+      "def test_spiral_5(): assert spiral_order([[1,2],[3,4],[5,6],[7,8]]) == [1,2,4,6,8,7,5,3]",
+      "def test_spiral_6(): assert spiral_order([[1,2,3]]) == [1,2,3]",
+      "def test_spiral_7(): assert spiral_order([[1],[2],[3]]) == [1,2,3]",
+      "def test_spiral_8(): assert spiral_order([[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16]]) == [1,2,3,4,8,12,16,15,14,13,9,5,6,7,11,10]",
+      "def test_spiral_9(): assert spiral_order([[1,2],[3,4]]) == [1,2,4,3]",
+      "def test_spiral_10(): assert spiral_order([[]]) == []"
+    ]
+  },
+  {
+    "num": "3.1",
+    "name": "Шарики (Yandex)",
+    "code": "def min_balloons(colors: str) -> int:\n    \"\"\"\n    Минимальное количество шаров для сборки строки colors.\n    \"\"\"\n    pass",
+    "exclude": ["import"],
+    "level": "junior",
+    "task_text": "Напишите функцию min_balloons(colors: str) -> int, которая возвращает минимальное количество шаров, необходимое для сборки строки colors.\n\nУ вас есть неограниченное количество шаров каждого цвета. Каждый шар содержит одну букву (цвет). Строка colors должна быть собрана как последовательность шаров.\n\nПримеры:\n\"RRBB\" → 4 (нужно 2 красных и 2 синих шара)\n\"RRRR\" → 4\n\"RGB\" → 3\n\"RBRB\" → 4\n\"\" → 0",
+    "hints": {
+      "60": "Просто подсчитайте количество каждого цвета",
+      "120": "Максимальное количество шаров одного цвета = частота этого цвета"
+    },
+    "test_code": [
+      "def test_balloons_1(): assert min_balloons('RRBB') == 4",
+      "def test_balloons_2(): assert min_balloons('RRRR') == 4",
+      "def test_balloons_3(): assert min_balloons('RGB') == 3",
+      "def test_balloons_4(): assert min_balloons('RBRB') == 4",
+      "def test_balloons_5(): assert min_balloons('') == 0",
+      "def test_balloons_6(): assert min_balloons('RRGGBB') == 6",
+      "def test_balloons_7(): assert min_balloons('RRRGGGBBB') == 9",
+      "def test_balloons_8(): assert min_balloons('RGBRGB') == 6",
+      "def test_balloons_9(): assert min_balloons('RRRRRR') == 6",
+      "def test_balloons_10(): assert min_balloons('RBG') == 3"
+    ]
+  },
+  {
+    "num": "3.2",
+    "name": "Сумма на подотрезках (Yandex)",
+    "code": "def subarray_sums(arr: list, k: int) -> int:\n    \"\"\"\n    Количество подмассивов с суммой равной k.\n    \"\"\"\n    pass",
+    "exclude": ["import", "collections"],
+    "level": "middle",
+    "task_text": "Напишите функцию subarray_sums(arr: list, k: int) -> int, которая возвращает количество непрерывных подмассивов, сумма элементов которых равна k.\n\nПримеры:\n[1,1,1], k=2 → 2 (подмассивы [1,1] и [1,1])\n[1,2,3], k=3 → 2 (подмассивы [1,2] и [3])\n[10,5,7,1,2], k=15 → 1 (подмассив [10,5])\n[1,-1,0], k=0 → 3\n[], k=0 → 0",
+    "hints": {
+      "60": "Используйте префиксные суммы",
+      "120": "Храните частоту префиксных сумм в словаре"
+    },
+    "test_code": [
+      "def test_subarray_1(): assert subarray_sums([1,1,1], 2) == 2",
+      "def test_subarray_2(): assert subarray_sums([1,2,3], 3) == 2",
+      "def test_subarray_3(): assert subarray_sums([10,5,7,1,2], 15) == 1",
+      "def test_subarray_4(): assert subarray_sums([1,-1,0], 0) == 3",
+      "def test_subarray_5(): assert subarray_sums([], 0) == 0",
+      "def test_subarray_6(): assert subarray_sums([1], 1) == 1",
+      "def test_subarray_7(): assert subarray_sums([0,0,0,0], 0) == 10",
+      "def test_subarray_8(): assert subarray_sums([3,4,7,2,-3,1,4,2], 7) == 4",
+      "def test_subarray_9(): assert subarray_sums([1,2,3,4,5], 9) == 2",
+      "def test_subarray_10(): assert subarray_sums([-1,-1,1], 0) == 1"
+    ]
+  },
+  {
+    "num": "3.3",
+    "name": "Скобочный баланс (Google Code Jam)",
+    "code": "def min_swaps(s: str) -> int:\n    \"\"\"\n    Минимальное количество обменов для сбалансированной строки.\n    \"\"\"\n    pass",
+    "exclude": ["import"],
+    "level": "middle",
+    "task_text": "Напишите функцию min_swaps(s: str) -> int, которая возвращает минимальное количество обменов соседних символов, чтобы сделать строку сбалансированной.\n\nСтрока состоит только из символов '[' и ']'. Сбалансированная строка: количество '[' равно количеству ']' и в любом префиксе количество '[' >= количеству ']'.\n\nПримеры:\n\"][][\" → 1 (меняем первые два символа)\n\"]]][[[\" → 2\n\"[]\" → 0\n\"][\" → 1\n\"\" → 0",
+    "hints": {
+      "60": "Считайте баланс: +1 для '[', -1 для ']'",
+      "120": "Когда баланс становится -1, нужно найти следующую '[' для обмена"
+    },
+    "test_code": [
+      "def test_swaps_1(): assert min_swaps('][][') == 1",
+      "def test_swaps_2(): assert min_swaps(']]][[[') == 2",
+      "def test_swaps_3(): assert min_swaps('[]') == 0",
+      "def test_swaps_4(): assert min_swaps('][') == 1",
+      "def test_swaps_5(): assert min_swaps('') == 0",
+      "def test_swaps_6(): assert min_swaps('[[]]') == 0",
+      "def test_swaps_7(): assert min_swaps(']][[') == 2",
+      "def test_swaps_8(): assert min_swaps('][[]][') == 2",
+      "def test_swaps_9(): assert min_swaps('[[][]]') == 0",
+      "def test_swaps_10(): assert min_swaps(']]][[[]][[') == 3"
+    ]
+  },
+  {
+    "num": "3.4",
+    "name": "Сортировка по частоте (Yandex)",
+    "code": "def frequency_sort(s: str) -> str:\n    \"\"\"\n    Сортирует символы строки по убыванию частоты.\n    \"\"\"\n    pass",
+    "exclude": ["import", "collections"],
+    "level": "middle",
+    "task_text": "Напишите функцию frequency_sort(s: str) -> str, которая возвращает строку с символами, отсортированными по убыванию частоты.\n\nЕсли несколько символов имеют одинаковую частоту, они должны сохранить исходный порядок (стабильная сортировка).\n\nПримеры:\n\"tree\" → \"eetr\" или \"eert\" (e:2, t:1, r:1)\n\"cccaaa\" → \"cccaaa\" или \"aaaccc\" (c:3, a:3)\n\"Aabb\" → \"bbAa\" (b:2, A:1, a:1)\n\"\" → \"\"",
+    "hints": {
+      "60": "Подсчитайте частоту каждого символа",
+      "120": "Используйте стабильную сортировку по убыванию частоты"
+    },
+    "test_code": [
+      "def test_freq_1(): result = frequency_sort('tree'); assert result.count('e') == 2 and result.count('t') == 1 and result.count('r') == 1",
+      "def test_freq_2(): result = frequency_sort('cccaaa'); assert (result == 'cccaaa' or result == 'aaaccc')",
+      "def test_freq_3(): result = frequency_sort('Aabb'); assert result.count('b') == 2",
+      "def test_freq_4(): assert frequency_sort('') == ''",
+      "def test_freq_5(): result = frequency_sort('loveleetcode'); assert result[0] == 'e' and result.count('e') == 4",
+      "def test_freq_6(): result = frequency_sort('raaeaedere'); assert result[0] == 'e' and result[1] == 'e'",
+      "def test_freq_7(): result = frequency_sort('dddbbb'); assert result.startswith('ddd') or result.startswith('bbb')",
+      "def test_freq_8(): result = frequency_sort('abc'); assert set(result) == {'a','b','c'}",
+      "def test_freq_9(): result = frequency_sort('aaabb'); assert result.startswith('aaa')",
+      "def test_freq_10(): result = frequency_sort('abacc'); assert result[0] == 'a' and result[1] == 'a'"
+    ]
+  },
+  {
+    "num": "3.5",
+    "name": "Прыжки по облакам (Google)",
+    "code": "def min_jumps(clouds: list) -> int:\n    \"\"\"\n    Минимальное количество прыжков по облакам.\n    \"\"\"\n    pass",
+    "exclude": ["import"],
+    "level": "junior",
+    "task_text": "Напишите функцию min_jumps(clouds: list) -> int, которая возвращает минимальное количество прыжков для прохождения облаков.\n\nОблака пронумерованы 0..n-1. Игрок начинает на облаке 0 и должен достичь облака n-1.\nОблака бывают двух типов: 0 - безопасное, 1 - грозовое (на него нельзя прыгать).\nМожно прыгать на 1 или 2 облака вперед. Всегда гарантируется, что решение существует.\n\nПримеры:\n[0,1,0,0,0,1,0] → 3 (0→2→4→6)\n[0,0,1,0,0,1,0] → 4 (0→1→3→4→6)\n[0,0,0,0,1,0] → 3 (0→2→3→5)\n[0,0] → 1",
+    "hints": {
+      "60": "Используйте динамическое программирование",
+      "120": "Для каждого облака проверяйте, можно ли прийти с предыдущих облаков"
+    },
+    "test_code": [
+      "def test_jumps_1(): assert min_jumps([0,1,0,0,0,1,0]) == 3",
+      "def test_jumps_2(): assert min_jumps([0,0,1,0,0,1,0]) == 4",
+      "def test_jumps_3(): assert min_jumps([0,0,0,0,1,0]) == 3",
+      "def test_jumps_4(): assert min_jumps([0,0]) == 1",
+      "def test_jumps_5(): assert min_jumps([0,1,0]) == 1",
+      "def test_jumps_6(): assert min_jumps([0,0,0,1,0,0]) == 3",
+      "def test_jumps_7(): assert min_jumps([0]) == 0",
+      "def test_jumps_8(): assert min_jumps([0,0,0,0,0]) == 2",
+      "def test_jumps_9(): assert min_jumps([0,0,1,0,0,0,0,1,0,0]) == 6",
+      "def test_jumps_10(): assert min_jumps([0,1,0,1,0,1,0,0]) == 4"
+    ]
+  },
+  {
+    "num": "3.6",
+    "name": "Повторяющаяся ДНК (Google)",
+    "code": "def find_repeated_dna_sequences(s: str) -> list:\n    \"\"\"\n    Находит все 10-символьные последовательности, которые встречаются более одного раза.\n    \"\"\"\n    pass",
+    "exclude": ["import", "collections"],
+    "level": "middle",
+    "task_text": "Напишите функцию find_repeated_dna_sequences(s: str) -> list, которая находит все 10-символьные последовательности (подстроки), которые встречаются в строке ДНК более одного раза.\n\nСтрока состоит только из символов 'A', 'C', 'G', 'T'.\n\nПримеры:\n\"AAAAACCCCCAAAAACCCCCCAAAAAGGGTTT\" → [\"AAAAACCCCC\",\"CCCCCAAAAA\"]\n\"AAAAAAAAAAAAA\" → [\"AAAAAAAAAA\"]\n\"ACG\" → []\n\"\" → []",
+    "hints": {
+      "60": "Используйте скользящее окно длиной 10",
+      "120": "Храните встреченные последовательности в множестве"
+    },
+    "test_code": [
+      "def test_dna_1(): assert sorted(find_repeated_dna_sequences('AAAAACCCCCAAAAACCCCCCAAAAAGGGTTT')) == sorted(['AAAAACCCCC','CCCCCAAAAA'])",
+      "def test_dna_2(): assert find_repeated_dna_sequences('AAAAAAAAAAAAA') == ['AAAAAAAAAA']",
+      "def test_dna_3(): assert find_repeated_dna_sequences('ACG') == []",
+      "def test_dna_4(): assert find_repeated_dna_sequences('') == []",
+      "def test_dna_5(): assert find_repeated_dna_sequences('AAAAACCCCCAAAAACCCCCC') == ['AAAAACCCCC']",
+      "def test_dna_6(): assert find_repeated_dna_sequences('AAAAAAAAAAA') == ['AAAAAAAAAA']",
+      "def test_dna_7(): assert find_repeated_dna_sequences('ACGTACGTAC') == []",
+      "def test_dna_8(): assert find_repeated_dna_sequences('ACGTACGTACGTACGTACGT') == ['ACGTACGTAC']",
+      "def test_dna_9(): assert find_repeated_dna_sequences('ACGT'*5) == []",
+      "def test_dna_10(): assert find_repeated_dna_sequences('AAAAACCCCCAAAAACCCCCCAAAAACCCCCC') == ['AAAAACCCCC','CCCCCAAAAA']"
+    ]
+  },
+  {
+    "num": "3.7",
+    "name": "Максимальный продукт подмассива (Google)",
+    "code": "def max_product_subarray(nums: list) -> int:\n    \"\"\"\n    Находит максимальное произведение непрерывного подмассива.\n    \"\"\"\n    pass",
+    "exclude": ["import"],
+    "level": "hard",
+    "task_text": "Напишите функцию max_product_subarray(nums: list) -> int, которая находит максимальное произведение непрерывного подмассива.\n\nМассив может содержать отрицательные числа и нули.\n\nПримеры:\n[2,3,-2,4] → 6 (подмассив [2,3])\n[-2,0,-1] → 0\n[-2,3,-4] → 24 (весь массив)\n[0,2] → 2\n[-2] → -2",
+    "hints": {
+      "60": "Храните минимальное и максимальное произведение на каждом шаге",
+      "120": "При встрече отрицательного числа меняйте местами min и max"
+    },
+    "test_code": [
+      "def test_max_product_1(): assert max_product_subarray([2,3,-2,4]) == 6",
+      "def test_max_product_2(): assert max_product_subarray([-2,0,-1]) == 0",
+      "def test_max_product_3(): assert max_product_subarray([-2,3,-4]) == 24",
+      "def test_max_product_4(): assert max_product_subarray([0,2]) == 2",
+      "def test_max_product_5(): assert max_product_subarray([-2]) == -2",
+      "def test_max_product_6(): assert max_product_subarray([-1,-2,-3]) == 6",
+      "def test_max_product_7(): assert max_product_subarray([1,2,3,4]) == 24",
+      "def test_max_product_8(): assert max_product_subarray([-1,-1,-2,-3]) == 6",
+      "def test_max_product_9(): assert max_product_subarray([3,-1,4]) == 4",
+      "def test_max_product_10(): assert max_product_subarray([2,-5,-2,-4,3]) == 24"
+    ]
+  },
+  {
+    "num": "3.8",
+    "name": "Реверс слов в строке II (Google)",
+    "code": "def reverse_words_ii(s: list) -> None:\n    \"\"\"\n    Обращает слова в строке на месте.\n    \"\"\"\n    pass",
+    "exclude": ["import"],
+    "level": "middle",
+    "task_text": "Напишите функцию reverse_words_ii(s: list) -> None, которая обращает порядок слов в строке на месте.\n\nСтрока представлена как список символов. Не используйте дополнительную память.\n\nПримеры:\n[\"t\",\"h\",\"e\",\" \",\"s\",\"k\",\"y\",\" \",\"i\",\"s\",\" \",\"b\",\"l\",\"u\",\"e\"] →\n[\"b\",\"l\",\"u\",\"e\",\" \",\"i\",\"s\",\" \",\"s\",\"k\",\"y\",\" \",\"t\",\"h\",\"e\"]\n[\"a\"] → [\"a\"]\n[] → []",
+    "hints": {
+      "60": "Сначала реверс всей строки, затем реверс каждого слова",
+      "120": "Используйте два указателя для определения границ слов"
+    },
+    "test_code": [
+      "def test_reverse_ii_1():\n        s = list(\"the sky is blue\")\n        reverse_words_ii(s)\n        assert s == list(\"blue is sky the\")",
+      "def test_reverse_ii_2():\n        s = list(\"a\")\n        reverse_words_ii(s)\n        assert s == list(\"a\")",
+      "def test_reverse_ii_3():\n        s = []\n        reverse_words_ii(s)\n        assert s == []",
+      "def test_reverse_ii_4():\n        s = list(\"hello world\")\n        reverse_words_ii(s)\n        assert s == list(\"world hello\")",
+      "def test_reverse_ii_5():\n        s = list(\"a b c d\")\n        reverse_words_ii(s)\n        assert s == list(\"d c b a\")",
+      "def test_reverse_ii_6():\n        s = list(\"  hello  world  \")\n        reverse_words_ii(s)\n        assert s == list(\"  world  hello  \")",
+      "def test_reverse_ii_7():\n        s = list(\"the\")\n        reverse_words_ii(s)\n        assert s == list(\"the\")",
+      "def test_reverse_ii_8():\n        s = list(\"a good example\")\n        reverse_words_ii(s)\n        assert s == list(\"example good a\")",
+      "def test_reverse_ii_9():\n        s = list(\"Bob likes Alice\")\n        reverse_words_ii(s)\n        assert s == list(\"Alice likes Bob\")",
+      "def test_reverse_ii_10():\n        s = list(\"multiple   spaces   between\")\n        reverse_words_ii(s)\n        assert s == list(\"between   spaces   multiple\")"
+    ]
+  },
+  {
+    "num": "3.9",
+    "name": "Проверка палиндрома II (Google)",
+    "code": "def valid_palindrome_ii(s: str) -> bool:\n    \"\"\"\n    Проверяет, можно ли сделать строку палиндромом удалением одного символа.\n    \"\"\"\n    pass",
+    "exclude": ["import"],
+    "level": "middle",
+    "task_text": "Напишите функцию valid_palindrome_ii(s: str) -> bool, которая проверяет, можно ли сделать строку палиндромом удалением не более одного символа.\n\nПримеры:\n\"aba\" → True (уже палиндром)\n\"abca\" → True (удалить 'c')\n\"abc\" → False\n\"\" → True\n\"a\" → True\n\"deeee\" → True",
+    "hints": {
+      "60": "Используйте два указателя с начала и конца",
+      "120": "При первом несовпадении проверьте оба варианта: удаление левого или правого символа"
+    },
+    "test_code": [
+      "def test_palindrome_ii_1(): assert valid_palindrome_ii('aba') == True",
+      "def test_palindrome_ii_2(): assert valid_palindrome_ii('abca') == True",
+      "def test_palindrome_ii_3(): assert valid_palindrome_ii('abc') == False",
+      "def test_palindrome_ii_4(): assert valid_palindrome_ii('') == True",
+      "def test_palindrome_ii_5(): assert valid_palindrome_ii('a') == True",
+      "def test_palindrome_ii_6(): assert valid_palindrome_ii('deeee') == True",
+      "def test_palindrome_ii_7(): assert valid_palindrome_ii('cbbcc') == True",
+      "def test_palindrome_ii_8(): assert valid_palindrome_ii('eeccccbebaeeabebccceea') == False",
+      "def test_palindrome_ii_9(): assert valid_palindrome_ii('ab') == True",
+      "def test_palindrome_ii_10(): assert valid_palindrome_ii('aguokepatgbnvfqmgmlcupuufxoohdfpgjdmysgvhmvffcnqxjjxqncffvmhvgsymdjgpfdhooxfuupuculmgmqfvnbgtapekouga') == True"
+    ]
+  },
+  {
+    "num": "3.10",
+    "name": "Слияние k отсортированных списков (Google)",
+    "code": "def merge_k_lists(lists: list) -> list:\n    \"\"\"\n    Объединяет k отсортированных списков в один отсортированный список.\n    \"\"\"\n    pass",
+    "exclude": ["import", "heapq"],
+    "level": "hard",
+    "task_text": "Напишите функцию merge_k_lists(lists: list) -> list, которая объединяет k отсортированных по возрастанию списков в один отсортированный список.\n\nПримеры:\n[[1,4,5],[1,3,4],[2,6]] → [1,1,2,3,4,4,5,6]\n[] → []\n[[]] → []\n[[1],[0]] → [0,1]\n[[-10,-9,-9,-3,-1,-1,0],[-5],[4],[-8],[],[-9,-6,-5,-4,-2,2,3],[-3,-3,-2,-1,0]] → [-10,-9,-9,-9,-8,-6,-5,-5,-4,-3,-3,-3,-2,-2,-1,-1,-1,0,0,2,3,4]",
+    "hints": {
+      "60": "Используйте алгоритм слияния попарно",
+      "120": "Можно хранить текущие элементы из каждого списка и выбирать минимальный"
+    },
+    "test_code": [
+      "def test_merge_k_1(): assert merge_k_lists([[1,4,5],[1,3,4],[2,6]]) == [1,1,2,3,4,4,5,6]",
+      "def test_merge_k_2(): assert merge_k_lists([]) == []",
+      "def test_merge_k_3(): assert merge_k_lists([[]]) == []",
+      "def test_merge_k_4(): assert merge_k_lists([[1],[0]]) == [0,1]",
+      "def test_merge_k_5(): \n        result = merge_k_lists([[-10,-9,-9,-3,-1,-1,0],[-5],[4],[-8],[],[-9,-6,-5,-4,-2,2,3],[-3,-3,-2,-1,0]])\n        expected = [-10,-9,-9,-9,-8,-6,-5,-5,-4,-3,-3,-3,-2,-2,-1,-1,-1,0,0,2,3,4]\n        assert result == expected",
+      "def test_merge_k_6(): assert merge_k_lists([[1,2,3],[4,5,6],[7,8,9]]) == [1,2,3,4,5,6,7,8,9]",
+      "def test_merge_k_7(): assert merge_k_lists([[1],[2],[3]]) == [1,2,3]",
+      "def test_merge_k_8(): assert merge_k_lists([[1,3,5],[2,4,6]]) == [1,2,3,4,5,6]",
+      "def test_merge_k_9(): assert merge_k_lists([[10,20],[15,25],[5,30]]) == [5,10,15,20,25,30]",
+      "def test_merge_k_10(): assert merge_k_lists([[],[1],[2,3]]) == [1,2,3]"
+    ]
+  },
+  {
+    "num": "3.11",
+    "name": "Треугольник Паскаля (Yandex)",
+    "code": "def generate_pascal_triangle(num_rows: int) -> list:\n    \"\"\"\n    Генерирует треугольник Паскаля с заданным количеством строк.\n    \"\"\"\n    pass",
+    "exclude": ["import", "math"],
+    "level": "junior",
+    "task_text": "Напишите функцию generate_pascal_triangle(num_rows: int) -> list, которая генерирует треугольник Паскаля с заданным количеством строк.\n\nКаждая строка треугольника представляет собой список чисел.\n\nПримеры:\n5 → [[1],[1,1],[1,2,1],[1,3,3,1],[1,4,6,4,1]]\n1 → [[1]]\n0 → []\n3 → [[1],[1,1],[1,2,1]]",
+    "hints": {
+      "60": "Каждое число равно сумме двух чисел над ним",
+      "120": "Начинайте с первой строки [1], затем генерируйте следующие"
+    },
+    "test_code": [
+      "def test_pascal_1(): assert generate_pascal_triangle(5) == [[1],[1,1],[1,2,1],[1,3,3,1],[1,4,6,4,1]]",
+      "def test_pascal_2(): assert generate_pascal_triangle(1) == [[1]]",
+      "def test_pascal_3(): assert generate_pascal_triangle(0) == []",
+      "def test_pascal_4(): assert generate_pascal_triangle(3) == [[1],[1,1],[1,2,1]]",
+      "def test_pascal_5(): assert generate_pascal_triangle(6) == [[1],[1,1],[1,2,1],[1,3,3,1],[1,4,6,4,1],[1,5,10,10,5,1]]",
+      "def test_pascal_6(): assert generate_pascal_triangle(2) == [[1],[1,1]]",
+      "def test_pascal_7(): assert generate_pascal_triangle(4) == [[1],[1,1],[1,2,1],[1,3,3,1]]",
+      "def test_pascal_8(): assert generate_pascal_triangle(7)[6] == [1,6,15,20,15,6,1]",
+      "def test_pascal_9(): assert len(generate_pascal_triangle(8)) == 8",
+      "def test_pascal_10(): assert generate_pascal_triangle(10)[9][5] == 126"
+    ]
+  },
+  {
+    "num": "3.12",
+    "name": "Сумма двух чисел (Google)",
+    "code": "def two_sum(nums: list, target: int) -> list:\n    \"\"\"\n    Находит индексы двух чисел, сумма которых равна target.\n    \"\"\"\n    pass",
+    "exclude": ["import"],
+    "level": "junior",
+    "task_text": "Напишите функцию two_sum(nums: list, target: int) -> list, которая находит индексы двух различных чисел в массиве, сумма которых равна target.\n\nГарантируется, что существует ровно одно решение. Нельзя использовать один и тот же элемент дважды.\n\nПримеры:\n[2,7,11,15], target=9 → [0,1]\n[3,2,4], target=6 → [1,2]\n[3,3], target=6 → [0,1]\n[1,2,3,4], target=7 → [2,3]",
+    "hints": {
+      "60": "Используйте хэш-таблицу для хранения пройденных чисел",
+      "120": "Для каждого числа ищите complement = target - num в словаре"
+    },
+    "test_code": [
+      "def test_two_sum_1(): assert sorted(two_sum([2,7,11,15], 9)) == [0,1]",
+      "def test_two_sum_2(): assert sorted(two_sum([3,2,4], 6)) == [1,2]",
+      "def test_two_sum_3(): assert sorted(two_sum([3,3], 6)) == [0,1]",
+      "def test_two_sum_4(): assert sorted(two_sum([1,2,3,4], 7)) == [2,3]",
+      "def test_two_sum_5(): assert sorted(two_sum([0,4,3,0], 0)) == [0,3]",
+      "def test_two_sum_6(): assert sorted(two_sum([-1,-2,-3,-4,-5], -8)) == [2,4]",
+      "def test_two_sum_7(): assert sorted(two_sum([1,5,3,7], 8)) == [0,3]",
+      "def test_two_sum_8(): assert sorted(two_sum([10,20,30,40], 50)) == [1,2]",
+      "def test_two_sum_9(): assert sorted(two_sum([6,2,8,1,9], 10)) == [0,4]",
+      "def test_two_sum_10(): assert sorted(two_sum([100,200,300], 500)) == [1,2]"
+    ]
+  },
+  {
+    "num": "3.13",
+    "name": "Три сумма (Google)",
+    "code": "def three_sum(nums: list) -> list:\n    \"\"\"\n    Находит все уникальные тройки, сумма которых равна 0.\n    \"\"\"\n    pass",
+    "exclude": ["import"],
+    "level": "hard",
+    "task_text": "Напишите функцию three_sum(nums: list) -> list, которая находит все уникальные тройки [nums[i], nums[j], nums[k]] такие, что i != j != k и nums[i] + nums[j] + nums[k] = 0.\n\nРешение не должно содержать дубликатов троек.\n\nПримеры:\n[-1,0,1,2,-1,-4] → [[-1,-1,2],[-1,0,1]]\n[] → []\n[0] → []\n[0,0,0] → [[0,0,0]]\n[1,-1,0] → [[-1,0,1]]",
+    "hints": {
+      "60": "Отсортируйте массив и используйте три указателя",
+      "120": "Фиксируйте первый элемент, затем ищите пару для оставшейся суммы"
+    },
+    "test_code": [
+      "def test_three_sum_1(): \n        result = three_sum([-1,0,1,2,-1,-4])\n        assert sorted([sorted(x) for x in result]) == sorted([sorted([-1,-1,2]), sorted([-1,0,1])])",
+      "def test_three_sum_2(): assert three_sum([]) == []",
+      "def test_three_sum_3(): assert three_sum([0]) == []",
+      "def test_three_sum_4(): assert three_sum([0,0,0]) == [[0,0,0]]",
+      "def test_three_sum_5(): \n        result = three_sum([1,-1,0])\n        assert sorted([sorted(x) for x in result]) == [sorted([-1,0,1])]",
+      "def test_three_sum_6(): \n        result = three_sum([-2,0,1,1,2])\n        expected = [[-2,0,2],[-2,1,1]]\n        assert sorted([sorted(x) for x in result]) == sorted([sorted(x) for x in expected])",
+      "def test_three_sum_7(): assert three_sum([1,2,-2,-1]) == []",
+      "def test_three_sum_8(): \n        result = three_sum([-1,0,1,0])\n        assert sorted([sorted(x) for x in result]) == [sorted([-1,0,1])]",
+      "def test_three_sum_9(): \n        result = three_sum([3,0,-2,-1,1,2])\n        expected = [[-2,-1,3],[-2,0,2],[-1,0,1]]\n        assert sorted([sorted(x) for x in result]) == sorted([sorted(x) for x in expected])",
+      "def test_three_sum_10(): assert three_sum([1,1,-2]) == [[-2,1,1]]"
+    ]
+  },
+  {
+    "num": "3.14",
+    "name": "Следующая перестановка (Google)",
+    "code": "def next_permutation(nums: list) -> None:\n    \"\"\"\n    Преобразует nums в следующую лексикографическую перестановку.\n    \"\"\"\n    pass",
+    "exclude": ["import"],
+    "level": "hard",
+    "task_text": "Напишите функцию next_permutation(nums: list) -> None, которая преобразует nums в следующую лексикографическую перестановку.\n\nЕсли перестановка является последней, преобразует в первую (отсортированную по возрастанию).\nИзменения производятся на месте.\n\nПримеры:\n[1,2,3] → [1,3,2]\n[3,2,1] → [1,2,3]\n[1,1,5] → [1,5,1]\n[1] → [1]\n[1,3,2] → [2,1,3]",
+    "hints": {
+      "60": "Найдите первый убывающий элемент справа",
+      "120": "Найдите элемент для обмена и переверните правую часть"
+    },
+    "test_code": [
+      "def test_next_perm_1():\n        nums = [1,2,3]\n        next_permutation(nums)\n        assert nums == [1,3,2]",
+      "def test_next_perm_2():\n        nums = [3,2,1]\n        next_permutation(nums)\n        assert nums == [1,2,3]",
+      "def test_next_perm_3():\n        nums = [1,1,5]\n        next_permutation(nums)\n        assert nums == [1,5,1]",
+      "def test_next_perm_4():\n        nums = [1]\n        next_permutation(nums)\n        assert nums == [1]",
+      "def test_next_perm_5():\n        nums = [1,3,2]\n        next_permutation(nums)\n        assert nums == [2,1,3]",
+      "def test_next_perm_6():\n        nums = [1,2]\n        next_permutation(nums)\n        assert nums == [2,1]",
+      "def test_next_perm_7():\n        nums = [5,1,1]\n        next_permutation(nums)\n        assert nums == [1,1,5]",
+      "def test_next_perm_8():\n        nums = [1,5,8,4,7,6,5,3,1]\n        next_permutation(nums)\n        assert nums == [1,5,8,5,1,3,4,6,7]",
+      "def test_next_perm_9():\n        nums = [2,3,1]\n        next_permutation(nums)\n        assert nums == [3,1,2]",
+      "def test_next_perm_10():\n        nums = [1,2,3,4]\n        next_permutation(nums)\n        assert nums == [1,2,4,3]"
+    ]
+  },
+  {
+    "num": "3.15",
+    "name": "Поиск в повернутом массиве (Google)",
+    "code": "def search_rotated_array(nums: list, target: int) -> int:\n    \"\"\"\n    Находит индекс target в повернутом отсортированном массиве.\n    \"\"\"\n    pass",
+    "exclude": ["import"],
+    "level": "hard",
+    "task_text": "Напишите функцию search_rotated_array(nums: list, target: int) -> int, которая находит индекс target в массиве, отсортированном по возрастанию и повернутом в произвольной точке.\n\nЕсли target не найден, верните -1.\n\nПримеры:\n[4,5,6,7,0,1,2], target=0 → 4\n[4,5,6,7,0,1,2], target=3 → -1\n[1], target=0 → -1\n[1], target=1 → 0\n[5,1,3], target=3 → 2",
+    "hints": {
+      "60": "Используйте модифицированный бинарный поиск",
+      "120": "Определите, в какой половине находится target: левой отсортированной или правой"
+    },
+    "test_code": [
+      "def test_search_rot_1(): assert search_rotated_array([4,5,6,7,0,1,2], 0) == 4",
+      "def test_search_rot_2(): assert search_rotated_array([4,5,6,7,0,1,2], 3) == -1",
+      "def test_search_rot_3(): assert search_rotated_array([1], 0) == -1",
+      "def test_search_rot_4(): assert search_rotated_array([1], 1) == 0",
+      "def test_search_rot_5(): assert search_rotated_array([5,1,3], 3) == 2",
+      "def test_search_rot_6(): assert search_rotated_array([4,5,6,7,0,1,2], 4) == 0",
+      "def test_search_rot_7(): assert search_rotated_array([4,5,6,7,0,1,2], 2) == 6",
+      "def test_search_rot_8(): assert search_rotated_array([3,1], 1) == 1",
+      "def test_search_rot_9(): assert search_rotated_array([3,1], 3) == 0",
+      "def test_search_rot_10(): assert search_rotated_array([7,8,1,2,3,4,5,6], 2) == 3"
+    ]
+  },
+  {
+    "num": "6.1",
+    "name": "Оптимальный маршрут Деда Мороза",
+    "code": "def santa_optimal_route(cities: list, distances: list) -> int:\n    \"\"\"\n    Минимальное расстояние для посещения всех городов.\n    \"\"\"\n    pass",
+    "exclude": ["import", "math"],
+    "level": "hard",
+    "task_text": "Напишите функцию santa_optimal_route(cities: list, distances: list) -> int, которая находит минимальное расстояние, которое должен проехать Дед Мороз, чтобы посетить все города и вернуться в начальный.\n\ncities - список городов (от 0 до n-1). distances - матрица расстояний n×n.\n\nПримеры:\n3 городов, расстояния [[0,1,2],[1,0,3],[2,3,0]] → 6 (0→1→2→0)\n4 городов, расстояния [[0,10,15,20],[10,0,35,25],[15,35,0,30],[20,25,30,0]] → 80\n1 город → 0\n2 города → удвоенное расстояние между ними",
+    "hints": {
+      "60": "Это задача коммивояжера (TSP)",
+      "120": "Используйте динамическое программирование с маской посещенных городов"
+    },
+    "test_code": [
+      "def test_route_1(): assert santa_optimal_route([0,1,2], [[0,1,2],[1,0,3],[2,3,0]]) == 6",
+      "def test_route_2(): assert santa_optimal_route([0,1,2,3], [[0,10,15,20],[10,0,35,25],[15,35,0,30],[20,25,30,0]]) == 80",
+      "def test_route_3(): assert santa_optimal_route([0], [[0]]) == 0",
+      "def test_route_4(): assert santa_optimal_route([0,1], [[0,5],[5,0]]) == 10",
+      "def test_route_5(): assert santa_optimal_route([0,1,2], [[0,1,100],[1,0,100],[100,100,0]]) == 202",
+      "def test_route_6(): assert santa_optimal_route([0,1,2,3], [[0,1,2,3],[1,0,4,5],[2,4,0,6],[3,5,6,0]]) == 16",
+      "def test_route_7(): assert santa_optimal_route([0,1,2,3,4], [[0,2,9,10],[2,0,6,4],[9,6,0,8],[10,4,8,0],[1,3,5,7,0]]) == 21",
+      "def test_route_8(): assert santa_optimal_route([0,1,2], [[0,10,15],[10,0,20],[15,20,0]]) == 45",
+      "def test_route_9(): assert santa_optimal_route([0,1,2,3,4], [[0,1,1,1,1],[1,0,1,1,1],[1,1,0,1,1],[1,1,1,0,1],[1,1,1,1,0]]) == 5",
+      "def test_route_10(): assert santa_optimal_route([0,1,2,3], [[0,3,6,7],[3,0,8,2],[6,8,0,5],[7,2,5,0]]) == 18"
+    ]
+  }
+]

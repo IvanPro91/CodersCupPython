@@ -57,7 +57,7 @@ def run_code(request):
 
     # Запускаем задачу асинхронно
     print(code)
-    task = execute_user_code.delay(code)
+    task = execute_user_code.delay(1, code)
 
     return JsonResponse({
         'success': True,
