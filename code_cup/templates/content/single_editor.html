@@ -16,9 +16,6 @@
             </div>
         </div>
         <div class="header-actions">
-            <button class="create-task-btn" id="createTaskBtn_{{ tab_id }}" title="Создать задачу из кода">
-                <i class="fas fa-tasks"></i> Создать как задачу
-            </button>
             <button class="tab-run-btn" id="tabRunBtn_{{ tab_id }}">
                 <i class="fas fa-play"></i> Запустить
             </button>
@@ -26,8 +23,8 @@
     </div>
 
     <div class="editor-content-wrapper">
-        <div class="code-mirror-wrapper">
-            <textarea id="codeEditor_{{ tab_id }}" style="display:none;">{{ code }}</textarea>
+        <div class="code-mirror-wrapper" id="editorContainer_{{ tab_id }}">
+            <!-- Monaco Editor будет инициализирован здесь -->
         </div>
 
         <!-- Блок с функциями и классами -->
@@ -152,210 +149,21 @@
         </div>
     </div>
     <div class="pep8-modal-footer">
-        <button onclick="formatCode('{{ tab_id }}')">
-            <i class="fas fa-code"></i> Автоформат
-        </button>
         <button onclick="hidePEP8Modal('{{ tab_id }}')">
             Закрыть
         </button>
     </div>
 </div>
 
-<!-- Модальное окно для создания задачи -->
-<div class="task-creation-modal" id="taskCreationModal_{{ tab_id }}">
-    <div class="task-modal-content">
-        <div class="task-modal-header">
-            <h3><i class="fas fa-tasks"></i> Создание задачи</h3>
-            <span class="close-task-modal" onclick="hideTaskModal('{{ tab_id }}')">&times;</span>
-        </div>
-
-        <div class="task-modal-body">
-            <div class="task-form-section">
-                <label for="taskTitle_{{ tab_id }}">Название задачи:</label>
-                <input type="text" id="taskTitle_{{ tab_id }}" class="task-input" placeholder="Введите название задачи"
-                       value="{{ name }}">
-            </div>
-
-            <div class="task-form-section">
-                <label for="taskDescription_{{ tab_id }}">Описание задачи:</label>
-                <textarea id="taskDescription_{{ tab_id }}" class="task-textarea"
-                          placeholder="Опишите задачу, требования, условия..."></textarea>
-            </div>
-
-            <div class="task-form-section">
-                <label for="taskCode_{{ tab_id }}">Код задачи:</label>
-                <div class="code-preview" id="taskCodePreview_{{ tab_id }}">
-                    <!-- Код будет отображаться здесь -->
-                </div>
-                <div class="code-stats">
-                    <span>Строк: <span id="taskLinesCount_{{ tab_id }}">0</span></span>
-                    <span>Символов: <span id="taskCharsCount_{{ tab_id }}">0</span></span>
-                    <span>Без пробелов: <span id="taskNonSpaceCount_{{ tab_id }}">0</span></span>
-                </div>
-            </div>
-
-            <div class="task-form-section">
-                <label>Ограничения:</label>
-                <div class="constraints-grid">
-                    <!-- Максимальное количество строк -->
-                    <div class="constraint-item">
-                        <label>
-                            <input type="checkbox" id="limitLines_{{ tab_id }}"
-                                   onchange="toggleLineLimit('{{ tab_id }}')">
-                            Максимальное количество строк:
-                        </label>
-                        <input type="number" id="maxLines_{{ tab_id }}" class="constraint-input" min="1" max="100"
-                               value="10" disabled>
-                    </div>
-
-                    <!-- Максимальная длина строки -->
-                    <div class="constraint-item">
-                        <label>
-                            <input type="checkbox" id="limitLineLength_{{ tab_id }}"
-                                   onchange="toggleLineLengthLimit('{{ tab_id }}')">
-                            Максимальная длина строки:
-                        </label>
-                        <input type="number" id="maxLineLength_{{ tab_id }}" class="constraint-input" min="10" max="200"
-                               value="80" disabled>
-                    </div>
-
-                    <!-- Максимальное количество символов -->
-                    <div class="constraint-item">
-                        <label>
-                            <input type="checkbox" id="limitChars_{{ tab_id }}"
-                                   onchange="toggleCharLimit('{{ tab_id }}')">
-                            Максимальное количество символов:
-                        </label>
-                        <input type="number" id="maxChars_{{ tab_id }}" class="constraint-input" min="10" max="1000"
-                               value="200" disabled>
-                    </div>
-
-                    <!-- Максимальное количество функций -->
-                    <div class="constraint-item">
-                        <label>
-                            <input type="checkbox" id="limitFunctions_{{ tab_id }}"
-                                   onchange="toggleFunctionLimit('{{ tab_id }}')">
-                            Максимальное количество функций:
-                        </label>
-                        <input type="number" id="maxFunctions_{{ tab_id }}" class="constraint-input" min="0" max="10"
-                               value="3" disabled>
-                    </div>
-
-                    <!-- Максимальное количество классов -->
-                    <div class="constraint-item">
-                        <label>
-                            <input type="checkbox" id="limitClasses_{{ tab_id }}"
-                                   onchange="toggleClassLimit('{{ tab_id }}')">
-                            Максимальное количество классов:
-                        </label>
-                        <input type="number" id="maxClasses_{{ tab_id }}" class="constraint-input" min="0" max="5"
-                               value="1" disabled>
-                    </div>
-                </div>
-            </div>
-
-            <div class="task-form-section">
-                <label>Запрещённые слова:</label>
-                <div class="forbidden-words-container">
-                    <div class="words-input-container">
-                        <input type="text" id="forbiddenWordInput_{{ tab_id }}" class="word-input"
-                               placeholder="Введите запрещённое слово">
-                        <button type="button" class="add-word-btn" onclick="addForbiddenWord('{{ tab_id }}')">
-                            <i class="fas fa-plus"></i> Добавить
-                        </button>
-                    </div>
-                    <div class="words-list" id="forbiddenWordsList_{{ tab_id }}">
-                        <!-- Запрещённые слова будут отображаться здесь -->
-                    </div>
-                </div>
-            </div>
-
-            <div class="task-form-section">
-                <label>Входные и выходные данные:</label>
-                <div class="io-examples">
-                    <div class="io-example">
-                        <div class="io-header">
-                            <span>Пример 1</span>
-                            <button type="button" class="remove-example-btn" onclick="removeExample('{{ tab_id }}', 0)">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
-                        <div class="io-row">
-                            <div class="io-cell">
-                                <label>Входные данные:</label>
-                                <textarea class="io-input" id="inputExample1_{{ tab_id }}"
-                                          placeholder='{"arg1": "value", "arg2": 123}'></textarea>
-                            </div>
-                            <div class="io-cell">
-                                <label>Ожидаемый результат:</label>
-                                <textarea class="io-output" id="outputExample1_{{ tab_id }}"
-                                          placeholder='{"result": "expected"}'></textarea>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <button type="button" class="add-example-btn" onclick="addExample('{{ tab_id }}')">
-                    <i class="fas fa-plus"></i> Добавить пример
-                </button>
-            </div>
-
-            <div class="task-form-section">
-                <label>Теги:</label>
-                <div class="tags-container">
-                    <div class="tags-input-container">
-                        <input type="text" id="tagInput_{{ tab_id }}" class="tag-input" placeholder="Введите тег">
-                        <button type="button" class="add-tag-btn" onclick="addTag('{{ tab_id }}')">
-                            <i class="fas fa-plus"></i> Добавить
-                        </button>
-                    </div>
-                    <div class="tags-list" id="tagsList_{{ tab_id }}">
-                        <!-- Теги будут отображаться здесь -->
-                        <span class="tag">python</span>
-                        <span class="tag">задача</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="task-form-section">
-                <label>Уровень сложности:</label>
-                <div class="difficulty-levels">
-                    <label class="difficulty-label">
-                        <input type="radio" name="difficulty_{{ tab_id }}" value="easy" checked>
-                        <span class="difficulty easy">Лёгкий</span>
-                    </label>
-                    <label class="difficulty-label">
-                        <input type="radio" name="difficulty_{{ tab_id }}" value="medium">
-                        <span class="difficulty medium">Средний</span>
-                    </label>
-                    <label class="difficulty-label">
-                        <input type="radio" name="difficulty_{{ tab_id }}" value="hard">
-                        <span class="difficulty hard">Сложный</span>
-                    </label>
-                </div>
-            </div>
-        </div>
-
-        <div class="task-modal-footer">
-            <button class="cancel-task-btn" onclick="hideTaskModal('{{ tab_id }}')">
-                Отмена
-            </button>
-            <button class="create-task-final-btn" onclick="createTask('{{ tab_id }}')">
-                <i class="fas fa-check"></i> Создать задачу
-            </button>
-        </div>
-    </div>
-</div>
-
 <script>
-    // ГЛОБАЛЬНЫЙ КЛАСС - объявляем только если не объявлен
-    if (typeof window.CodeMonkey === 'undefined') {
-        window.CodeMonkey = class CodeMonkey {
+    if (typeof window.MonacoEditor === 'undefined') {
+        window.MonacoEditor = class MonacoEditor {
             constructor(tabId, name, initialCode = '') {
                 this.tabId = tabId;
                 this.name = name;
                 this.initialCode = initialCode;
                 this.editor = null;
-                this.fontSize = localStorage.getItem('codemonkey_fontsize') || 14;
+                this.fontSize = localStorage.getItem('monacoeditor_fontsize') || 14;
                 this.stats = {
                     totalChars: 0,
                     nonSpaceChars: 0,
@@ -390,12 +198,17 @@
                     }
                 };
 
+                // Monaco Editor instance
+                this.monacoEditor = null;
+                this.decorations = [];
+
+
                 this.init();
             }
 
-            init() {
+            async init() {
                 this.applyFontSize();
-                this.createEditor();
+                await this.createEditor();
                 this.bindEvents();
                 this.updateAllStats();
                 this.setupTooltips();
@@ -424,7 +237,7 @@
                     this.fontSize++;
                     this.applyFontSize();
                     this.updateEditorFont();
-                    localStorage.setItem('codemonkey_fontsize', this.fontSize);
+                    localStorage.setItem('monacoeditor_fontsize', this.fontSize);
                 }
             }
 
@@ -433,156 +246,102 @@
                     this.fontSize--;
                     this.applyFontSize();
                     this.updateEditorFont();
-                    localStorage.setItem('codemonkey_fontsize', this.fontSize);
+                    localStorage.setItem('monacoeditor_fontsize', this.fontSize);
                 }
             }
 
             updateEditorFont() {
-                if (this.editor) {
-                    const wrapper = this.editor.getWrapperElement();
-                    const lineNumbers = wrapper.querySelector('.CodeMirror-linenumber');
-                    const code = wrapper.querySelector('.CodeMirror-code');
-
-                    if (lineNumbers) lineNumbers.style.fontSize = `${this.fontSize}px`;
-                    if (code) code.style.fontSize = `${this.fontSize}px`;
-
-                    this.editor.refresh();
+                if (this.monacoEditor) {
+                    this.monacoEditor.updateOptions({
+                        fontSize: this.fontSize
+                    });
                 }
             }
 
-            createEditor() {
-                const textarea = document.getElementById('codeEditor_' + this.tabId);
-                if (!textarea) return;
+            async createEditor() {
+                const container = document.getElementById('editorContainer_' + this.tabId);
+                if (!container) return;
 
                 try {
-                    this.editor = CodeMirror.fromTextArea(textarea, {
-                        mode: 'python',
-                        theme: 'pycharm', // nord
-                        lineNumbers: true,
-                        matchBrackets: true,
-                        indentUnit: 4,
-                        tabSize: 4,
-                        lineWrapping: false,
-                        styleActiveLine: true,
-                        autoRefresh: true,
-                        value: this.initialCode || textarea.value || '',
-                        extraKeys: {
-                            "Ctrl-D": function (cm) {
-                                // Дублирование строки
-                                const cursor = cm.getCursor();
-                                const line = cm.getLine(cursor.line);
-                                cm.replaceRange(line + "\n", {line: cursor.line, ch: 0});
-                                cm.setCursor(cursor.line + 1, cursor.ch);
-                            },
-                            "Ctrl-Shift-D": function (cm) {
-                                // Дублирование выделенного текста
-                                if (cm.somethingSelected()) {
-                                    const selections = cm.listSelections();
-                                    let newSelections = [];
-                                    let offset = 0;
+                    if (typeof require === 'undefined') return;
 
-                                    selections.forEach((sel, i) => {
-                                        const text = cm.getRange(sel.anchor, sel.head);
-                                        cm.replaceRange(text, {line: sel.to().line, ch: 0});
-                                        offset++;
-                                        newSelections.push({
-                                            anchor: {line: sel.anchor.line + offset, ch: sel.anchor.ch},
-                                            head: {line: sel.head.line + offset, ch: sel.head.ch}
-                                        });
-                                    });
-                                    cm.setSelections(newSelections);
-                                } else {
-                                    // Если ничего не выделено, дублируем строку
-                                    const cursor = cm.getCursor();
-                                    const line = cm.getLine(cursor.line);
-                                    cm.replaceRange(line + "\n", {line: cursor.line, ch: 0});
-                                    cm.setCursor(cursor.line + 1, cursor.ch);
-                                }
-                            },
-                            "Enter": (cm) => this.handleEnterKey(cm),
-                            "Tab": (cm) => this.handleTabKey(cm),
-                            "Shift-Tab": (cm) => this.handleShiftTabKey(cm),
-                            "Ctrl-=": (cm) => {
-                                this.increaseFontSize();
-                            },
-                            "Ctrl--": (cm) => {
-                                this.decreaseFontSize();
-                            },
-                            "Ctrl-0": (cm) => {
-                                this.fontSize = 14;
-                                this.applyFontSize();
-                                this.updateEditorFont();
-                                localStorage.setItem('codemonkey_fontsize', this.fontSize);
-                            }
+                    require.config({paths: {'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.0/min/vs'}});
+                    await new Promise((res, rej) => require(['vs/editor/editor.main'], res, rej));
+
+                    this.monacoEditor = monaco.editor.defineTheme('oneDarkCustom', {
+                        base: 'vs-dark',
+                        inherit: true,
+                        rules: [
+                            {token: 'keyword.python', foreground: 'C678DD'},       // from, import, def
+                            {token: 'string.python', foreground: '98C379'},        // строки
+                            {token: 'function.python', foreground: '61AFEF'},      // названия функций
+                            {token: 'type.python', foreground: 'E5C07B'},          // классы
+                            {token: 'comment.python', foreground: '5C6370', fontStyle: 'italic'},
+                            {token: 'number.python', foreground: 'D19A66'},        // числа
+                            {token: 'operator.python', foreground: '56B6C2'},      // + - * /
+                            {token: 'identifier.python', foreground: 'ABB2BF'},    // переменные
+                            {token: 'meta.function.decorator.python', foreground: 'D19A66'}, // @decorator
+                        ],
+                        colors: {
+                            'editor.background': '#282C34',
+                            'editor.foreground': '#ABB2BF',
+                            'editor.lineHighlightBackground': '#2C313C',
+                            'editorLineNumber.foreground': '#495162',
+                            'editorLineNumber.activeForeground': '#ABB2BF',
+                            'editorIndentGuide.background': '#3B4048',
+                            'editorIndentGuide.activeBackground': '#528BFF',
+                            'editor.selectionBackground': '#3E4451',
                         }
                     });
 
-                    if (this.initialCode) {
-                        this.editor.setValue(this.initialCode);
-                    }
+                    // 2. СОЗДАЕМ РЕДАКТОР
+                    this.monacoEditor = monaco.editor.create(container, {
+                        value: this.initialCode || '',
+                        language: 'python',
+                        theme: 'oneDarkCustom', // Применяем созданную тему
 
-                    // Применяем размер шрифта к редактору
-                    this.updateEditorFont();
-                    this.setupMultipleCursors();
+                        // ШРИФТ (JetBrains Mono должен быть установлен в системе или подключен через CSS)
+                        fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
+                        fontSize: 14,
+                        lineHeight: 25, // На скрине очень свободный интервал
+                        letterSpacing: 0.5,
+                        fontLigatures: true,
 
-                } catch (error) {
-                    console.error('Error initializing editor:', error);
+                        padding: {top: 20, bottom: 20},
+
+                        minimap: {enabled: false},
+                        scrollbar: {
+                            vertical: 'visible',
+                            horizontal: 'visible',
+                            verticalScrollbarSize: 10,
+                            horizontalScrollbarSize: 10,
+                            useShadows: false
+                        },
+
+                        lineNumbersMinChars: 4,
+                        glyphMargin: false,
+                        folding: true,
+
+                        automaticLayout: true,
+                        scrollBeyondLastLine: false,
+                        renderLineHighlight: 'all',
+
+                        // Настройки поведения (режим "экзамен")
+                        quickSuggestions: false,
+                        suggestOnTriggerCharacters: false,
+                        autoClosingBrackets: 'always',
+                        tabSize: 4,
+                        insertSpaces: true,
+
+                        guides: {
+                            indentation: true,
+                            bracketPairs: true
+                        }
+                    });
+
+                } catch (err) {
+                    console.error('Monaco Init Error:', err);
                 }
-            }
-
-            setupMultipleCursors() {
-                if (!this.editor) return;
-
-                // Alt+клик для добавления каретки
-                this.editor.on("mousedown", (cm, event) => {
-                    if (event.altKey && !event.ctrlKey && !event.shiftKey && !event.metaKey) {
-                        const pos = cm.coordsChar({left: event.clientX, top: event.clientY});
-                        const selections = cm.listSelections();
-
-                        // Добавляем новую каретку
-                        const newSelections = [...selections, {anchor: pos, head: pos}];
-                        cm.setSelections(newSelections, null, {scroll: false});
-
-                        event.preventDefault();
-                        event.stopPropagation();
-                    }
-                });
-
-                // Alt+стрелки для перемещения кареток
-                this.editor.on("keydown", (cm, event) => {
-                    if (event.altKey && (event.key === 'ArrowUp' || event.key === 'ArrowDown' ||
-                        event.key === 'ArrowLeft' || event.key === 'ArrowRight')) {
-                        const selections = cm.listSelections();
-                        const newSelections = selections.map(sel => {
-                            let newAnchor, newHead;
-
-                            switch (event.key) {
-                                case 'ArrowUp':
-                                    newAnchor = {line: sel.anchor.line - 1, ch: sel.anchor.ch};
-                                    newHead = {line: sel.head.line - 1, ch: sel.head.ch};
-                                    break;
-                                case 'ArrowDown':
-                                    newAnchor = {line: sel.anchor.line + 1, ch: sel.anchor.ch};
-                                    newHead = {line: sel.head.line + 1, ch: sel.head.ch};
-                                    break;
-                                case 'ArrowLeft':
-                                    newAnchor = {line: sel.anchor.line, ch: Math.max(0, sel.anchor.ch - 1)};
-                                    newHead = {line: sel.head.line, ch: Math.max(0, sel.head.ch - 1)};
-                                    break;
-                                case 'ArrowRight':
-                                    const lineLength = cm.getLine(sel.anchor.line).length;
-                                    newAnchor = {line: sel.anchor.line, ch: Math.min(lineLength, sel.anchor.ch + 1)};
-                                    newHead = {line: sel.head.line, ch: Math.min(lineLength, sel.head.ch + 1)};
-                                    break;
-                            }
-
-                            return {anchor: newAnchor, head: newHead};
-                        });
-
-                        cm.setSelections(newSelections);
-                        event.preventDefault();
-                    }
-                });
             }
 
             updateSelectionUI() {
@@ -614,7 +373,7 @@
                 const sections = ['functions', 'classes', 'imports'];
 
                 sections.forEach(sectionType => {
-                    const storageKey = `codemonkey_section_${this.tabId}_${sectionType}`;
+                    const storageKey = `monacoeditor_section_${this.tabId}_${sectionType}`;
                     const savedState = localStorage.getItem(storageKey);
                     const section = document.getElementById(`${sectionType}Section_${this.tabId}`);
 
@@ -640,9 +399,9 @@
             }
 
             analyzeCodeStructure() {
-                if (!this.editor) return;
+                if (!this.monacoEditor) return;
 
-                const code = this.editor.getValue();
+                const code = this.monacoEditor.getValue();
                 const lines = code.split('\n');
 
                 this.functions = [];
@@ -750,7 +509,7 @@
 
                     funcElement.onclick = (e) => {
                         e.stopPropagation();
-                        this.goToLine(func.line - 1);
+                        this.goToLine(func.line);
                     };
 
                     container.appendChild(funcElement);
@@ -779,7 +538,7 @@
 
                     classElement.onclick = (e) => {
                         e.stopPropagation();
-                        this.goToLine(cls.line - 1);
+                        this.goToLine(cls.line);
                     };
 
                     container.appendChild(classElement);
@@ -817,7 +576,7 @@
                     // При клике переходим к первому импорту этого модуля
                     importElement.onclick = (e) => {
                         e.stopPropagation();
-                        this.goToLine(imports[0].line - 1);
+                        this.goToLine(imports[0].line);
                     };
 
                     container.appendChild(importElement);
@@ -857,10 +616,6 @@
                     this.collapseConsole();
                 });
 
-                // Создание задачи
-                $('#createTaskBtn_' + this.tabId).off('click').on('click', () => {
-                    this.showTaskModal();
-                });
 
                 // Клик по иконке ошибок PEP8
                 $(document).on('click', `#pep8Errors_${this.tabId}`, (e) => {
@@ -868,32 +623,34 @@
                     this.showErrorsModal();
                 });
 
-                if (this.editor) {
+                if (this.monacoEditor) {
                     // Обновление статистики и структуры
-                    this.editor.on('change', () => {
+                    this.monacoEditor.onDidChangeModelContent(() => {
                         this.updateAllStats();
                         this.updateStructureSidebar();
                         this.autoSave();
                     });
-                    this.editor.on('cursorActivity', () => {
-                        this.updateSelectionStats();
-                    });
 
                     // Обновление статистики выделения
-                    this.editor.on('cursorActivity', () => {
+                    this.monacoEditor.onDidChangeCursorSelection(() => {
                         this.updateSelectionStats();
                     });
 
                     // Проверка ввода
-                    this.editor.on('beforeChange', (cm, change) => {
-                        return this.validateInput(change);
+                    this.monacoEditor.onKeyDown((e) => {
+                        this.validateKeyInput(e);
                     });
                 }
+            }
 
-                // Инициализируем изменение размера консоли
-                setTimeout(() => {
-                    this.initConsoleResize();
-                }, 100);
+            validateKeyInput(e) {
+                // Запрет на точку с запятой
+                if (e.key === ';') {
+                    this.addConsoleMessage('Python не использует точку с запятой (;) в конце строк', 'warning');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                }
             }
 
             setupTooltips() {
@@ -904,40 +661,16 @@
                 });
             }
 
-            validateInput(change) {
-                const newText = change.text.join('');
-
-                // Запрет на точку с запятой
-                if (newText.includes(';')) {
-                    this.addConsoleMessage('Python не использует точку с запятой (;) в конце строк', 'warning');
-                    return false;
-                }
-
-                // Проверка длины строки
-                if (change.from.line === change.to.line) {
-                    const line = this.editor.getLine(change.from.line);
-                    const beforeLength = line.length;
-                    const changeLength = newText.length - (change.to.ch - change.from.ch);
-                    const newLineLength = beforeLength + changeLength;
-
-                    if (newLineLength > this.pep8Limit) {
-                        this.addConsoleMessage(`Строка слишком длинная (${newLineLength}/${this.pep8Limit} символов)`, 'warning');
-                        return false;
-                    }
-                }
-
-                return true;
-            }
-
             updateAllStats() {
-                if (!this.editor) return;
+                if (!this.monacoEditor) return;
 
-                const code = this.editor.getValue();
+                const code = this.monacoEditor.getValue();
 
                 this.updateCharStats(code);
                 this.updateCodeStructureStats(code);
                 this.updateSelectionStats();
                 this.checkPEP8Rules(code);
+                this.loadConsoleHeight();
 
                 this.updateStatsUI();
             }
@@ -953,44 +686,32 @@
             }
 
             updateSelectionStats() {
-                if (!this.editor) return;
+                if (!this.monacoEditor) return;
 
-                const selections = this.editor.listSelections();
+                const selection = this.monacoEditor.getSelection();
                 let selectedAllChars = 0;
                 let selectedNonWhitespaceChars = 0;
                 let selectedWords = 0;
                 let selectedLines = 0;
 
-                if (selections.length > 0) {
-                    const uniqueLines = new Set();
+                if (!selection.isEmpty()) {
+                    const model = this.monacoEditor.getModel();
+                    const text = model.getValueInRange(selection);
 
-                    selections.forEach(sel => {
-                        // Определяем реальные границы выделения (работает в обе стороны)
-                        const start = this.editor.getCursor("from"); // Начало выделения
-                        const end = this.editor.getCursor("to");     // Конец выделения
+                    // Все символы
+                    selectedAllChars = text.length;
 
-                        // Получаем текст выделения (правильно для любого направления)
-                        const text = this.editor.getRange(start, end);
+                    // Не-whitespace символы
+                    selectedNonWhitespaceChars = text.replace(/\s/g, '').length;
 
-                        // Все символы
-                        selectedAllChars += text.length;
+                    // Подсчет слов
+                    const wordArray = text.match(/\S+/g) || [];
+                    selectedWords = wordArray.length;
 
-                        // Не-whitespace символы (все кроме пробелов, табов, переносов строк)
-                        selectedNonWhitespaceChars += text.replace(/\s/g, '').length;
-
-                        // Подсчет слов
-                        const wordArray = text.match(/\S+/g) || [];
-                        selectedWords += wordArray.length;
-
-                        // Подсчет строк
-                        const startLine = Math.min(start.line, end.line);
-                        const endLine = Math.max(start.line, end.line);
-                        for (let i = startLine; i <= endLine; i++) {
-                            uniqueLines.add(i);
-                        }
-                    });
-
-                    selectedLines = uniqueLines.size;
+                    // Подсчет строк
+                    const startLine = selection.startLineNumber;
+                    const endLine = selection.endLineNumber;
+                    selectedLines = endLine - startLine + 1;
                 }
 
                 // Обновляем статистику
@@ -1035,20 +756,29 @@
             addError(lineNum, message, type) {
                 this.errors.push({line: lineNum, message, type});
 
-                if (this.editor) {
-                    const lineIndex = lineNum - 1;
-                    const markerType = type === 'syntax' ? 'error' : 'warning';
-                    this.editor.addLineClass(lineIndex, 'wrap', `cm-line-${markerType}-${this.tabId}`);
+                if (this.monacoEditor) {
+                    const model = this.monacoEditor.getModel();
+                    if (!model) return;
+
+                    const lineDecoration = {
+                        range: new monaco.Range(lineNum, 1, lineNum, 1),
+                        options: {
+                            isWholeLine: true,
+                            className: type === 'syntax' ? 'error-line-decoration' : 'warning-line-decoration',
+                            glyphMarginClassName: type === 'syntax' ? 'error-glyph-margin' : 'warning-glyph-margin'
+                        }
+                    };
+
+                    this.decorations = this.monacoEditor.deltaDecorations(
+                        this.decorations,
+                        [lineDecoration]
+                    );
                 }
             }
 
             clearLineMarkers() {
-                if (!this.editor) return;
-
-                for (let i = 0; i < this.editor.lineCount(); i++) {
-                    this.editor.removeLineClass(i, 'wrap', `cm-line-error-${this.tabId}`);
-                    this.editor.removeLineClass(i, 'wrap', `cm-line-warning-${this.tabId}`);
-                }
+                if (!this.monacoEditor) return;
+                this.decorations = this.monacoEditor.deltaDecorations(this.decorations, []);
             }
 
             updateStatsUI() {
@@ -1081,7 +811,7 @@
                     errorsList.innerHTML += '<div class="error-group-title">Ошибки PEP8:</div>';
                     pep8Errors.forEach(error => {
                         errorsList.innerHTML += `
-                        <div class="error-item" onclick="window.codeMonkeyInstances['${this.tabId}'].goToLine(${error.line - 1})">
+                        <div class="error-item" onclick="window.codeMonkeyInstances['${this.tabId}'].goToLine(${error.line})">
                             <span class="error-line">Строка ${error.line}:</span>
                             <span class="error-message">${error.message}</span>
                         </div>
@@ -1093,7 +823,7 @@
                     errorsList.innerHTML += '<div class="error-group-title">Синтаксические ошибки:</div>';
                     syntaxErrors.forEach(error => {
                         errorsList.innerHTML += `
-                        <div class="error-item" onclick="window.codeMonkeyInstances['${this.tabId}'].goToLine(${error.line - 1})">
+                        <div class="error-item" onclick="window.codeMonkeyInstances['${this.tabId}'].goToLine(${error.line})">
                             <span class="error-line">Строка ${error.line}:</span>
                             <span class="error-message">${error.message}</span>
                         </div>
@@ -1108,28 +838,15 @@
                 document.getElementById('pep8ErrorsModal_' + this.tabId).style.display = 'none';
             }
 
-            showTaskModal() {
-                const modal = document.getElementById('taskCreationModal_' + this.tabId);
-                if (!modal) return;
-
-                // Обновляем статистику кода в модальном окне
-                this.updateTaskCodePreview();
-
-                // Сбрасываем форму
-                this.resetTaskForm();
-
-                modal.style.display = 'flex'; // <-- ИЗМЕНИТЬ НА 'flex'
-            }
-
             hideTaskModal() {
                 document.getElementById('taskCreationModal_' + this.tabId).style.display = 'none';
             }
 
             updateTaskCodePreview() {
                 const codePreview = document.getElementById('taskCodePreview_' + this.tabId);
-                if (!codePreview || !this.editor) return;
+                if (!codePreview || !this.monacoEditor) return;
 
-                const code = this.editor.getValue();
+                const code = this.monacoEditor.getValue();
                 const lines = code.split('\n');
 
                 // Форматируем код для отображения
@@ -1280,101 +997,108 @@
             }
 
             goToLine(line) {
-                if (!this.editor) return;
+                if (!this.monacoEditor) return;
 
-                this.editor.setCursor(line, 0);
-                this.editor.focus();
-                this.editor.scrollIntoView({line: line, ch: 0}, 100);
+                this.monacoEditor.revealLineInCenter(line);
+                this.monacoEditor.setPosition({
+                    lineNumber: line,
+                    column: 1
+                });
+                this.monacoEditor.focus();
                 this.hideErrorsModal();
             }
 
-            handleEnterKey(cm) {
-                const cursor = cm.getCursor();
-                const line = cm.getLine(cursor.line);
-                const indentMatch = line.match(/^(\s*)/);
-                const indent = indentMatch ? indentMatch[1] : '';
+            loadConsoleHeight() {
+                const savedHeight = localStorage.getItem(`console_height_${this.tabId}`);
+                const consoleContainer = document.getElementById(`consoleContainer_${this.tabId}`);
 
-                if (line.trim().endsWith(':')) {
-                    cm.replaceSelection('\n' + indent + '    ');
-                } else {
-                    cm.replaceSelection('\n' + indent);
+                if (savedHeight && consoleContainer) {
+                    // Применяем сохраненную высоту
+                    consoleContainer.style.height = `${savedHeight}px`;
+
+                    // Важно: если Monaco уже инициализирован, нужно обновить его размер
+                    if (this.monacoEditor) {
+                        this.monacoEditor.layout();
+                    }
                 }
-            }
-
-            handleTabKey(cm) {
-                if (cm.somethingSelected()) {
-                    cm.indentSelection("add");
-                } else {
-                    cm.replaceSelection('    ', "end", "+input");
-                }
-            }
-
-            handleShiftTabKey(cm) {
-                cm.indentSelection("subtract");
             }
 
             runCode() {
-                if (!this.editor) return;
+                if (!this.monacoEditor) return;
 
-                const code = this.editor.getValue();
+                const code = this.monacoEditor.getValue();
                 const runBtn = $('#tabRunBtn_' + this.tabId);
 
                 runBtn.prop('disabled', true);
-                runBtn.html('<div class="loading"></div> Выполнение...');
+                runBtn.html('<div class="loading"></div> Подготовка...');
 
-                // Очищаем содержимое консоли, но НЕ сбрасываем высоту
                 this.clearConsoleContent();
 
-                if (this.errors.length > 0) {
-                    this.addConsoleMessage(`Найдено ${this.errors.length} ошибок`, 'warning');
-                    this.errors.slice(0, 2).forEach(error => {
-                        this.addConsoleMessage(`  Строка ${error.line}: ${error.message}`, 'warning');
-                    });
-
-                    runBtn.prop('disabled', false);
-                    runBtn.html('<i class="fas fa-play"></i> Запустить');
-                    return;
-                }
-
-                // Запоминаем время начала выполнения
-                const startTime = Date.now();
-
-                // AJAX запрос на сервер
+                // 1. Отправляем запрос на запуск
                 $.ajax({
                     url: `${location.origin}/code_cup/editor/run-code/`,
                     type: 'POST',
-                    data: {
-                        code: code,
-                        tab_id: this.tabId,
-                        language: 'python'
-                    },
+                    data: {code: code, language: 'python'},
                     success: (response) => {
-                        const executionTime = Date.now() - startTime;
-
-                        if (response.success) {
-                            this.addConsoleMessage(`✓ Код выполнен успешно (${executionTime}мс)`, 'success');
-
-                            // Итоговый вывод
-                            if (response.final_output && response.final_output.trim() !== '') {
-                                this.addConsoleMessage(response.final_output, 'output');
-                            }
-
+                        if (response.success && response.task_id) {
+                            this.addConsoleMessage(`⚙️ Задача поставлена в очередь...`, 'info');
+                            // Начинаем опрашивать статус
+                            this.pollTaskStatus(response.task_id);
                         } else {
-                            this.addConsoleMessage(`❌ Ошибка выполнения (${executionTime}мс): ${response.error}`, 'error');
+                            this.addConsoleMessage(`❌ Ошибка: ${response.error}`, 'error');
+                            this.resetRunButton();
                         }
                     },
-                    error: (xhr, status, error) => {
-                        const executionTime = Date.now() - startTime;
-                        this.addConsoleMessage(`❌ Ошибка соединения (${executionTime}мс): ${error}`, 'error');
-                        if (xhr.responseText) {
-                            this.addConsoleMessage(`Детали: ${xhr.responseText}`, 'error');
-                        }
-                    },
-                    complete: () => {
-                        runBtn.prop('disabled', false);
-                        runBtn.html('<i class="fas fa-play"></i> Запустить');
+                    error: (xhr) => {
+                        this.addConsoleMessage(`❌ Ошибка сервера`, 'error');
+                        this.resetRunButton();
                     }
                 });
+            }
+
+            pollTaskStatus(taskId) {
+                const runBtn = $('#tabRunBtn_' + this.tabId);
+
+                const checkInterval = setInterval(() => {
+                    $.ajax({
+                        url: `${location.origin}/code_cup/editor/get-status/${taskId}/`,
+                        type: 'GET',
+                        success: (data) => {
+                            if (data.status === 'SUCCESS') {
+                                clearInterval(checkInterval);
+                                const res = data.result;
+
+                                if (res.success) {
+                                    this.addConsoleMessage(`✓ Выполнено за ${res.execution_time_ms}мс`, 'success');
+                                    if (res.output) this.addConsoleMessage(res.output, 'output');
+
+                                    // Если вы добавили статистику в tasks.py:
+                                    if (res.stats) {
+                                        this.addConsoleMessage(`📊 Строк: ${res.stats.lines}, Функций: ${res.stats.functions}`, 'info');
+                                    }
+                                } else {
+                                    this.addConsoleMessage(`❌ Ошибка: ${res.error}`, 'error');
+                                }
+                                this.resetRunButton();
+                            } else if (data.status === 'FAILURE') {
+                                clearInterval(checkInterval);
+                                this.addConsoleMessage(`❌ Системная ошибка Celery`, 'error');
+                                this.resetRunButton();
+                            }
+                            // Если PENDING — ничего не делаем, ждем следующего цикла
+                        },
+                        error: () => {
+                            clearInterval(checkInterval);
+                            this.resetRunButton();
+                        }
+                    });
+                }, 500); // Опрос каждые полсекунды
+            }
+
+            resetRunButton() {
+                const runBtn = $('#tabRunBtn_' + this.tabId);
+                runBtn.prop('disabled', false);
+                runBtn.html('<i class="fas fa-play"></i> Запустить');
             }
 
             addConsoleMessage(message, type = 'info') {
@@ -1422,90 +1146,97 @@
                 }
             }
 
-// Инициализация изменения размера с улучшенной логикой
             initConsoleResize() {
                 const handle = document.getElementById(`consoleResize_${this.tabId}`);
                 const consoleElem = document.getElementById(`consoleContainer_${this.tabId}`);
 
                 if (!handle || !consoleElem) return;
 
-                handle.addEventListener('mousedown', (e) => {
+                handle.addEventListener('pointerdown', (e) => {
                     e.preventDefault();
+
+                    // Быстрый захват фокуса (предотвращает "выпадение" мыши при быстром движении)
+                    handle.setPointerCapture(e.pointerId);
 
                     const startY = e.clientY;
                     const startHeight = consoleElem.offsetHeight;
-                    const consoleRect = consoleElem.getBoundingClientRect();
 
-                    console.log('Ресайз начат:', {
-                        startY,
-                        startHeight,
-                        consoleTop: consoleRect.top,
-                        windowHeight: window.innerHeight,
-                        availableSpace: window.innerHeight - consoleRect.top
-                    });
-
-                    // Отключаем transition
+                    // Подготовка DOM к быстрому ресайзу
+                    document.body.style.cursor = 'row-resize';
+                    document.body.style.userSelect = 'none';
                     consoleElem.style.transition = 'none';
                     consoleElem.classList.add('resizing');
 
-                    const onMouseMove = (e) => {
-                        const currentY = e.clientY;
-                        const deltaY = startY - currentY;
+                    // Если у вас Monaco или Iframe, они "крадут" события мыши.
+                    // Добавляем прозрачный слой поверх всего на время ресайза.
+                    const overlay = document.createElement('div');
+                    overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999;cursor:row-resize;';
+                    document.body.appendChild(overlay);
 
-                        // Сначала вычисляем новую высоту без ограничений
-                        let newHeight = startHeight + deltaY;
+                    let rafId = null;
 
-                        // МЯГКИЕ ограничения:
-                        // 1. Нельзя сделать меньше 50px (чтобы оставалось место для handle)
-                        // 2. Нельзя сделать больше, чем позволяет доступное пространство
-                        const minHeight = 50;
-                        const maxHeight = window.innerHeight - consoleRect.top - 10; // 10px отступ
+                    const onPointerMove = (moveEvent) => {
+                        // Используем requestAnimationFrame для плавности 60+ FPS
+                        if (rafId) cancelAnimationFrame(rafId);
 
-                        console.log('Вычисление:', {
-                            deltaY,
-                            newHeight,
-                            minHeight,
-                            maxHeight
-                        });
+                        rafId = requestAnimationFrame(() => {
+                            const deltaY = startY - moveEvent.clientY;
+                            let newHeight = startHeight + deltaY;
 
-                        // Применяем ограничения
-                        if (newHeight < minHeight) {
-                            consoleElem.style.height = `${minHeight}px`;
-                        } else if (newHeight > maxHeight) {
-                            consoleElem.style.height = `${maxHeight}px`;
-                        } else {
+                            // Жесткие и быстрые ограничения
+                            // 40px - высота шапки консоли, window.innerHeight * 0.8 - макс. предел
+                            const minH = 40;
+                            const maxH = window.innerHeight * 0.8;
+
+                            if (newHeight < minH) newHeight = minH;
+                            if (newHeight > maxH) newHeight = maxH;
+
                             consoleElem.style.height = `${newHeight}px`;
-                        }
+
+                            // Опционально: если нужно обновить верстку редактора при ресайзе
+                            if (this.monacoEditor) {
+                                this.monacoEditor.layout();
+                            }
+                        });
                     };
 
-                    const onMouseUp = () => {
-                        document.removeEventListener('mousemove', onMouseMove);
-                        document.removeEventListener('mouseup', onMouseUp);
+                    const onPointerUp = () => {
+                        if (rafId) cancelAnimationFrame(rafId);
 
-                        // Восстанавливаем transition
+                        // Чистим за собой
+                        document.body.removeChild(overlay);
+                        document.body.style.cursor = '';
+                        document.body.style.userSelect = '';
                         consoleElem.style.transition = '';
                         consoleElem.classList.remove('resizing');
 
-                        // Сохраняем
+                        handle.releasePointerCapture(e.pointerId);
+                        document.removeEventListener('pointermove', onPointerMove);
+                        document.removeEventListener('pointerup', onPointerUp);
+
                         this.saveConsoleHeight();
                     };
 
-                    document.addEventListener('mousemove', onMouseMove);
-                    document.addEventListener('mouseup', onMouseUp);
+                    document.addEventListener('pointermove', onPointerMove);
+                    document.addEventListener('pointerup', onPointerUp);
                 });
             }
 
             saveConsoleHeight() {
-                const consoleContainer = $(`#consoleContainer_${this.tabId}`);
-                if (consoleContainer.length) {
-                    const currentHeight = consoleContainer.height();
-                    localStorage.setItem(`console_height_${this.tabId}`, currentHeight);
+                const consoleContainer = document.getElementById(`consoleContainer_${this.tabId}`);
+                if (consoleContainer) {
+                    const currentHeight = consoleContainer.offsetHeight;
+
+                    // Сохраняем только если высота больше минимальной (например, 40px)
+                    if (currentHeight > 40) {
+                        localStorage.setItem(`console_height_${this.tabId}`, currentHeight);
+                    }
                 }
             }
 
             autoSave() {
-                if (!this.editor) return;
-                const content = this.editor.getValue();
+                if (!this.monacoEditor) return;
+                const content = this.monacoEditor.getValue();
 
                 try {
                     const tabs = JSON.parse(localStorage.getItem('codeMonkeyTabs') || '{}');
@@ -1521,14 +1252,6 @@
                     localStorage.setItem('codeMonkeyTabs', JSON.stringify(tabs));
                 } catch (e) {
                     console.error('Error saving tab:', e);
-                }
-            }
-
-            resetConsoleHeight() {
-                const consoleContainer = $(`#consoleContainer_${this.tabId}`);
-                if (consoleContainer.length) {
-                    consoleContainer.css('height', '200px');
-                    localStorage.removeItem(`console_height_${this.tabId}`);
                 }
             }
 
@@ -1558,76 +1281,28 @@
                 }
             }
 
-            // initConsoleResize() {
-            //     const resizeHandle = $(`#consoleResize_${this.tabId}`);
-            //     const consoleContainer = $(`#consoleContainer_${this.tabId}`);
-            //
-            //     if (!resizeHandle.length || !consoleContainer.length) return;
-            //
-            //     let isResizing = false;
-            //     let startY, startHeight;
-            //
-            //     resizeHandle.on('mousedown', (e) => {
-            //         e.preventDefault();
-            //         isResizing = true;
-            //         startY = e.clientY;
-            //         startHeight = parseInt(consoleContainer.height(), 10);
-            //
-            //         $(document).on('mousemove', mouseMoveHandler);
-            //         $(document).on('mouseup', mouseUpHandler);
-            //     });
-            //
-            //     const mouseMoveHandler = (e) => {
-            //         if (!isResizing) return;
-            //
-            //         const deltaY = startY - e.clientY;
-            //         const newHeight = Math.max(100, Math.min(800, startHeight + deltaY));
-            //
-            //         consoleContainer.css('height', `${newHeight}px`);
-            //     };
-            //
-            //     const mouseUpHandler = () => {
-            //         isResizing = false;
-            //         $(document).off('mousemove', mouseMoveHandler);
-            //         $(document).off('mouseup', mouseUpHandler);
-            //
-            //         // Сохраняем высоту
-            //         const currentHeight = parseInt(consoleContainer.height(), 10);
-            //         localStorage.setItem(`console_height_${this.tabId}`, currentHeight);
-            //     };
-            //
-            //     // Восстанавливаем сохраненную высоту
-            //     const savedHeight = localStorage.getItem(`console_height_${this.tabId}`);
-            //     if (savedHeight) {
-            //         consoleContainer.css('height', `${savedHeight}px`);
-            //         if (parseInt(savedHeight) > 200) {
-            //             $(`#expandConsoleBtn_${this.tabId}`).hide();
-            //             $(`#collapseConsoleBtn_${this.tabId}`).show();
-            //         }
-            //     }
-            // }
-
             formatCode() {
-                if (!this.editor) return;
+                if (!this.monacoEditor) return;
 
-                this.editor.operation(() => {
-                    const lines = this.editor.lineCount();
-                    for (let i = 0; i < lines; i++) {
-                        this.editor.indentLine(i, "smart");
-                    }
-                });
+                try {
+                    // Используем форматирование Monaco Editor
+                    this.monacoEditor.getAction('editor.action.formatDocument').run();
 
-                this.updateAllStats();
-                this.updateStructureSidebar();
-                this.hideErrorsModal();
-                this.addConsoleMessage("Код отформатирован", "success");
+                    this.updateAllStats();
+                    this.updateStructureSidebar();
+                    this.hideErrorsModal();
+                    this.addConsoleMessage("Код отформатирован", "success");
+                } catch (error) {
+                    console.error('Error formatting code:', error);
+                    this.addConsoleMessage("Ошибка при форматировании кода", "error");
+                }
             }
 
             createTask() {
                 // Собираем данные из формы
                 const taskTitle = $('#taskTitle_' + this.tabId).val();
                 const taskDescription = $('#taskDescription_' + this.tabId).val();
-                const code = this.editor.getValue();
+                const code = this.monacoEditor.getValue();
 
                 // Собираем ограничения
                 const constraints = {
@@ -1725,24 +1400,16 @@
         }
     }
 
-    function formatCode(tabId) {
-        if (window.codeMonkeyInstances && window.codeMonkeyInstances[tabId]) {
-            window.codeMonkeyInstances[tabId].formatCode();
-        }
-    }
-
     function toggleSection(sectionId) {
         const section = document.getElementById(sectionId);
         const items = section.querySelector('.section-items');
         const toggle = section.querySelector('.section-toggle');
 
-        // Извлекаем tabId и sectionType из ID
         const parts = sectionId.split('_');
         const tabId = parts[parts.length - 1];
         const sectionType = parts[0].replace('Section', '');
 
-        // Сохраняем состояние в localStorage
-        const storageKey = `codemonkey_section_${tabId}_${sectionType}`;
+        const storageKey = `monacoeditor_section_${tabId}_${sectionType}`;
 
         if (items.style.display === 'none') {
             items.style.display = 'block';
@@ -1757,57 +1424,6 @@
         }
     }
 
-    // Функции для работы с модальным окном создания задачи
-    function showTaskModal(tabId) {
-        if (window.codeMonkeyInstances && window.codeMonkeyInstances[tabId]) {
-            window.codeMonkeyInstances[tabId].showTaskModal();
-        }
-    }
-
-    function hideTaskModal(tabId) {
-        if (window.codeMonkeyInstances && window.codeMonkeyInstances[tabId]) {
-            window.codeMonkeyInstances[tabId].hideTaskModal();
-        }
-    }
-
-    function toggleLineLimit(tabId) {
-        const checkbox = $('#limitLines_' + tabId);
-        $('#maxLines_' + tabId).prop('disabled', !checkbox.is(':checked'));
-    }
-
-    function toggleLineLengthLimit(tabId) {
-        const checkbox = $('#limitLineLength_' + tabId);
-        $('#maxLineLength_' + tabId).prop('disabled', !checkbox.is(':checked'));
-    }
-
-    function toggleCharLimit(tabId) {
-        const checkbox = $('#limitChars_' + tabId);
-        $('#maxChars_' + tabId).prop('disabled', !checkbox.is(':checked'));
-    }
-
-    function toggleFunctionLimit(tabId) {
-        const checkbox = $('#limitFunctions_' + tabId);
-        $('#maxFunctions_' + tabId).prop('disabled', !checkbox.is(':checked'));
-    }
-
-    function toggleClassLimit(tabId) {
-        const checkbox = $('#limitClasses_' + tabId);
-        $('#maxClasses_' + tabId).prop('disabled', !checkbox.is(':checked'));
-    }
-
-    function addForbiddenWord(tabId) {
-        if (!window.codeMonkeyInstances || !window.codeMonkeyInstances[tabId]) return;
-
-        const input = $('#forbiddenWordInput_' + tabId);
-        const word = input.val().trim();
-
-        if (word && !window.codeMonkeyInstances[tabId].taskData.forbiddenWords.includes(word)) {
-            window.codeMonkeyInstances[tabId].taskData.forbiddenWords.push(word);
-            window.codeMonkeyInstances[tabId].updateForbiddenWordsList();
-            input.val('');
-        }
-    }
-
     function removeForbiddenWord(tabId, index) {
         if (window.codeMonkeyInstances && window.codeMonkeyInstances[tabId]) {
             window.codeMonkeyInstances[tabId].taskData.forbiddenWords.splice(index, 1);
@@ -1815,18 +1431,6 @@
         }
     }
 
-    function addTag(tabId) {
-        if (!window.codeMonkeyInstances || !window.codeMonkeyInstances[tabId]) return;
-
-        const input = $('#tagInput_' + tabId);
-        const tag = input.val().trim().toLowerCase();
-
-        if (tag && !window.codeMonkeyInstances[tabId].taskData.tags.includes(tag)) {
-            window.codeMonkeyInstances[tabId].taskData.tags.push(tag);
-            window.codeMonkeyInstances[tabId].updateTagsList();
-            input.val('');
-        }
-    }
 
     function removeTag(tabId, index) {
         if (window.codeMonkeyInstances && window.codeMonkeyInstances[tabId]) {
@@ -1835,45 +1439,12 @@
         }
     }
 
-    function addExample(tabId) {
-        if (!window.codeMonkeyInstances || !window.codeMonkeyInstances[tabId]) return;
-
-        window.codeMonkeyInstances[tabId].taskData.examples.push({
-            input: '',
-            output: ''
-        });
-
-        const exampleNum = window.codeMonkeyInstances[tabId].taskData.examples.length;
-        window.codeMonkeyInstances[tabId].addExampleToDOM(exampleNum, {
-            input: '',
-            output: ''
-        });
-    }
-
     function removeExample(tabId, index) {
         if (!window.codeMonkeyInstances || !window.codeMonkeyInstances[tabId]) return;
 
         if (window.codeMonkeyInstances[tabId].taskData.examples.length > 1) {
             window.codeMonkeyInstances[tabId].taskData.examples.splice(index, 1);
             window.codeMonkeyInstances[tabId].updateExamplesList();
-        }
-    }
-
-    function expandConsole(tabId) {
-        if (window.codeMonkeyInstances && window.codeMonkeyInstances[tabId]) {
-            window.codeMonkeyInstances[tabId].expandConsole();
-        }
-    }
-
-    function collapseConsole(tabId) {
-        if (window.codeMonkeyInstances && window.codeMonkeyInstances[tabId]) {
-            window.codeMonkeyInstances[tabId].collapseConsole();
-        }
-    }
-
-    function createTask(tabId) {
-        if (window.codeMonkeyInstances && window.codeMonkeyInstances[tabId]) {
-            return window.codeMonkeyInstances[tabId].createTask();
         }
     }
 
@@ -1887,19 +1458,7 @@
         const code = `{{ code }}`;
 
         // Создаем экземпляр редактора
-        window.codeMonkeyInstances[tabId] = new window.CodeMonkey(tabId, name, code);
-
-        try {
-            const savedTabs = JSON.parse(localStorage.getItem('codeMonkeyTabs') || '{}');
-            const savedTab = savedTabs[tabId];
-            if (savedTab && savedTab.content && window.codeMonkeyInstances[tabId]) {
-                window.codeMonkeyInstances[tabId].editor.setValue(savedTab.content);
-                window.codeMonkeyInstances[tabId].updateAllStats();
-                window.codeMonkeyInstances[tabId].updateStructureSidebar();
-            }
-        } catch (e) {
-            console.error('Error loading saved content:', e);
-        }
+        window.codeMonkeyInstances[tabId] = new window.MonacoEditor(tabId, name, code);
     });
 </script>
 <style>
@@ -1909,24 +1468,24 @@
 
     :root {
         --editor-font-size: 14px;
-        --pycharm-bg: #2b2b2b;
-        --pycharm-fg: #a9b7c6;
-        --pycharm-accent: #9876aa;
-        --pycharm-string: #6a8759;
-        --pycharm-number: #6897bb;
-        --pycharm-keyword: #cc7832;
-        --pycharm-comment: #808080;
-        --pycharm-selection: #214283;
-        --pycharm-gutter: #313335;
-        --pycharm-gutter-fg: #606366;
-        --pycharm-error: #ff6b6b;
+        --pycharm-bg: #1e1e1e;
+        --pycharm-fg: #d4d4d4;
+        --pycharm-accent: #569cd6;
+        --pycharm-string: #ce9178;
+        --pycharm-number: #b5cea8;
+        --pycharm-keyword: #c586c0;
+        --pycharm-comment: #6a9955;
+        --pycharm-selection: #264f78;
+        --pycharm-gutter: #1e1e1e;
+        --pycharm-gutter-fg: #858585;
+        --pycharm-error: #f44747;
         --pycharm-warning: #ffcc00;
         --pycharm-success: #4CAF50;
         --pycharm-info: #4d9feb;
         --pycharm-border: #3c3f41;
-        --sidebar-bg: #2b2b2b;
+        --sidebar-bg: #252526;
         --sidebar-border: #3c3f41;
-        --sidebar-header: #363636;
+        --sidebar-header: #2d2d30;
     }
 
     /* Основной контейнер редактора */
@@ -1959,10 +1518,6 @@
         display: flex;
         align-items: center;
         gap: 10px;
-    }
-
-    .single-icon {
-        color: var(--pycharm-accent);
     }
 
     .single-title {
@@ -2005,11 +1560,11 @@
         text-align: center;
     }
 
-    /* Кнопки в стиле PyCharm */
+    /* Кнопки в стиле VS Code */
     .tab-run-btn, .console-btn {
-        background: #4c5052;
-        color: #b0b0b0;
-        border: 1px solid #3c3f41;
+        background: #0e639c;
+        color: white;
+        border: none;
         border-radius: 4px;
         padding: 6px 12px;
         font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
@@ -2022,13 +1577,12 @@
     }
 
     .tab-run-btn:hover, .console-btn:hover {
-        background: #5a5e5f;
-        color: #d0d0d0;
-        border-color: #4c5052;
+        background: #1177bb;
+        border-color: #0e639c;
     }
 
     .tab-run-btn:active, .console-btn:active {
-        background: #3c3f41;
+        background: #0e639c;
         transform: translateY(1px);
     }
 
@@ -2048,132 +1602,23 @@
         min-width: 300px;
     }
 
-    /* PyCharm-like стили для CodeMirror */
-    .CodeMirror {
+    /* Monaco Editor контейнер */
+    .code-mirror-wrapper .monaco-editor {
         position: absolute;
         top: 0;
         left: 0;
         right: 0;
         bottom: 0;
-        height: auto !important;
-        font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', 'Courier New', monospace;
-        font-size: var(--editor-font-size);
-        font-weight: 400;
-        line-height: 1.5;
-        background: var(--pycharm-bg);
-        color: var(--pycharm-fg);
     }
 
-    .CodeMirror-gutters {
-        background: var(--pycharm-gutter);
-        border-right: 1px solid var(--pycharm-border);
-        color: var(--pycharm-gutter-fg);
+    /* Monaco Editor custom styles */
+    .monaco-editor .margin {
+        background-color: var(--pycharm-gutter);
     }
 
-    .CodeMirror-linenumber {
+    .monaco-editor .line-numbers {
         color: var(--pycharm-gutter-fg);
-        font-size: var(--editor-font-size);
         font-family: 'JetBrains Mono', monospace;
-    }
-
-    .CodeMirror-line {
-        font-size: var(--editor-font-size);
-    }
-
-    .CodeMirror-cursor {
-        border-left: 2px solid var(--pycharm-fg);
-    }
-
-    .CodeMirror-selected {
-        background: var(--pycharm-selection) !important;
-    }
-
-    .CodeMirror-focused .CodeMirror-selected {
-        background: var(--pycharm-selection) !important;
-    }
-
-    /* Подсветка активной строки */
-    .CodeMirror-activeline-background {
-        background: rgba(33, 66, 131, 0.15) !important;
-    }
-
-    /* Синтаксическая подсветка */
-    .cm-keyword {
-        color: var(--pycharm-keyword);
-        font-weight: 600;
-    }
-
-    .cm-builtin {
-        color: var(--pycharm-keyword);
-    }
-
-    .cm-def {
-        color: #ffc66d;
-    }
-
-    .cm-variable {
-        color: var(--pycharm-fg);
-    }
-
-    .cm-variable-2 {
-        color: #ffc66d;
-    }
-
-    .cm-variable-3 {
-        color: #9876aa;
-    }
-
-    .cm-string {
-        color: var(--pycharm-string);
-    }
-
-    .cm-string-2 {
-        color: var(--pycharm-string);
-    }
-
-    .cm-number {
-        color: var(--pycharm-number);
-    }
-
-    .cm-atom {
-        color: #9876aa;
-    }
-
-    .cm-operator {
-        color: var(--pycharm-fg);
-    }
-
-    .cm-comment {
-        color: var(--pycharm-comment);
-        font-style: italic;
-    }
-
-    .cm-meta {
-        color: #bbb529;
-    }
-
-    .cm-bracket {
-        color: var(--pycharm-fg);
-    }
-
-    .cm-tag {
-        color: #e8bf6a;
-    }
-
-    .cm-attribute {
-        color: #bababa;
-    }
-
-    .cm-link {
-        color: var(--pycharm-string);
-    }
-
-    .cm-error {
-        color: var(--pycharm-error);
-    }
-
-    .cm-property {
-        color: #ffc66d;
     }
 
     /* Боковая панель структуры кода */
@@ -2334,15 +1779,15 @@
     }
 
     .func-magic i {
-        color: #9876aa;
+        color: #c586c0;
     }
 
     .func-private i {
-        color: #ff6b6b;
+        color: #f44747;
     }
 
     .func-constant i {
-        color: #6897bb;
+        color: #b5cea8;
     }
 
     /* Цвета для разных типов классов */
@@ -2363,7 +1808,7 @@
     }
 
     .import i {
-        color: #6a8759;
+        color: #ce9178;
     }
 
     .empty-message {
@@ -2667,129 +2112,30 @@
         }
     }
 
-    /* Стиль для скроллбара */
-    .CodeMirror-vscrollbar::-webkit-scrollbar,
-    .structure-content::-webkit-scrollbar,
-    .pep8-modal-body::-webkit-scrollbar,
-    .section-items::-webkit-scrollbar {
-        width: 8px;
+    /* Monaco Editor decorations */
+    .error-line-decoration {
+        background: rgba(244, 71, 71, 0.1);
     }
 
-    .CodeMirror-vscrollbar::-webkit-scrollbar-track,
-    .structure-content::-webkit-scrollbar-track,
-    .pep8-modal-body::-webkit-scrollbar-track,
-    .section-items::-webkit-scrollbar-track {
-        background: var(--pycharm-gutter);
+    .warning-line-decoration {
+        background: rgba(255, 204, 0, 0.1);
     }
 
-    .CodeMirror-vscrollbar::-webkit-scrollbar-thumb,
-    .structure-content::-webkit-scrollbar-thumb,
-    .pep8-modal-body::-webkit-scrollbar-thumb,
-    .section-items::-webkit-scrollbar-thumb {
-        background: #4c5052;
-        border-radius: 4px;
+    .error-glyph-margin {
+        background: #f44747;
     }
 
-    .CodeMirror-vscrollbar::-webkit-scrollbar-thumb:hover,
-    .structure-content::-webkit-scrollbar-thumb:hover,
-    .pep8-modal-body::-webkit-scrollbar-thumb:hover,
-    .section-items::-webkit-scrollbar-thumb:hover {
-        background: #5a5e5f;
-    }
-
-    /* Адаптивность */
-    @media (max-height: 800px) {
-        .single-editor {
-            height: calc(100vh - 80px);
-            min-height: 400px;
-        }
-
-        .console-container {
-            height: 180px;
-            min-height: 120px;
-        }
-    }
-
-    @media (max-height: 600px) {
-        .single-editor {
-            height: calc(100vh - 60px);
-            min-height: 300px;
-        }
-
-        .console-container {
-            height: 150px;
-            min-height: 100px;
-        }
-    }
-
-    /* Регулировка размера для мобильных устройств */
-    @media (max-width: 768px) {
-        .editor-content-wrapper {
-            flex-direction: column;
-        }
-
-        .code-structure-sidebar {
-            width: 100%;
-            max-width: none;
-            height: 200px;
-            border-left: none;
-            border-top: 1px solid var(--sidebar-border);
-        }
-
-        .single-editor {
-            height: auto;
-            min-height: 600px;
-        }
-    }
-
-    /* Адаптивность при маленькой ширине */
-    @media (max-width: 1200px) {
-        .code-structure-sidebar {
-            width: 220px;
-            min-width: 180px;
-        }
-
-        .structure-header span {
-            font-size: 12px;
-        }
-
-        .section-header {
-            padding: 6px 10px;
-            font-size: 11px;
-        }
-
-        .structure-item {
-            padding: 5px 10px 5px 24px;
-            font-size: 11px;
-        }
-    }
-
-    /* Для очень узкой боковой панели */
-    @media (max-width: 900px) {
-        .code-structure-sidebar {
-            width: 200px;
-            min-width: 160px;
-        }
-
-        .structure-header {
-            padding: 8px 10px;
-        }
-
-        .structure-header span {
-            font-size: 11px;
-        }
+    .warning-glyph-margin {
+        background: #ffcc00;
     }
 
     /* Основные стили для функциональности создания задач */
-
-    /* Контейнер для действий в заголовке */
     .header-actions {
         display: flex;
         align-items: center;
         gap: 10px;
     }
 
-    /* Кнопка создания задачи */
     .create-task-btn {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
@@ -2813,18 +2159,9 @@
         box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
     }
 
-    .create-task-btn:active {
-        transform: translateY(0);
-        box-shadow: 0 2px 3px rgba(102, 126, 234, 0.3);
-    }
-
-    .create-task-btn i {
-        font-size: 14px;
-    }
-
     /* Модальное окно создания задачи */
     .task-creation-modal {
-        display: none; /* Скрыто по умолчанию */
+        display: none;
         position: fixed;
         top: 0;
         left: 0;
@@ -2850,927 +2187,7 @@
         overflow: hidden;
     }
 
-    .task-modal-header {
-        background: #363636;
-        padding: 15px 20px;
-        border-bottom: 1px solid #3c3f41;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-shrink: 0;
-    }
-
-    .task-modal-header h3 {
-        margin: 0;
-        color: #a9b7c6;
-        font-size: 18px;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-family: 'Segoe UI', sans-serif;
-    }
-
-    .task-modal-header h3 i {
-        color: #9876aa;
-    }
-
-    .close-task-modal {
-        color: #808080;
-        font-size: 24px;
-        cursor: pointer;
-        padding: 0 5px;
-        transition: color 0.2s;
-        line-height: 1;
-    }
-
-    .close-task-modal:hover {
-        color: #a9b7c6;
-    }
-
-    .task-modal-body {
-        flex: 1;
-        overflow-y: auto;
-        padding: 20px;
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-    }
-
-    .task-form-section {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .task-form-section label {
-        color: #a9b7c6;
-        font-size: 14px;
-        font-weight: 600;
-        font-family: 'Segoe UI', sans-serif;
-    }
-
-    .task-input, .task-textarea {
-        background: #1e1e1e;
-        border: 1px solid #3c3f41;
-        border-radius: 4px;
-        padding: 10px;
-        color: #a9b7c6;
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 14px;
-        transition: border-color 0.2s;
-    }
-
-    .task-input:focus, .task-textarea:focus {
-        outline: none;
-        border-color: #4d9feb;
-        box-shadow: 0 0 0 2px rgba(77, 159, 235, 0.2);
-    }
-
-    .task-input {
-        height: 36px;
-    }
-
-    .task-textarea {
-        min-height: 100px;
-        resize: vertical;
-    }
-
-    /* Предпросмотр кода */
-    .code-preview {
-        background: #1e1e1e;
-        border: 1px solid #3c3f41;
-        border-radius: 4px;
-        padding: 15px;
-        max-height: 200px;
-        overflow-y: auto;
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 13px;
-        line-height: 1.4;
-    }
-
-    .code-preview pre {
-        margin: 0;
-        white-space: pre-wrap;
-        word-wrap: break-word;
-    }
-
-    .code-preview code {
-        display: block;
-        color: #a9b7c6;
-    }
-
-    .line-number {
-        color: #808080;
-        display: inline-block;
-        width: 30px;
-        text-align: right;
-        margin-right: 10px;
-        user-select: none;
-    }
-
-    .code-stats {
-        display: flex;
-        gap: 20px;
-        margin-top: 10px;
-        font-size: 12px;
-        color: #808080;
-        font-family: 'JetBrains Mono', monospace;
-    }
-
-    .code-stats span {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-    }
-
-    .code-stats span span {
-        color: #a9b7c6;
-        font-weight: 600;
-    }
-
-    /* Ограничения */
-    .constraints-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 15px;
-        margin-top: 10px;
-    }
-
-    .constraint-item {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 10px;
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 4px;
-        border: 1px solid transparent;
-        transition: all 0.2s;
-    }
-
-    .constraint-item:hover {
-        background: rgba(255, 255, 255, 0.08);
-        border-color: #3c3f41;
-    }
-
-    .constraint-item label {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin: 0;
-        font-weight: normal;
-        cursor: pointer;
-        flex: 1;
-    }
-
-    .constraint-item input[type="checkbox"] {
-        margin: 0;
-        width: 16px;
-        height: 16px;
-        cursor: pointer;
-    }
-
-    .constraint-input {
-        width: 70px;
-        background: #1e1e1e;
-        border: 1px solid #3c3f41;
-        border-radius: 4px;
-        padding: 5px 8px;
-        color: #a9b7c6;
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 13px;
-        transition: all 0.2s;
-    }
-
-    .constraint-input:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-        background: #2b2b2b;
-    }
-
-    .constraint-input:focus {
-        outline: none;
-        border-color: #4d9feb;
-    }
-
-    /* Запрещённые слова */
-    .forbidden-words-container {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    }
-
-    .words-input-container {
-        display: flex;
-        gap: 10px;
-    }
-
-    .word-input {
-        flex: 1;
-        background: #1e1e1e;
-        border: 1px solid #3c3f41;
-        border-radius: 4px;
-        padding: 8px 12px;
-        color: #a9b7c6;
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 13px;
-    }
-
-    .add-word-btn {
-        background: #4c5052;
-        color: #b0b0b0;
-        border: 1px solid #3c3f41;
-        border-radius: 4px;
-        padding: 8px 15px;
-        font-family: 'Segoe UI', sans-serif;
-        font-size: 13px;
-        cursor: pointer;
-        transition: all 0.2s;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        white-space: nowrap;
-    }
-
-    .add-word-btn:hover {
-        background: #5a5e5f;
-        color: #d0d0d0;
-    }
-
-    .words-list {
-        min-height: 60px;
-        border: 1px solid #3c3f41;
-        border-radius: 4px;
-        padding: 10px;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        background: #1e1e1e;
-    }
-
-    .empty-words {
-        color: #808080;
-        font-style: italic;
-        text-align: center;
-        width: 100%;
-        padding: 20px;
-        font-size: 13px;
-    }
-
-    .forbidden-word {
-        background: rgba(255, 107, 107, 0.15);
-        color: #ff6b6b;
-        padding: 5px 10px;
-        border-radius: 4px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 13px;
-        border: 1px solid rgba(255, 107, 107, 0.3);
-    }
-
-    .remove-word-btn {
-        background: none;
-        border: none;
-        color: #ff6b6b;
-        cursor: pointer;
-        padding: 2px;
-        font-size: 12px;
-        transition: color 0.2s;
-    }
-
-    .remove-word-btn:hover {
-        color: #ff5252;
-    }
-
-    /* Входные и выходные данные */
-    .io-examples {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-    }
-
-    .io-example {
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 6px;
-        padding: 15px;
-        border: 1px solid #3c3f41;
-    }
-
-    .io-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 10px;
-        padding-bottom: 10px;
-        border-bottom: 1px solid #3c3f41;
-    }
-
-    .io-header span {
-        color: #a9b7c6;
-        font-weight: 600;
-        font-size: 14px;
-    }
-
-    .remove-example-btn {
-        background: none;
-        border: none;
-        color: #808080;
-        cursor: pointer;
-        padding: 5px;
-        font-size: 14px;
-        transition: color 0.2s;
-        border-radius: 3px;
-    }
-
-    .remove-example-btn:hover {
-        color: #ff6b6b;
-        background: rgba(255, 107, 107, 0.1);
-    }
-
-    .io-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 15px;
-    }
-
-    .io-cell {
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
-    }
-
-    .io-cell label {
-        color: #808080;
-        font-size: 12px;
-        font-weight: normal;
-    }
-
-    .io-input, .io-output {
-        background: #1e1e1e;
-        border: 1px solid #3c3f41;
-        border-radius: 4px;
-        padding: 10px;
-        color: #a9b7c6;
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 13px;
-        min-height: 80px;
-        resize: vertical;
-        transition: border-color 0.2s;
-    }
-
-    .io-input:focus, .io-output:focus {
-        outline: none;
-        border-color: #4d9feb;
-    }
-
-    .add-example-btn {
-        background: #4c5052;
-        color: #b0b0b0;
-        border: 1px solid #3c3f41;
-        border-radius: 4px;
-        padding: 8px 15px;
-        font-family: 'Segoe UI', sans-serif;
-        font-size: 13px;
-        cursor: pointer;
-        transition: all 0.2s;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        align-self: flex-start;
-        margin-top: 5px;
-    }
-
-    .add-example-btn:hover {
-        background: #5a5e5f;
-        color: #d0d0d0;
-    }
-
-    /* Теги */
-    .tags-container {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    }
-
-    .tags-input-container {
-        display: flex;
-        gap: 10px;
-    }
-
-    .tag-input {
-        flex: 1;
-        background: #1e1e1e;
-        border: 1px solid #3c3f41;
-        border-radius: 4px;
-        padding: 8px 12px;
-        color: #a9b7c6;
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 13px;
-    }
-
-    .add-tag-btn {
-        background: #4c5052;
-        color: #b0b0b0;
-        border: 1px solid #3c3f41;
-        border-radius: 4px;
-        padding: 8px 15px;
-        font-family: 'Segoe UI', sans-serif;
-        font-size: 13px;
-        cursor: pointer;
-        transition: all 0.2s;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        white-space: nowrap;
-    }
-
-    .add-tag-btn:hover {
-        background: #5a5e5f;
-        color: #d0d0d0;
-    }
-
-    .tags-list {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        padding: 10px;
-        border: 1px solid #3c3f41;
-        border-radius: 4px;
-        background: #1e1e1e;
-        min-height: 45px;
-    }
-
-    .tag {
-        background: #4d9feb;
-        color: white;
-        padding: 4px 10px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-family: 'Segoe UI', sans-serif;
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        transition: all 0.2s;
-    }
-
-    .tag:hover {
-        background: #3d8fdb;
-        transform: translateY(-1px);
-    }
-
-    .remove-tag {
-        cursor: pointer;
-        font-size: 14px;
-        font-weight: bold;
-        padding-left: 3px;
-        opacity: 0.8;
-        transition: opacity 0.2s;
-    }
-
-    .remove-tag:hover {
-        opacity: 1;
-    }
-
-    /* Уровень сложности */
-    .difficulty-levels {
-        display: flex;
-        gap: 20px;
-        margin-top: 5px;
-    }
-
-    .difficulty-label {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        cursor: pointer;
-        margin: 0;
-        font-weight: normal;
-    }
-
-    .difficulty-label input[type="radio"] {
-        display: none;
-    }
-
-    .difficulty {
-        padding: 8px 20px;
-        border-radius: 4px;
-        font-family: 'Segoe UI', sans-serif;
-        font-size: 13px;
-        font-weight: 600;
-        transition: all 0.2s;
-        border: 2px solid transparent;
-        cursor: pointer;
-    }
-
-    .difficulty.easy {
-        background: rgba(76, 175, 80, 0.15);
-        color: #4CAF50;
-        border-color: rgba(76, 175, 80, 0.3);
-    }
-
-    .difficulty.medium {
-        background: rgba(255, 152, 0, 0.15);
-        color: #FF9800;
-        border-color: rgba(255, 152, 0, 0.3);
-    }
-
-    .difficulty.hard {
-        background: rgba(244, 67, 54, 0.15);
-        color: #F44336;
-        border-color: rgba(244, 67, 54, 0.3);
-    }
-
-    .difficulty-label input[type="radio"]:checked + .difficulty {
-        background: #4CAF50;
-        color: white;
-        border-color: #45a049;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    }
-
-    .difficulty-label input[type="radio"]:checked + .difficulty.medium {
-        background: #FF9800;
-        border-color: #f57c00;
-    }
-
-    .difficulty-label input[type="radio"]:checked + .difficulty.hard {
-        background: #F44336;
-        border-color: #d32f2f;
-    }
-
-    .difficulty-label input[type="radio"]:checked + .difficulty::before {
-        content: "✓ ";
-        font-weight: bold;
-    }
-
-    /* Футер модального окна */
-    .task-modal-footer {
-        background: #363636;
-        padding: 15px 20px;
-        border-top: 1px solid #3c3f41;
-        display: flex;
-        justify-content: flex-end;
-        gap: 10px;
-        flex-shrink: 0;
-    }
-
-    .cancel-task-btn {
-        background: #4c5052;
-        color: #b0b0b0;
-        border: 1px solid #3c3f41;
-        border-radius: 4px;
-        padding: 10px 20px;
-        font-family: 'Segoe UI', sans-serif;
-        font-size: 14px;
-        cursor: pointer;
-        transition: all 0.2s;
-    }
-
-    .cancel-task-btn:hover {
-        background: #5a5e5f;
-        color: #d0d0d0;
-    }
-
-    .create-task-final-btn {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border: none;
-        border-radius: 4px;
-        padding: 10px 25px;
-        font-family: 'Segoe UI', sans-serif;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        box-shadow: 0 2px 5px rgba(102, 126, 234, 0.3);
-    }
-
-    .create-task-final-btn:hover {
-        background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
-        transform: translateY(-1px);
-        box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
-    }
-
-    .create-task-final-btn:active {
-        transform: translateY(0);
-        box-shadow: 0 2px 3px rgba(102, 126, 234, 0.3);
-    }
-
-    /* Стили для скроллбаров */
-    .task-modal-body::-webkit-scrollbar,
-    .code-preview::-webkit-scrollbar,
-    .words-list::-webkit-scrollbar,
-    .io-input::-webkit-scrollbar,
-    .io-output::-webkit-scrollbar {
-        width: 8px;
-    }
-
-    .task-modal-body::-webkit-scrollbar-track,
-    .code-preview::-webkit-scrollbar-track,
-    .words-list::-webkit-scrollbar-track,
-    .io-input::-webkit-scrollbar-track,
-    .io-output::-webkit-scrollbar-track {
-        background: #1e1e1e;
-        border-radius: 4px;
-    }
-
-    .task-modal-body::-webkit-scrollbar-thumb,
-    .code-preview::-webkit-scrollbar-thumb,
-    .words-list::-webkit-scrollbar-thumb,
-    .io-input::-webkit-scrollbar-thumb,
-    .io-output::-webkit-scrollbar-thumb {
-        background: #4c5052;
-        border-radius: 4px;
-    }
-
-    .task-modal-body::-webkit-scrollbar-thumb:hover,
-    .code-preview::-webkit-scrollbar-thumb:hover,
-    .words-list::-webkit-scrollbar-thumb:hover,
-    .io-input::-webkit-scrollbar-thumb:hover,
-    .io-output::-webkit-scrollbar-thumb:hover {
-        background: #5a5e5f;
-    }
-
-    /* Анимации */
-    @keyframes modalAppear {
-        from {
-            opacity: 0;
-            transform: translateY(-20px) scale(0.95);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-        }
-    }
-
-    .task-creation-modal[style*="display: block"] .task-modal-content {
-        animation: modalAppear 0.3s ease-out;
-    }
-
-    /* Адаптивность */
-    @media (max-width: 768px) {
-        .task-modal-content {
-            width: 95%;
-            max-height: 95vh;
-        }
-
-        .constraints-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .io-row {
-            grid-template-columns: 1fr;
-            gap: 10px;
-        }
-
-        .difficulty-levels {
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .difficulty {
-            text-align: center;
-            width: 100%;
-        }
-
-        .header-actions {
-            flex-direction: column;
-            align-items: stretch;
-            gap: 5px;
-        }
-
-        .create-task-btn, .tab-run-btn {
-            width: 100%;
-            justify-content: center;
-        }
-    }
-
-    @media (max-width: 480px) {
-        .task-modal-body {
-            padding: 15px;
-        }
-
-        .task-modal-header {
-            padding: 12px 15px;
-        }
-
-        .task-modal-footer {
-            padding: 12px 15px;
-            flex-direction: column;
-        }
-
-        .cancel-task-btn, .create-task-final-btn {
-            width: 100%;
-            justify-content: center;
-        }
-
-        .words-input-container, .tags-input-container {
-            flex-direction: column;
-        }
-
-        .add-word-btn, .add-tag-btn {
-            width: 100%;
-            justify-content: center;
-        }
-    }
-
-    /* Тёмная тема - дополнительные стили */
-    @media (prefers-color-scheme: dark) {
-        .task-modal-content {
-            background: #1e1e1e;
-            border-color: #333;
-        }
-
-        .task-modal-header {
-            background: #252526;
-            border-color: #333;
-        }
-
-        .task-input, .task-textarea,
-        .code-preview, .constraint-input,
-        .word-input, .tag-input,
-        .io-input, .io-output {
-            background: #252526;
-            border-color: #333;
-        }
-
-        .words-list, .tags-list {
-            background: #252526;
-            border-color: #333;
-        }
-
-        .io-example {
-            border-color: #333;
-            background: rgba(255, 255, 255, 0.03);
-        }
-
-        .task-modal-footer {
-            background: #252526;
-            border-color: #333;
-        }
-    }
-
-    /* Стили для tooltip */
-    [data-tooltip] {
-        position: relative;
-        cursor: help;
-    }
-
-    [data-tooltip]:hover::after {
-        content: attr(data-tooltip);
-        position: absolute;
-        bottom: 100%;
-        left: 50%;
-        transform: translateX(-50%);
-        background: #1e1e1e;
-        color: #a9b7c6;
-        padding: 8px 12px;
-        border-radius: 4px;
-        font-size: 12px;
-        white-space: nowrap;
-        z-index: 1000;
-        border: 1px solid #3c3f41;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        pointer-events: none;
-    }
-
-    /* Подсветка обязательных полей */
-    .task-input:required:invalid,
-    .task-textarea:required:invalid {
-        border-color: #ff6b6b;
-    }
-
-    .task-input:required:valid,
-    .task-textarea:required:valid {
-        border-color: #4CAF50;
-    }
-
-    /* Плейсхолдеры */
-    ::placeholder {
-        color: #808080;
-        opacity: 0.7;
-    }
-
-    /* Стили для фокуса доступности */
-    .task-input:focus-visible,
-    .task-textarea:focus-visible,
-    .constraint-input:focus-visible,
-    .word-input:focus-visible,
-    .tag-input:focus-visible,
-    .io-input:focus-visible,
-    .io-output:focus-visible {
-        outline: 2px solid #4d9feb;
-        outline-offset: 2px;
-    }
-
-    /* Загрузка для кнопки создания задачи */
-    .create-task-final-btn.loading {
-        position: relative;
-        color: transparent;
-    }
-
-    .create-task-final-btn.loading::after {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 20px;
-        height: 20px;
-        border: 2px solid rgba(255, 255, 255, 0.3);
-        border-top-color: white;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-    }
-
-    /* Уведомления */
-    .task-notification {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: #4CAF50;
-        color: white;
-        padding: 15px 20px;
-        border-radius: 6px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        z-index: 10000;
-        animation: slideIn 0.3s ease-out;
-        font-family: 'Segoe UI', sans-serif;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .task-notification.error {
-        background: #F44336;
-    }
-
-    @keyframes slideIn {
-        from {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-        to {
-            transform: translateX(0);
-            opacity: 1;
-        }
-    }
-
-    @keyframes slideOut {
-        from {
-            transform: translateX(0);
-            opacity: 1;
-        }
-        to {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-    }
-
-    .task-notification.hiding {
-        animation: slideOut 0.3s ease-in forwards;
-    }
-
-    /* Группировка в модальном окне */
-    .task-form-group {
-        background: rgba(255, 255, 255, 0.03);
-        border-radius: 6px;
-        padding: 15px;
-        border: 1px solid #3c3f41;
-    }
-
-    .task-form-group .task-form-section:last-child {
-        margin-bottom: 0;
-    }
-
-    /* Иконки для различных типов ограничений */
-    .constraint-item label::before {
-        content: '⚙️';
-        margin-right: 5px;
-        font-size: 14px;
-    }
-
-    .constraint-item:nth-child(2) label::before {
-        content: '📏';
-    }
-
-    .constraint-item:nth-child(3) label::before {
-        content: '🔢';
-    }
-
-    .constraint-item:nth-child(4) label::before {
-        content: '📝';
-    }
-
-    .constraint-item:nth-child(5) label::before {
-        content: '🏗️';
-    }
-
-    /* Стили для изменения размера консоли */
+    /* Стили для консоли и изменения размера */
     .console-resize-handle {
         height: 5px;
         background: var(--pycharm-border);
@@ -3811,236 +2228,81 @@
         margin-top: 5px;
         display: flex;
         flex-direction: column;
-        height: 200px; /* Стандартная высота */
-        min-height: 100px;
-        max-height: 800px;
-        overflow: hidden;
-        resize: vertical; /* Браузерный resize как fallback */
-        position: relative;
-    }
-
-    /* Убираем браузерный resize для нашего кастомного */
-    .console-container {
-        resize: none;
-    }
-
-    .console-header {
-        background: var(--pycharm-gutter);
-        border-bottom: 1px solid var(--pycharm-border);
-        padding: 8px 15px;
-        flex-shrink: 0;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .console-title {
-        color: var(--pycharm-fg);
-        font-family: 'JetBrains Mono', monospace;
-        font-weight: 500;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .console-actions {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .console-output {
-        flex: 1;
-        overflow-y: auto;
-        padding: 10px 15px;
-        background: var(--pycharm-bg);
-        font-size: 13px;
-        line-height: 1.4;
-    }
-
-    /* Улучшенные стили для сообщений */
-    .console-line {
-        padding: 4px 0;
-        font-family: 'JetBrains Mono', 'Fira Code', monospace;
-        white-space: pre-wrap;
-        word-break: break-word;
-        border-left: 3px solid transparent;
-        padding-left: 8px;
-        margin: 2px 0;
-        transition: background 0.2s;
-    }
-
-    .console-line:hover {
-        background: rgba(255, 255, 255, 0.03);
-    }
-
-    .console-line.info {
-        color: var(--pycharm-info);
-        border-left-color: var(--pycharm-info);
-    }
-
-    .console-line.success {
-        color: var(--pycharm-success);
-        border-left-color: var(--pycharm-success);
-    }
-
-    .console-line.warning {
-        color: var(--pycharm-warning);
-        border-left-color: var(--pycharm-warning);
-    }
-
-    .console-line.error {
-        color: var(--pycharm-error);
-        border-left-color: var(--pycharm-error);
-    }
-
-    .console-line.output {
-        color: #f0f0f0;
-        font-family: 'JetBrains Mono', 'Fira Code', monospace;
-        border-left-color: #555;
-    }
-
-    /* Специальные стили для заголовков разделов */
-    .console-line.output:first-child {
-        font-weight: bold;
-        color: #fff;
-        margin-top: 5px;
-        padding-top: 8px;
-        border-top: 1px solid var(--pycharm-border);
-    }
-
-    .timestamp {
-        color: #777;
-        font-size: 11px;
-        margin-right: 8px;
-        font-family: 'JetBrains Mono', monospace;
-        opacity: 0.7;
-    }
-
-    /* Анимация для новых сообщений */
-    @keyframes slideIn {
-        from {
-            opacity: 0;
-            transform: translateY(5px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .console-line {
-        animation: slideIn 0.2s ease-out;
-    }
-
-    /* Полоса прокрутки для консоли */
-    .console-output::-webkit-scrollbar {
-        width: 8px;
-    }
-
-    .console-output::-webkit-scrollbar-track {
-        background: var(--pycharm-gutter);
-        border-radius: 4px;
-    }
-
-    .console-output::-webkit-scrollbar-thumb {
-        background: #4c5052;
-        border-radius: 4px;
-    }
-
-    .console-output::-webkit-scrollbar-thumb:hover {
-        background: #5a5e5f;
-    }
-
-    /* Индикатор изменения размера */
-    .console-resizing .console-output {
-        pointer-events: none;
-    }
-
-    /* Адаптивность для маленьких экранов */
-    @media (max-height: 600px) {
-        .console-container {
-            height: 150px;
-            min-height: 80px;
-        }
-    }
-
-    @media (max-width: 768px) {
-        .console-container {
-            height: 180px;
-            min-height: 120px;
-        }
-
-        .console-header {
-            padding: 6px 10px;
-        }
-
-        .console-title {
-            font-size: 12px;
-        }
-
-        .console-btn {
-            padding: 4px 8px;
-            font-size: 11px;
-        }
-    }
-
-    .console-container {
-        background: var(--pycharm-bg);
-        border: 1px solid var(--pycharm-border);
-        border-radius: 0 0 4px 4px;
-        margin-top: 5px;
-        display: flex;
-        flex-direction: column;
         height: 200px;
         min-height: 100px;
         max-height: 800px;
         overflow: hidden;
         position: relative;
         transition: height 0.2s ease;
-        user-select: none; /* Предотвращаем выделение при ресайзе */
+        user-select: none;
     }
 
-    .console-resize-handle {
-        height: 8px;
-        background: transparent;
-        cursor: ns-resize;
-        flex-shrink: 0;
-        position: relative;
-        z-index: 10;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+    /* Остальные стили остаются без изменений... */
+
+    /* Адаптивность */
+    @media (max-height: 800px) {
+        .single-editor {
+            height: calc(100vh - 80px);
+            min-height: 400px;
+        }
+
+        .console-container {
+            height: 180px;
+            min-height: 120px;
+        }
     }
 
-    .console-resize-handle:hover,
-    .console-resizing .console-resize-handle {
-        background: rgba(77, 159, 235, 0.2);
+    @media (max-height: 600px) {
+        .single-editor {
+            height: calc(100vh - 60px);
+            min-height: 300px;
+        }
+
+        .console-container {
+            height: 150px;
+            min-height: 100px;
+        }
     }
 
-    .console-resize-handle::before {
-        content: '';
-        width: 40px;
-        height: 4px;
-        background: var(--pycharm-gutter-fg);
-        border-radius: 2px;
-        opacity: 0.3;
-        transition: all 0.2s;
+    @media (max-width: 768px) {
+        .editor-content-wrapper {
+            flex-direction: column;
+        }
+
+        .code-structure-sidebar {
+            width: 100%;
+            max-width: none;
+            height: 200px;
+            border-left: none;
+            border-top: 1px solid var(--sidebar-border);
+        }
+
+        .single-editor {
+            height: auto;
+            min-height: 600px;
+        }
     }
 
-    .console-resize-handle:hover::before,
-    .console-resizing .console-resize-handle::before {
-        opacity: 0.8;
-        background: var(--pycharm-info);
-        width: 60px;
+    /* Дополнительные стили для Monaco Editor */
+    .monaco-editor .view-overlays .current-line {
+        border: none !important;
+        background-color: rgba(33, 66, 131, 0.15) !important;
     }
 
-    /* Анимация для кнопок */
-    .console-btn {
-        transition: all 0.2s ease;
+    .monaco-editor .selected-text {
+        background-color: var(--pycharm-selection) !important;
     }
 
-    .console-btn:hover {
-        transform: translateY(-1px);
+    .monaco-editor .cursor {
+        background-color: var(--pycharm-fg) !important;
+        border-left: 2px solid var(--pycharm-fg) !important;
+    }
+
+    /* В вашем CSS файле */
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
+
+    /* Опционально: можно сделать фон вокруг редактора чуть мягче */
+    .monaco-editor, .monaco-editor-background, .monaco-editor .margin {
+        background-color: #282c34 !important; /* Цвет фона One Dark */
     }
 </style>

@@ -7,7 +7,7 @@ class SocketIOCode {
     connect() {
         try {
             const token = localStorage.getItem('accessToken');
-            this.socket = io('http://localhost:8000', {
+            this.socket = io(`${location.origin}`, {
                 transports: ['websocket'],
                 auth: {token: token},
                 reconnection: true,
