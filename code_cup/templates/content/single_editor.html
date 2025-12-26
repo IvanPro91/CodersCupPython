@@ -15,6 +15,24 @@
                     <i class="fas fa-plus"></i>
                 </button>
             </div>
+            <div class="task-search-container" style="margin-left: 20px; position: relative;">
+                <div class="task-search-wrapper">
+                    <!-- Добавлен скрытый input для хранения ID задачи -->
+                    <input type="hidden" id="selectedTaskId_{{ tab_id }}" value="">
+                    <input type="text"
+                           class="task-search-input font-size-controls"
+                           id="taskSearchInput_{{ tab_id }}"
+                           placeholder="Поиск задачи..."
+                           data-tab-id="{{ tab_id }}"
+                           data-task-id=""
+                           autocomplete="off"
+                           style="border: none;color: #c3d4d4;">
+                    <button class="task-clear-btn" id="taskClearBtn_{{ tab_id }}" style="display: none;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="task-results-dropdown" id="taskResults_{{ tab_id }}" style="display: none;"></div>
+            </div>
         </div>
         <div class="header-actions">
             <button class="tab-run-btn" id="tabRunBtn_{{ tab_id }}">
@@ -24,12 +42,9 @@
     </div>
 
     <div class="editor-content-wrapper">
-        <!-- Основной редактор кода СЛЕВА -->
         <div class="code-mirror-wrapper" id="editorContainer_{{ tab_id }}" style="border: none;">
-            <!-- Monaco Editor будет инициализирован здесь -->
         </div>
 
-        <!-- Консоль (СПРАВА) -->
         <div class="console-container" data-console-id="{{ tab_id }}" id="consoleContainer_{{ tab_id }}"
              style="height: 100%;margin-top: 0;">
             <div class="console-header">
@@ -38,7 +53,6 @@
                     <span>Консоль</span>
                 </div>
             </div>
-
 
             <div class="console-output" id="consoleOutput_{{ tab_id }}">
                 <div class="console-line info">
@@ -103,6 +117,520 @@
 </div>
 <script src="{% static 'js/code_editor.js' %}"></script>
 <script>
+    // Инициализация при загрузке документа
+    document.addEventListener('DOMContentLoaded', function () {
+        window.taskSearchInstances = window.taskSearchInstances || {};
+    });
+
+    class TaskSearch {
+        constructor(tabId) {
+            this.tabId = tabId;
+            this.searchInput = document.getElementById(`taskSearchInput_${tabId}`);
+            this.taskIdInput = document.getElementById(`selectedTaskId_${tabId}`);
+            this.resultsContainer = document.getElementById(`taskResults_${tabId}`);
+            this.clearBtn = document.getElementById(`taskClearBtn_${tabId}`);
+            this.searchTimeout = null;
+            this.selectedTask = null;
+
+            // Проверяем существование элементов
+            if (!this.searchInput) {
+                console.error(`Элемент taskSearchInput_${tabId} не найден`);
+                return;
+            }
+
+            this.init();
+        }
+
+        init() {
+            this.bindEvents();
+            // Проверяем, есть ли сохраненная задача для этого таба
+            this.loadSelectedTaskFromStorage();
+        }
+
+        bindEvents() {
+            const self = this;
+
+            // Поиск при вводе
+            this.searchInput.addEventListener('input', function () {
+                clearTimeout(self.searchTimeout);
+                const query = this.value.trim();
+
+                if (query.length === 0) {
+                    self.clearBtn.style.display = 'none';
+                    self.hideResults();
+                    // Если поле очищено вручную, сбрасываем выбранную задачу
+                    if (self.selectedTask && self.searchInput.value === '') {
+                        self.clearTaskSelection();
+                    }
+                    return;
+                }
+
+                self.clearBtn.style.display = 'block';
+
+                self.searchTimeout = setTimeout(() => {
+                    self.searchTasks(query);
+                }, 300);
+            });
+
+            // Очистка поиска
+            if (this.clearBtn) {
+                this.clearBtn.addEventListener('click', function () {
+                    self.clearTaskSelection();
+                });
+            }
+
+            // Клик вне результатов
+            document.addEventListener('click', function (e) {
+                if (!e.target.closest(`#taskSearchInput_${self.tabId}`) &&
+                    !e.target.closest(`#taskResults_${self.tabId}`)) {
+                    self.hideResults();
+                }
+            });
+
+            // Выбор задачи из результатов
+            if (this.resultsContainer) {
+                this.resultsContainer.addEventListener('click', function (e) {
+                    const resultItem = e.target.closest('.task-result-item');
+                    if (resultItem) {
+                        const taskId = resultItem.dataset.taskId;
+                        if (taskId) {
+                            self.selectTaskById(taskId);
+                        }
+                    }
+                });
+            }
+        }
+
+        async searchTasks(query) {
+            if (!this.resultsContainer) return;
+
+            this.showLoading();
+
+            try {
+                const response = await fetch(`/code_cup/editor/tasks/search/?q=${encodeURIComponent(query)}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.tasks && data.tasks.length > 0) {
+                    this.showResults(data.tasks);
+                } else {
+                    this.showNoResults();
+                }
+            } catch (error) {
+                console.error('Ошибка поиска задач:', error);
+                this.showError();
+            }
+        }
+
+        showLoading() {
+            if (!this.resultsContainer) return;
+
+            this.resultsContainer.innerHTML = `
+                <div class="search-loading">
+                    <i class="fas fa-spinner fa-spin"></i> Поиск задач...
+                </div>
+            `;
+            this.resultsContainer.style.display = 'block';
+        }
+
+        showResults(tasks) {
+            if (!this.resultsContainer) return;
+
+            const html = tasks.map(task => `
+                <div class="task-result-item"
+                     data-task-id="${task.id}">
+                    <div class="task-result-header">
+                        <span class="task-result-title">${task.name}</span>
+                        <span class="task-difficulty ${task.level}">
+                            ${this.getDifficultyText(task.level)}
+                        </span>
+                    </div>
+                    <div class="task-result-meta">
+                        <span class="task-category">${task.category_display || ''}</span>
+                        <span class="task-number">#${task.num}</span>
+                    </div>
+                    <div class="task-result-description">
+                        ${this.truncateDescription(task.description, 100)}
+                    </div>
+                </div>
+            `).join('');
+
+            this.resultsContainer.innerHTML = html;
+            this.resultsContainer.style.display = 'block';
+        }
+
+        showNoResults() {
+            if (!this.resultsContainer) return;
+
+            this.resultsContainer.innerHTML = `
+                <div class="search-no-results">
+                    <i class="fas fa-search"></i> Задачи не найдены
+                </div>
+            `;
+            this.resultsContainer.style.display = 'block';
+        }
+
+        showError() {
+            if (!this.resultsContainer) return;
+
+            this.resultsContainer.innerHTML = `
+                <div class="search-error">
+                    <i class="fas fa-exclamation-triangle"></i> Ошибка при поиске задач
+                </div>
+            `;
+            this.resultsContainer.style.display = 'block';
+        }
+
+        hideResults() {
+            if (this.resultsContainer) {
+                this.resultsContainer.style.display = 'none';
+            }
+        }
+
+        async selectTaskById(taskId) {
+            try {
+                // Получаем полную информацию о задаче
+                const response = await fetch(`/code_cup/editor/tasks/${taskId}/details/`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const task = await response.json();
+
+                // Сохраняем выбранную задачу
+                this.selectedTask = task;
+
+                // Сохраняем в полях ввода
+                this.saveTaskToInputs(task);
+
+                // Сохраняем в localStorage
+                this.saveSelectedTaskToStorage();
+
+                // Скрываем результаты поиска
+                this.hideResults();
+
+                // Загружаем код в редактор
+                if (window.codeMonkeyInstances && window.codeMonkeyInstances[this.tabId]) {
+                    const editor = window.codeMonkeyInstances[this.tabId];
+                    if (editor && editor.monacoEditor) {
+                        // Сначала очищаем
+                        editor.monacoEditor.setValue("");
+                        // Затем устанавливаем новое значение
+                        editor.monacoEditor.setValue(`"""\n${task.name}\n${task.description || ''}\n"""\n\n${task.code_template || ''}`);
+                    }
+                }
+
+                console.log(`Задача "${task.name}" выбрана для таба ${this.tabId}`);
+
+            } catch (error) {
+                console.error('Ошибка загрузки задачи:', error);
+            }
+        }
+
+        saveTaskToInputs(task) {
+            // Сохраняем название задачи в поле ввода
+            if (this.searchInput) {
+                this.searchInput.value = task.name;
+                this.searchInput.setAttribute('data-task-id', task.id);
+            }
+
+            // Сохраняем ID задачи в скрытом поле
+            if (this.taskIdInput) {
+                this.taskIdInput.value = task.id;
+            }
+
+            // Показываем кнопку очистки
+            if (this.clearBtn) {
+                this.clearBtn.style.display = 'block';
+            }
+        }
+
+        clearTaskSelection() {
+            // Сбрасываем выбранную задачу
+            this.selectedTask = null;
+
+            // Очищаем поля ввода
+            if (this.searchInput) {
+                this.searchInput.value = '';
+                this.searchInput.removeAttribute('data-task-id');
+            }
+
+            if (this.taskIdInput) {
+                this.taskIdInput.value = '';
+            }
+
+            // Скрываем кнопку очистки
+            if (this.clearBtn) {
+                this.clearBtn.style.display = 'none';
+            }
+
+            // Скрываем результаты поиска
+            this.hideResults();
+
+            // Очищаем localStorage
+            this.removeSelectedTaskFromStorage();
+
+            console.log(`Выбор задачи сброшен для таба ${this.tabId}`);
+        }
+
+        getSelectedTaskId() {
+            // Получаем ID выбранной задачи из поля ввода
+            if (this.searchInput && this.searchInput.hasAttribute('data-task-id')) {
+                return this.searchInput.getAttribute('data-task-id');
+            }
+            return this.taskIdInput ? this.taskIdInput.value : null;
+        }
+
+        getSelectedTaskName() {
+            // Получаем название выбранной задачи из поля ввода
+            return this.searchInput ? this.searchInput.value : '';
+        }
+
+        hasUnsavedChanges() {
+            // Проверяем, есть ли несохраненные изменения в редакторе
+            if (window.codeMonkeyInstances && window.codeMonkeyInstances[this.tabId]) {
+                const editor = window.codeMonkeyInstances[this.tabId];
+                return editor.hasUnsavedChanges ? editor.hasUnsavedChanges() : false;
+            }
+            return false;
+        }
+
+        saveSelectedTaskToStorage() {
+            if (this.selectedTask) {
+                try {
+                    const key = `selected_task_${this.tabId}`;
+                    localStorage.setItem(key, JSON.stringify({
+                        id: this.selectedTask.id,
+                        name: this.selectedTask.name,
+                        timestamp: Date.now()
+                    }));
+                } catch (e) {
+                    console.warn('Не удалось сохранить задачу в localStorage:', e);
+                }
+            }
+        }
+
+        loadSelectedTaskFromStorage() {
+            try {
+                const key = `selected_task_${this.tabId}`;
+                const saved = localStorage.getItem(key);
+
+                if (saved) {
+                    const savedTask = JSON.parse(saved);
+                    // Проверяем, не слишком ли старая запись (больше 24 часов)
+                    if (Date.now() - savedTask.timestamp < 24 * 60 * 60 * 1000) {
+                        // Загружаем информацию о задаче
+                        this.selectTaskById(savedTask.id);
+                    } else {
+                        // Удаляем старую запись
+                        localStorage.removeItem(key);
+                    }
+                }
+            } catch (e) {
+                console.warn('Не удалось загрузить задачу из localStorage:', e);
+            }
+        }
+
+        removeSelectedTaskFromStorage() {
+            try {
+                const key = `selected_task_${this.tabId}`;
+                localStorage.removeItem(key);
+            } catch (e) {
+                console.warn('Не удалось удалить задачу из localStorage:', e);
+            }
+        }
+
+        getSelectedTask() {
+            return this.selectedTask;
+        }
+
+        hasSelectedTask() {
+            return this.selectedTask !== null;
+        }
+
+        getDifficultyText(level) {
+            const difficultyMap = {
+                'junior': 'Начинающий',
+                'middle': 'Средний',
+                'hard': 'Сложный',
+                'expert': 'Эксперт',
+                'easy': 'Легкая',
+                'medium': 'Средняя'
+            };
+            return difficultyMap[level] || level;
+        }
+
+        truncateDescription(text, maxLength) {
+            if (!text) return 'Нет описания';
+            if (text.length <= maxLength) return text;
+
+            return text.substring(0, maxLength) + '...';
+        }
+    }
+
+    // Глобальные функции для работы с задачами
+    function loadTaskTemplate(tabId) {
+        const taskSearch = window.taskSearchInstances[tabId];
+
+        if (!taskSearch || !taskSearch.hasSelectedTask()) {
+            alert('Сначала выберите задачу!');
+            return;
+        }
+
+        // Проверяем, есть ли несохраненные изменения
+        if (taskSearch.hasUnsavedChanges()) {
+            showConfirmLoadModal(tabId);
+        } else {
+            confirmTaskLoad(tabId);
+        }
+    }
+
+    function showConfirmLoadModal(tabId) {
+        const modal = document.getElementById(`confirmLoadTaskModal_${tabId}`);
+        if (modal) {
+            modal.style.display = 'block';
+        } else {
+            // Создаем модальное окно, если его нет
+            createConfirmModal(tabId);
+            document.getElementById(`confirmLoadTaskModal_${tabId}`).style.display = 'block';
+        }
+    }
+
+    function createConfirmModal(tabId) {
+        const modalHTML = `
+            <div class="confirmation-modal" id="confirmLoadTaskModal_${tabId}" style="display: none;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4><i class="fas fa-exclamation-triangle"></i> Внимание!</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>При загрузке шаблона задачи текущий код будет удален.</p>
+                        <p>У вас есть несохраненные изменения. Вы уверены, что хотите продолжить?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-secondary" onclick="cancelTaskLoad('${tabId}')">Отмена</button>
+                        <button class="btn-primary" onclick="confirmTaskLoad('${tabId}')">Продолжить</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+    }
+
+    function cancelTaskLoad(tabId) {
+        const modal = document.getElementById(`confirmLoadTaskModal_${tabId}`);
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    }
+
+    async function confirmTaskLoad(tabId) {
+        const taskSearch = window.taskSearchInstances[tabId];
+
+        if (!taskSearch || !taskSearch.hasSelectedTask()) {
+            alert('Ошибка: задача не выбрана');
+            return;
+        }
+
+        const task = taskSearch.getSelectedTask();
+
+        try {
+            // Получаем шаблон задачи
+            const response = await fetch(`/code_cup/editor/tasks/${task.id}/template/`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            // Загружаем шаблон в редактор
+            if (window.codeMonkeyInstances && window.codeMonkeyInstances[tabId]) {
+                window.codeMonkeyInstances[tabId].setValue(data.template || '');
+                console.log(`Шаблон задачи "${task.name}" загружен в таб ${tabId}`);
+
+                // Показываем уведомление об успехе
+                showNotification(`Шаблон задачи "${task.name}" успешно загружен`, 'success');
+            }
+
+        } catch (error) {
+            console.error('Ошибка загрузки шаблона:', error);
+            showNotification('Не удалось загрузить шаблон задачи', 'error');
+        } finally {
+            // Скрываем модальное окно
+            cancelTaskLoad(tabId);
+        }
+    }
+
+    function showNotification(message, type = 'info') {
+        // Создаем уведомление
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.innerHTML = `
+            <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+            ${message}
+        `;
+
+        document.body.appendChild(notification);
+
+        // Показываем с анимацией
+        setTimeout(() => notification.classList.add('show'), 10);
+
+        // Удаляем через 5 секунд
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => notification.remove(), 300);
+        }, 5000);
+    }
+
+    // Стили для уведомлений
+    const notificationStyles = document.createElement('style');
+    notificationStyles.textContent = `
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 4px;
+            color: white;
+            font-weight: 500;
+            z-index: 9999;
+            transform: translateX(100%);
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            max-width: 400px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .notification.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .notification.success {
+            background: #28a745;
+        }
+
+        .notification.error {
+            background: #dc3545;
+        }
+
+        .notification.info {
+            background: #17a2b8;
+        }
+
+        .notification i {
+            font-size: 18px;
+        }
+    `;
+    document.head.appendChild(notificationStyles);
+
     // Глобальные функции для взаимодействия с UI
     function increaseFontSize(tabId) {
         if (window.codeMonkeyInstances && window.codeMonkeyInstances[tabId]) {
@@ -154,8 +682,19 @@
         const name = "{{ name }}";
         const code = `{{ code }}`;
 
+        console.log("tabId", tabId);
+
         // Создаем экземпляр редактора
-        window.codeMonkeyInstances[tabId] = new window.MonacoEditor(tabId, name, code);
+        if (window.MonacoEditor) {
+            window.codeMonkeyInstances[tabId] = new window.MonacoEditor(tabId, name, code);
+        }
+
+        // Создаем экземпляр поиска задач
+        if (typeof TaskSearch !== 'undefined') {
+            window.taskSearchInstances[tabId] = new TaskSearch(tabId);
+        }
+
+        console.log('Инициализирован TaskSearch для таба:', tabId, window.taskSearchInstances[tabId]);
     });
 </script>
 <link rel="stylesheet" href="{% static 'css/style_code_page.css' %}">

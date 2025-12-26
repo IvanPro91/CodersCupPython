@@ -69,28 +69,35 @@ if (typeof window.MonacoEditor === 'undefined') {
         }
 
         increaseFontSize() {
-            if (this.fontSize < 24) {
-                this.fontSize++;
-                this.applyFontSize();
-                this.updateEditorFont();
-                localStorage.setItem('monacoeditor_fontsize', this.fontSize);
+            if (this.fontSize < 30) {
+                this.fontSize = parseInt(this.fontSize) + 1;
+                this.updateEditorFont(); // Используем общий метод обновления
             }
         }
 
         decreaseFontSize() {
-            if (this.fontSize > 10) {
-                this.fontSize--;
-                this.applyFontSize();
+            if (this.fontSize > 8) {
+                this.fontSize = parseInt(this.fontSize) - 1;
                 this.updateEditorFont();
-                localStorage.setItem('monacoeditor_fontsize', this.fontSize);
             }
         }
 
         updateEditorFont() {
             if (this.monacoEditor) {
+                // Вычисляем золотую середину для высоты строки (обычно 1.5 - 1.6 от размера шрифта)
+                const newLineHeight = Math.floor(this.fontSize * 1.6);
+
                 this.monacoEditor.updateOptions({
-                    fontSize: this.fontSize
+                    fontSize: this.fontSize,
+                    lineHeight: newLineHeight
                 });
+
+                // Сохраняем и обновляем UI
+                localStorage.setItem('monacoeditor_fontsize', this.fontSize);
+                $(`#fontSize_${this.tabId}`).text(`${this.fontSize}px`);
+
+                // Принудительно просим редактор пересчитать раскладку
+                this.monacoEditor.layout();
             }
         }
 
@@ -138,12 +145,15 @@ if (typeof window.MonacoEditor === 'undefined') {
 
                     // ШРИФТ (JetBrains Mono должен быть установлен в системе или подключен через CSS)
                     fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
-                    fontSize: 14,
-                    lineHeight: 25, // На скрине очень свободный интервал
+                    fontSize: this.fontSize,
+                    lineHeight: Math.floor(this.fontSize * 1.6),
                     letterSpacing: 0.5,
                     fontLigatures: true,
-
+                    automaticLayout: true,
                     padding: {top: 20, bottom: 20},
+                    wordWrap: 'on',
+                    // Опционально: добавляем отступ для перенесенных строк, чтобы они отличались от новых
+                    wrappingIndent: 'indent',
 
                     minimap: {enabled: false},
                     scrollbar: {
@@ -158,7 +168,6 @@ if (typeof window.MonacoEditor === 'undefined') {
                     glyphMargin: false,
                     folding: true,
 
-                    automaticLayout: true,
                     scrollBeyondLastLine: false,
                     renderLineHighlight: 'all',
 
@@ -844,97 +853,140 @@ if (typeof window.MonacoEditor === 'undefined') {
         }
 
         runCode() {
-    if (!this.monacoEditor) return;
+            if (!this.monacoEditor) return;
 
-    const code = this.monacoEditor.getValue();
-    const runBtn = $('#tabRunBtn_' + this.tabId);
+            const code = this.monacoEditor.getValue();
+            const runBtn = $('#tabRunBtn_' + this.tabId);
+            let IdTaskSearch = $('#taskSearchInput_' + this.tabId).attr("data-task-id");
 
-    runBtn.prop('disabled', true);
-    runBtn.html('<div class="loading"></div> Тестирование...');
+            runBtn.prop('disabled', true);
+            runBtn.html('<div class="loading"></div> Тестирование...');
 
-    this.clearConsoleContent();
-    this.addConsoleMessage(`🚀 Запуск тестов...`, 'info');
+            this.clearConsoleContent();
 
-    $.ajax({
-        url: `${location.origin}/code_cup/editor/run-code/`,
-        type: 'POST',
-        data: {
-            code: code,
-            task_id: this.currentTaskId, // Не забудьте передавать ID задачи
-            language: 'python'
-        },
-        success: (response) => {
-            if (response.success && response.task_id) {
-                this.pollTaskStatus(response.task_id);
-            } else {
-                this.addConsoleMessage(`❌ Ошибка запуска: ${response.error || 'Неизвестно'}`, 'error');
-                this.resetRunButton();
-            }
-        },
-        error: () => {
-            this.addConsoleMessage(`❌ Ошибка сервера (AJAX)`, 'error');
-            this.resetRunButton();
-        }
-    });
-}
+            const isSandbox = !this.currentTaskId;
 
-pollTaskStatus(taskId) {
-    const checkInterval = setInterval(() => {
-        $.ajax({
-            url: `${location.origin}/code_cup/editor/get-status/${taskId}/`,
-            type: 'GET',
-            success: (data) => {
-                if (data.status === 'SUCCESS') {
-                    clearInterval(checkInterval);
-                    const res = data.result;
-
-                    if (res.success) {
-                        // 1. Отображаем общий вердикт
-                        const verdict = res.passed ? '✅ Все тесты пройдены!' : '❌ Решение не принято';
-                        this.addConsoleMessage(verdict, res.passed ? 'success' : 'error');
-
-                        // 2. Отображаем статистику
-                        if (res.stats) {
-                            this.addConsoleMessage(
-                                `📊 Пройдено: ${res.stats.passed_tests}/${res.stats.total_tests} (${res.stats.success_rate}%) | Время: ${res.execution_time_ms}мс`,
-                                'info'
-                            );
-                        }
-
-                        // 3. Выводим детали по каждому тесту (кратко)
-                        if (res.test_details) {
-                            res.test_details.forEach(test => {
-                                const icon = test.status === 'passed' ? '●' : '○';
-                                const colorClass = test.status === 'passed' ? 'success' : 'error';
-                                this.addConsoleMessage(`${icon} ${test.name}: ${test.message}`, colorClass);
-                            });
-                        }
-
-                        // 4. Выводим print() пользователя, если они были
-                        if (res.user_print) {
-                            this.addConsoleMessage(`\n--- Вывод консоли ---`, 'info');
-                            this.addConsoleMessage(res.user_print, 'output');
-                        }
-
+            $.ajax({
+                url: `${location.origin}/code_cup/editor/run-code/`,
+                type: 'POST',
+                data: {
+                    task: IdTaskSearch,
+                    code: code,
+                    task_id: this.currentTaskId, // Может быть null/undefined для песочницы
+                    language: 'python'
+                },
+                success: (response) => {
+                    if (response.success && response.task_id) {
+                        this.pollTaskStatus(response.task_id, isSandbox);
                     } else {
-                        // Ошибки компиляции или таймауты
-                        this.addConsoleMessage(`❌ ${res.error || 'Ошибка выполнения'}`, 'error');
+                        this.addConsoleMessage(`Ошибка запуска: ${response.error || 'Неизвестно'}`, 'error');
+                        this.resetRunButton();
                     }
-                    this.resetRunButton();
-                } else if (data.status === 'FAILURE' || data.status === 'REVOKED') {
-                    clearInterval(checkInterval);
-                    this.addConsoleMessage(`❌ Ошибка выполнения задачи (Celery)`, 'error');
+                },
+                error: () => {
+                    this.addConsoleMessage(`Ошибка сервера (AJAX)`, 'error');
                     this.resetRunButton();
                 }
-            },
-            error: () => {
-                clearInterval(checkInterval);
-                this.addConsoleMessage(`❌ Ошибка связи с сервером`, 'error');
-                this.resetRunButton();
-            }
-        });
-    }, 700); // Опрос чуть реже, чтобы не спамить сервер
-}
+            });
+        }
+
+        pollTaskStatus(taskId, isSandbox = false) {
+            const checkInterval = setInterval(() => {
+                $.ajax({
+                    url: `${location.origin}/code_cup/editor/get-status/${taskId}/`,
+                    type: 'GET',
+                    success: (data) => {
+                        if (data.status === 'SUCCESS') {
+                            clearInterval(checkInterval);
+                            const res = data.result;
+
+                            // РЕЖИМ ПЕСОЧНИЦЫ
+                            if (res.sandbox) {
+                                if (res.success) {
+                                    this.addConsoleMessage(`✅ Код успешно выполнен в песочнице`, 'success');
+
+                                    // Выводим время выполнения
+                                    this.addConsoleMessage(
+                                        `⏱️ Время выполнения: ${res.execution_time_ms}мс`,
+                                        'info'
+                                    );
+
+                                    // Выводим результат выполнения
+                                    if (res.output && res.output.trim()) {
+                                        this.addConsoleMessage(`\n--- Результат выполнения ---`, 'info');
+                                        this.addConsoleMessage(res.output, 'output');
+                                    }
+
+                                    // Выводим ошибки, если есть (например, предупреждения)
+                                    if (res.error && res.error.trim()) {
+                                        this.addConsoleMessage(`\n--- Предупреждения ---`, 'warning');
+                                        this.addConsoleMessage(res.error, 'warning');
+                                    }
+                                } else {
+                                    // Ошибка в песочнице
+                                    this.addConsoleMessage(`❌ ${res.error || 'Ошибка выполнения'}`, 'error');
+                                    if (res.output && res.output.trim()) {
+                                        this.addConsoleMessage(`\n--- Вывод до ошибки ---`, 'info');
+                                        this.addConsoleMessage(res.output, 'output');
+                                    }
+                                }
+                                this.resetRunButton();
+                                return;
+                            }
+
+                            // РЕЖИМ ТЕСТИРОВАНИЯ ЗАДАНИЯ (оригинальная логика)
+                            if (res.success) {
+                                // 1. Отображаем общий вердикт
+                                const verdict = res.passed ? '✅ Все тесты пройдены!' : '❌ Решение не принято';
+                                this.addConsoleMessage(verdict, res.passed ? 'success' : 'error');
+
+                                // 2. Отображаем статистику
+                                if (res.stats) {
+                                    this.addConsoleMessage(
+                                        `📊 Пройдено: ${res.stats.passed_tests}/${res.stats.total_tests} (${res.stats.success_rate}%) | Время: ${res.execution_time_ms}мс`,
+                                        'info'
+                                    );
+                                }
+
+                                // 3. Выводим детали по каждому тесту (кратко)
+                                if (res.test_details) {
+                                    res.test_details.forEach(test => {
+                                        const icon = test.status === 'passed' ? '●' : '○';
+                                        const colorClass = test.status === 'passed' ? 'success' : 'error';
+                                        this.addConsoleMessage(`${icon} ${test.name}: ${test.message}`, colorClass);
+                                    });
+                                }
+
+                                // 4. Выводим print() пользователя, если они были
+                                // if (res.output && res.output.trim()) {
+                                //     this.addConsoleMessage(`\n--- Вывод консоли ---`, 'info');
+                                //     this.addConsoleMessage(res.output, 'output');
+                                // }
+
+                            } else {
+                                // Ошибки компиляции или таймауты
+                                this.addConsoleMessage(`❌ ${res.error || 'Ошибка выполнения'}`, 'error');
+                                // Показываем вывод, если есть
+                                if (res.output && res.output.trim()) {
+                                    this.addConsoleMessage(`\n--- Вывод до ошибки ---`, 'info');
+                                    this.addConsoleMessage(res.output, 'output');
+                                }
+                            }
+                            this.resetRunButton();
+                        } else if (data.status === 'FAILURE' || data.status === 'REVOKED') {
+                            clearInterval(checkInterval);
+                            this.addConsoleMessage(`❌ Ошибка выполнения задачи (Celery)`, 'error');
+                            this.resetRunButton();
+                        }
+                    },
+                    error: () => {
+                        clearInterval(checkInterval);
+                        this.addConsoleMessage(`❌ Ошибка связи с сервером`, 'error');
+                        this.resetRunButton();
+                    }
+                });
+            }, 700);
+        }
 
         resetRunButton() {
             const runBtn = $('#tabRunBtn_' + this.tabId);

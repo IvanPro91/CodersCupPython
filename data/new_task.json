@@ -876,5 +876,471 @@
       "def test_route_9(): assert santa_optimal_route([0,1,2,3,4], [[0,1,1,1,1],[1,0,1,1,1],[1,1,0,1,1],[1,1,1,0,1],[1,1,1,1,0]]) == 5",
       "def test_route_10(): assert santa_optimal_route([0,1,2,3], [[0,3,6,7],[3,0,8,2],[6,8,0,5],[7,2,5,0]]) == 18"
     ]
+  },
+  {
+    "num": "6.2",
+    "name": "Распределение подарков",
+    "code": "def gift_distribution(children: dict, gifts: dict) -> dict:\n    \"\"\"\n    Распределяет подарки детям по их предпочтениям.\n    \"\"\"\n    pass",
+    "exclude": [],
+    "level": "middle",
+    "task_text": "Напишите функцию gift_distribution(children: dict, gifts: dict) -> dict, которая распределяет подарки детям.\n\nАргументы:\n- children: словарь, где ключ - имя ребенка (str), значение - список желаемых подарков (list[str]).\n- gifts: словарь доступных подарков, где ключ - тип подарка (str), значение - количество (int).\n\nФункция должна вернуть словарь, где ключ - имя ребенка, значение - список подарков, которые он получит.\nПравила:\n1. Ребенок получает только подарки из своего списка желаний.\n2. Каждый подарок можно дать только один раз (учитывается количество в gifts).\n3. Ребенок получает максимум 1 экземпляр каждого типа подарка.\n4. Распределение происходит в порядке перебора детей.\n\nПример:\nchildren = {'Аня': ['кукла', 'мяч'], 'Боря': ['машина', 'мяч']}\ngifts = {'кукла': 2, 'мяч': 1, 'машина': 1}\nРезультат: {'Аня': ['кукла', 'мяч'], 'Боря': ['машина']}",
+    "hints": {
+      "45": "Создайте копию словаря gifts, чтобы уменьшать количество доступных подарков.",
+      "90": "Для каждого ребенка проверяйте каждый подарок из его списка желаний."
+    },
+    "test_code": [
+      "def test_distribution_1(): \n    children = {'Аня': ['кукла', 'мяч'], 'Боря': ['машина', 'мяч']}\n    gifts = {'кукла': 2, 'мяч': 1, 'машина': 1}\n    assert gift_distribution(children, gifts) == {'Аня': ['кукла', 'мяч'], 'Боря': ['машина']}",
+      "def test_distribution_2():\n    children = {'Вова': ['конструктор'], 'Петя': ['конструктор', 'робот']}\n    gifts = {'конструктор': 1, 'робот': 0}\n    assert gift_distribution(children, gifts) == {'Вова': ['конструктор'], 'Петя': []}",
+      "def test_distribution_3():\n    children = {}\n    gifts = {'книга': 5}\n    assert gift_distribution(children, gifts) == {}",
+      "def test_distribution_4():\n    children = {'Маша': ['медведь'], 'Даша': ['заяц']}\n    gifts = {'медведь': 1, 'заяц': 1, 'слон': 1}\n    assert gift_distribution(children, gifts) == {'Маша': ['медведь'], 'Даша': ['заяц']}",
+      "def test_distribution_5():\n    children = {'Оля': ['а', 'б', 'в'], 'Коля': ['б', 'г']}\n    gifts = {'а': 1, 'б': 1, 'в': 1, 'г': 1}\n    assert gift_distribution(children, gifts) == {'Оля': ['а', 'б', 'в'], 'Коля': ['г']}"
+    ]
+  },
+  {
+    "num": "6.3",
+    "name": "Оптимизация загрузки саней",
+    "code": "def optimize_sleigh_load(gifts: list, weight_limit: int) -> list:\n    \"\"\"\n    Выбирает максимальное количество подарков, не превышая лимит веса.\n    \"\"\"\n    pass",
+    "exclude": [],
+    "level": "middle",
+    "task_text": "Напишите функцию optimize_sleigh_load(gifts: list, weight_limit: int) -> list, которая выбирает подарки для загрузки в сани.\n\nАргументы:\n- gifts: список словарей, каждый словарь имеет ключи 'name' (str) и 'weight' (int).\n- weight_limit: максимальный общий вес (int).\n\nФункция должна вернуть список имен подарков, которые будут загружены.\nПравила:\n1. Нельзя превысить weight_limit.\n2. Нужно взять максимальное количество подарков (не максимальный вес, а количество!).\n3. Если есть несколько вариантов с одинаковым количеством, выбрать любой.\n4. Подарки рассматриваются в том порядке, в котором они пришли в списке.\n\nПример:\ngifts = [\n    {'name': 'кукла', 'weight': 3},\n    {'name': 'машина', 'weight': 5},\n    {'name': 'книга', 'weight': 2},\n    {'name': 'мяч', 'weight': 4}\n]\nweight_limit = 8\nРезультат: ['кукла', 'книга', 'мяч'] (суммарный вес 3+2+4=9 >8 - не подходит) или ['кукла', 'машина'] (вес 8) - правильный ответ",
+    "hints": {
+      "60": "Сначала отсортируйте подарки по весу (от легкого к тяжелому).",
+      "120": "Идите по отсортированному списку и добавляйте подарки, пока не превысите лимит."
+    },
+    "test_code": [
+      "def test_optimize_1():\n    gifts = [\n        {'name': 'a', 'weight': 3},\n        {'name': 'b', 'weight': 5},\n        {'name': 'c', 'weight': 2},\n        {'name': 'd', 'weight': 4}\n    ]\n    result = optimize_sleigh_load(gifts, 8)\n    assert len(result) == 2\n    total_weight = sum(g['weight'] for g in gifts if g['name'] in result)\n    assert total_weight <= 8",
+      "def test_optimize_2():\n    gifts = [\n        {'name': 'маленький', 'weight': 1},\n        {'name': 'средний', 'weight': 3},\n        {'name': 'большой', 'weight': 10}\n    ]\n    result = optimize_sleigh_load(gifts, 5)\n    assert result == ['маленький', 'средний'] or result == ['средний', 'маленький']",
+      "def test_optimize_3():\n    gifts = [\n        {'name': 'подарок1', 'weight': 10},\n        {'name': 'подарок2', 'weight': 20}\n    ]\n    assert optimize_sleigh_load(gifts, 5) == []",
+      "def test_optimize_4():\n    gifts = [{'name': 'единственный', 'weight': 7}]\n    assert optimize_sleigh_load(gifts, 10) == ['единственный']",
+      "def test_optimize_5():\n    gifts = [\n        {'name': 'x', 'weight': 2},\n        {'name': 'y', 'weight': 2},\n        {'name': 'z', 'weight': 2},\n        {'name': 'w', 'weight': 5}\n    ]\n    result = optimize_sleigh_load(gifts, 6)\n    assert len(result) == 3\n    total_weight = sum(g['weight'] for g in gifts if g['name'] in result)\n    assert total_weight == 6"
+    ]
+  },
+  {
+    "num": "6.4",
+    "name": "Группировка писем от детей",
+    "code": "def group_children_letters(letters: list) -> dict:\n    \"\"\"\n    Группирует письма по городам и возрасту детей.\n    \"\"\"\n    pass",
+    "exclude": [],
+    "level": "middle",
+    "task_text": "Напишите функцию group_children_letters(letters: list) -> dict, которая анализирует письма от детей и группирует их.\n\nАргументы:\n- letters: список словарей, каждый словарь представляет письмо и имеет ключи:\n  'child_name' (str), 'city' (str), 'age' (int), 'gift_wish' (str).\n\nФункция должна вернуть словарь с такой структурой:\n{\n    'город1': {\n        'age_groups': {\n            'до 7 лет': [список_имен],\n            '7-12 лет': [список_имен],\n            'старше 12': [список_имён]\n        },\n        'popular_gifts': [список_популярных_подарков]\n    },\n    ...\n}\nПравила группировки по возрасту:\n- 'до 7 лет': age < 7\n- '7-12 лет': 7 ≤ age ≤ 12\n- 'старше 12': age > 12\n\nПопулярные подарки: топ-2 самых частых подарка в этом городе (если подарков меньше 2, то все).\nЕсли у нескольких подарков одинаковая частота, включить все с максимальной частотой.\n\nПример:\nletters = [\n    {'child_name': 'Аня', 'city': 'Москва', 'age': 6, 'gift_wish': 'кукла'},\n    {'child_name': 'Боря', 'city': 'Москва', 'age': 8, 'gift_wish': 'машина'},\n    {'child_name': 'Вова', 'city': 'Москва', 'age': 8, 'gift_wish': 'машина'},\n    {'child_name': 'Даша', 'city': 'СПб', 'age': 10, 'gift_wish': 'книга'}\n]\nЧастичный результат: для Москвы popular_gifts = ['машина', 'кукла']",
+    "hints": {
+      "60": "Создайте промежуточный словарь для сбора данных по городам.",
+      "120": "Для нахождения популярных подарков используйте словарь-счетчик."
+    },
+    "test_code": [
+      "def test_group_1():\n    letters = [\n        {'child_name': 'Аня', 'city': 'Москва', 'age': 6, 'gift_wish': 'кукла'},\n        {'child_name': 'Боря', 'city': 'Москва', 'age': 8, 'gift_wish': 'машина'},\n        {'child_name': 'Вова', 'city': 'Москва', 'age': 8, 'gift_wish': 'машина'}\n    ]\n    result = group_children_letters(letters)\n    assert 'Москва' in result\n    assert result['Москва']['age_groups']['до 7 лет'] == ['Аня']\n    assert set(result['Москва']['age_groups']['7-12 лет']) == {'Боря', 'Вова'}",
+      "def test_group_2():\n    letters = [\n        {'child_name': 'А', 'city': 'X', 'age': 5, 'gift_wish': 'яблоко'},\n        {'child_name': 'Б', 'city': 'X', 'age': 5, 'gift_wish': 'яблоко'},\n        {'child_name': 'В', 'city': 'X', 'age': 5, 'gift_wish': 'груша'},\n        {'child_name': 'Г', 'city': 'X', 'age': 5, 'gift_wish': 'слива'}\n    ]\n    result = group_children_letters(letters)\n    gifts = result['X']['popular_gifts']\n    assert 'яблоко' in gifts\n    assert len(gifts) >= 2",
+      "def test_group_3():\n    letters = []\n    assert group_children_letters(letters) == {}",
+      "def test_group_4():\n    letters = [\n        {'child_name': 'Д', 'city': 'Город', 'age': 15, 'gift_wish': 'телефон'},\n        {'child_name': 'Е', 'city': 'Город', 'age': 3, 'gift_wish': 'мяч'}\n    ]\n    result = group_children_letters(letters)\n    assert result['Город']['age_groups']['старше 12'] == ['Д']\n    assert result['Город']['age_groups']['до 7 лет'] == ['Е']"
+    ]
+  },
+  {
+    "num": "6.5",
+    "name": "Поиск ближайших остановок оленей",
+    "code": "def find_reindeer_stops(houses: list, max_distance: int) -> list:\n    \"\"\"\n    Находит минимальное количество остановок для посещения всех домов.\n    \"\"\"\n    pass",
+    "exclude": [],
+    "level": "hard",
+    "task_text": "Напишите функцию find_reindeer_stops(houses: list, max_distance: int) -> list, которая решает задачу планирования остановок оленей.\n\nАргументы:\n- houses: список координат домов на прямой (list[int]). Координаты отсортированы по возрастанию.\n- max_distance: максимальное расстояние, которое могут пройти олени без остановки (int).\n\nОлени стартуют в точке 0 и должны посетить все дома, развозя подарки.\nОни могут делать остановки для отдыха в любых точках.\nЗадача: найти минимальное количество остановок и их координаты.\nПравила:\n1. Из любой остановки олени могут доехать до любой точки на расстоянии ≤ max_distance.\n2. Нужно минимизировать количество остановок.\n3. Олени должны посетить каждый дом (остановиться рядом с ним или проехать через него).\n4. Возвращается список координат остановок (в порядке их посещения).\n\nПример:\nhouses = [1, 4, 7, 10, 13]\nmax_distance = 6\nОптимальный маршрут: остановка на 7 (покрывает дома 1,4,7), затем на 13 (покрывает 10,13)\nРезультат: [7, 13]\n\nhouses = [2, 5, 9]\nmax_distance = 10\nРезультат: [9] (из 9 можно доехать до всех домов)",
+    "hints": {
+      "90": "Используйте жадный алгоритм: ставьте остановку как можно дальше, но так чтобы покрыть очередной дом.",
+      "180": "Начинайте с первого непокрытого дома, ищите самую дальнюю точку остановки, которая его покроет."
+    },
+    "test_code": [
+      "def test_stops_1():\n    houses = [1, 4, 7, 10, 13]\n    assert find_reindeer_stops(houses, 6) == [7, 13]",
+      "def test_stops_2():\n    houses = [2, 5, 9]\n    assert find_reindeer_stops(houses, 10) == [9]",
+      "def test_stops_3():\n    houses = [1, 2, 3, 4, 5]\n    assert find_reindeer_stops(houses, 1) == [1, 2, 3, 4, 5]",
+      "def test_stops_4():\n    houses = [10, 20, 30, 40]\n    assert find_reindeer_stops(houses, 15) == [15, 35] or find_reindeer_stops(houses, 15) == [15, 40]",
+      "def test_stops_5():\n    houses = []\n    assert find_reindeer_stops(houses, 10) == []",
+      "def test_stops_6():\n    houses = [5]\n    assert find_reindeer_stops(houses, 10) == [5]",
+      "def test_stops_7():\n    houses = [100, 200, 300, 400]\n    result = find_reindeer_stops(houses, 120)\n    assert len(result) == 2\n    # Проверяем что все дома покрыты\n    covered = set()\n    for stop in result:\n        for house in houses:\n            if abs(house - stop) <= 120:\n                covered.add(house)\n    assert covered == set(houses)"
+    ]
+  },
+  {
+    "num": "6.6",
+    "name": "Статистика новогодних пожеланий",
+    "code": "def analyze_wishes(wishes: list) -> dict:\n    \"\"\"\n    Анализирует список пожеланий и возвращает статистику.\n    \"\"\"\n    pass",
+    "exclude": [],
+    "level": "middle",
+    "task_text": "Напишите функцию analyze_wishes(wishes: list) -> dict, которая анализирует новогодние пожелания детей.\n\nАргументы:\n- wishes: список строк, каждая строка содержит пожелание ребенка.\n\nФункция должна вернуть словарь со следующей статистикой:\n{\n    'total_wishes': общее количество пожеланий,\n    'avg_length': средняя длина пожелания в символах,\n    'most_common_word': самое частое слово (в нижнем регистре, без знаков препинания),\n    'wishes_by_length': словарь, где ключ - длина пожелания, значение - количество пожеланий такой длины\n}\n\nПравила обработки текста:\n1. Знаки препинания: . , ! ? : ; \" ' - удаляются\n2. Слова разделяются пробелами\n3. Регистр не имеет значения (приводите к нижнему)\n4. Если есть несколько слов с одинаковой максимальной частотой, верните любое из них\n\nПример:\nwishes = [\n    'Хочу новый велосипед!',\n    'Мир во всем мире.',\n    'Хочу велосипед и мир'\n]\nРезультат:\n{\n    'total_wishes': 3,\n    'avg_length': 18.0,  # (19 + 16 + 19) / 3\n    'most_common_word': 'хочу' или 'велосипед' или 'мир' (встречаются по 2 раза)\n    'wishes_by_length': {19: 2, 16: 1}\n}",
+    "hints": {
+      "50": "Используйте str.maketrans() или цикл для удаления знаков препинания.",
+      "100": "Для подсчета слов создайте словарь-счетчик."
+    },
+    "test_code": [
+      "def test_analyze_1():\n    wishes = ['Хочу велосипед!', 'Мир во всем мире.', 'Хочу велосипед и мир']\n    result = analyze_wishes(wishes)\n    assert result['total_wishes'] == 3\n    assert 17.5 < result['avg_length'] < 20.0\n    assert result['wishes_by_length'][16] == 1",
+      "def test_analyze_2():\n    wishes = ['а б в', 'б в г', 'в г д']\n    result = analyze_wishes(wishes)\n    assert result['most_common_word'] == 'в'",
+      "def test_analyze_3():\n    wishes = []\n    result = analyze_wishes(wishes)\n    assert result == {'total_wishes': 0, 'avg_length': 0.0, 'most_common_word': '', 'wishes_by_length': {}}",
+      "def test_analyze_4():\n    wishes = ['Один!', 'Два?', 'Три.']\n    result = analyze_wishes(wishes)\n    assert result['total_wishes'] == 3\n    assert result['avg_length'] == 4.0\n    assert result['wishes_by_length'][4] == 3",
+      "def test_analyze_5():\n    wishes = ['hello world', 'HELLO World', 'hello, world!']\n    result = analyze_wishes(wishes)\n    assert result['most_common_word'] == 'hello' or result['most_common_word'] == 'world'"
+    ]
+  },
+  {
+    "num": "7.1",
+    "name": "Поиск повторяющихся символов",
+    "code": "import re\ndef find_repeated_chars(text: str) -> list:\n    \"\"\"\n    Находит все последовательности одинаковых букв длиной 3 и более.\n    \"\"\"\n    pass",
+    "exclude": [],
+    "level": "junior",
+    "task_text": "Напишите функцию find_repeated_chars(text: str) -> list, которая находит все последовательности одинаковых букв длиной 3 символа и более.\n\nИспользуйте регулярные выражения с квантификаторами.\nВозвращает список найденных последовательностей.\n\nПример:\ntext = 'аааббвввггггд'\nРезультат: ['ааа', 'ввв', 'гггг']\n\nПримечание:\n- Только буквы (латинские и кириллические)\n- Регистр учитывается (А и а - разные буквы)\n- Минимальная длина последовательности: 3 символа",
+    "hints": {
+      "30": "Используйте квантификатор {3,} для поиска 3 и более повторений.",
+      "60": "Шаблон: (буква)\\1{2,} - где \\1 ссылается на найденную букву."
+    },
+    "test_code": [
+      "def test_repeated_1(): \n    assert sorted(find_repeated_chars('аааббвввггггд')) == ['ааа', 'ввв', 'гггг']",
+      "def test_repeated_2(): \n    assert find_repeated_chars('abcde') == []",
+      "def test_repeated_3(): \n    assert find_repeated_chars('AAAbbbCCC') == ['AAA', 'bbb', 'CCC']",
+      "def test_repeated_4(): \n    assert find_repeated_chars('xx yy zzz aaaa b') == ['zzz', 'aaaa']",
+      "def test_repeated_5(): \n    assert find_repeated_chars('111 2222 33333') == []  # не буквы"
+    ]
+  },
+  {
+    "num": "7.2",
+    "name": "Валидация снежинок",
+    "code": "import re\ndef validate_snowflake(pattern: str) -> bool:\n    \"\"\"\n    Проверяет, соответствует ли строка шаблону снежинки.\n    \"\"\"\n    pass",
+    "exclude": [],
+    "level": "middle",
+    "task_text": "Напишите функцию validate_snowflake(pattern: str) -> bool, которая проверяет, соответствует ли строка шаблону снежинки.\n\nШаблон снежинки: символ '*' повторяется от 3 до 6 раз подряд.\n\nПримеры валидных снежинок:\n'***', '****', '*****', '******'\n\nПримеры невалидных:\n'**' (мало), '*******' (много), '* *' (пробел), 'abc', ''\n\nИспользуйте регулярные выражения с квантификаторами для проверки.",
+    "hints": {
+      "40": "Используйте квантификатор {3,6} для точного указания количества.",
+      "80": "Убедитесь, что вся строка состоит только из звездочек."
+    },
+    "test_code": [
+      "def test_snowflake_1(): assert validate_snowflake('***') == True",
+      "def test_snowflake_2(): assert validate_snowflake('******') == True",
+      "def test_snowflake_3(): assert validate_snowflake('**') == False",
+      "def test_snowflake_4(): assert validate_snowflake('*******') == False",
+      "def test_snowflake_5(): assert validate_snowflake('* *') == False",
+      "def test_snowflake_6(): assert validate_snowflake('') == False",
+      "def test_snowflake_7(): assert validate_snowflake('****') == True",
+      "def test_snowflake_8(): assert validate_snowflake('*****') == True"
+    ]
+  },
+  {
+    "num": "7.3",
+    "name": "Извлечение новогодних дат",
+    "code": "import re\ndef extract_new_year_dates(text: str) -> list:\n    \"\"\"\n    Извлекает даты Нового года из текста.\n    \"\"\"\n    pass",
+    "exclude": [],
+    "level": "middle",
+    "task_text": "Напишите функцию extract_new_year_dates(text: str) -> list, которая извлекает даты Нового года из текста.\n\nФормат даты: '31 декабря' или '1 января'\nДопустимые дни:\n- Для декабря: 31 (только 31)\n- Для января: от 1 до 9 (только однозначные числа)\n\nИспользуйте регулярные выражения с квантификаторами.\nВозвращает список найденных дат в том виде, как они встретились в тексте.\n\nПример:\ntext = 'Празднуем 31 декабря, а 1 января отдыхаем. 10 января уже работаем.'\nРезультат: ['31 декабря', '1 января']\n\nПримечание: '10 января' не должно извлекаться.",
+    "hints": {
+      "50": "Используйте | для двух вариантов: декабря и января.",
+      "100": "Для января используйте диапазон [1-9] (только одна цифра)."
+    },
+    "test_code": [
+      "def test_dates_1(): \n    text = '31 декабря и 1 января'\n    assert extract_new_year_dates(text) == ['31 декабря', '1 января']",
+      "def test_dates_2(): \n    text = '30 декабря и 10 января'\n    assert extract_new_year_dates(text) == []",
+      "def test_dates_3(): \n    text = '31 декабря, 31 декабря снова'\n    assert extract_new_year_dates(text) == ['31 декабря', '31 декабря']",
+      "def test_dates_4(): \n    text = '9 января праздник, 2 января тоже'\n    assert extract_new_year_dates(text) == ['9 января', '2 января']",
+      "def test_dates_5(): \n    text = '01 января и 31декабря'\n    assert extract_new_year_dates(text) == []  # нет пробелов или неверный формат",
+      "def test_dates_6(): \n    text = ''\n    assert extract_new_year_dates(text) == []"
+    ]
+  },
+  {
+    "num": "7.4",
+    "name": "Проверка пароля эльфа",
+    "code": "import re\ndef validate_elf_password(password: str) -> bool:\n    \"\"\"\n    Проверяет пароль на соответствие правилам эльфов.\n    \"\"\"\n    pass",
+    "exclude": [],
+    "level": "hard",
+    "task_text": "Напишите функцию validate_elf_password(password: str) -> bool, которая проверяет пароль на соответствие правилам эльфов.\n\nПравила пароля:\n1. Длина от 8 до 16 символов\n2. Должен содержать хотя бы 2 заглавные буквы\n3. Должен содержать хотя бы 3 цифры\n4. Должен содержать хотя бы один специальный символ из !@#$%\n5. Может содержать строчные буквы (латинские)\n6. Не должен содержать других символов\n\nИспользуйте регулярные выражения с квантификаторами.\n\nПримеры:\n'AB12!cdef' - невалидный (только 1 заглавная, 2 цифры)\n'ABC123!@#abc' - валидный\n'Ab1!' - невалидный (короткий)\n'ABCD1234!@#$abcd' - невалидный (длинный)",
+    "hints": {
+      "60": "Используйте положительные lookahead (?=...) для проверки условий.",
+      "120": "Каждое условие можно проверить отдельным регулярным выражением."
+    },
+    "test_code": [
+      "def test_password_1(): assert validate_elf_password('ABC123!@#abc') == True",
+      "def test_password_2(): assert validate_elf_password('AB12!cdef') == False",
+      "def test_password_3(): assert validate_elf_password('Ab1!') == False",
+      "def test_password_4(): assert validate_elf_password('ABCD1234!@#$abcd') == False",
+      "def test_password_5(): assert validate_elf_password('AB12!cdefgh') == False",
+      "def test_password_6(): assert validate_elf_password('ABCDE123!@#xyz') == True",
+      "def test_password_7(): assert validate_elf_password('ABC123!@#') == False  # мало строчных не проблема, но длина?",
+      "def test_password_8(): assert validate_elf_password('ABcd1234!@') == False  # только 2 заглавные? нужно проверить",
+      "def test_password_9(): assert validate_elf_password('') == False",
+      "def test_password_10(): assert validate_elf_password('ABC123!@#abcdefg') == True  # ровно 16 символов"
+    ]
+  },
+  {
+    "num": "7.5",
+    "name": "Поиск номеров подарков",
+    "code": "import re\ndef find_gift_numbers(text: str) -> list:\n    \"\"\"\n    Находит номера подарков в тексте.\n    \"\"\"\n    pass",
+    "exclude": [],
+    "level": "middle",
+    "task_text": "Напишите функцию find_gift_numbers(text: str) -> list, которая находит номера подарков в тексте.\n\nФормат номера подарка: 'Подарок №' или 'Подарок N' или 'Gift #' или 'Gift №'\nПосле этого идет номер, который может быть:\n- От 1 до 3 цифр (например: 1, 12, 123)\n- Или римскими цифрами от I до XX (от 1 до 20)\n\nИспользуйте регулярные выражения с квантификаторами.\nВозвращает список найденных номеров (только цифры или римские цифры, без префикса).\n\nПример:\ntext = 'Подарок №5, Gift #XII, Подарок N123, Gift №III'\nРезультат: ['5', 'XII', '123', 'III']\n\nПримечание:\n- Римские цифры: I, II, III, IV, V, VI, VII, VIII, IX, X, XI, XII, XIII, XIV, XV, XVI, XVII, XVIII, XIX, XX\n- Упрощение: можно считать что римские цифры состоят из символов I, V, X",
+    "hints": {
+      "40": "Используйте группы (...|...) для вариантов префиксов.",
+      "90": "Для римских цифр используйте (?:I[VX]?|V|V?I{0,3}|X[IX]?) - упрощенная проверка."
+    },
+    "test_code": [
+      "def test_gift_1(): \n    text = 'Подарок №5, Gift #XII'\n    assert find_gift_numbers(text) == ['5', 'XII']",
+      "def test_gift_2(): \n    text = 'Подарок N999, Gift №1'\n    assert find_gift_numbers(text) == ['1']  # 999 не входит в диапазон 1-3 цифр",
+      "def test_gift_3(): \n    text = 'Gift #IV, Подарок №15, Gift №XX'\n    result = find_gift_numbers(text)\n    assert 'IV' in result and '15' in result and 'XX' in result",
+      "def test_gift_4(): \n    text = 'Подарок №0, Gift #XXI'\n    assert find_gift_numbers(text) == []  # 0 недопустим, XXI > XX",
+      "def test_gift_5(): \n    text = 'Gift # 5, Подарок№10'\n    assert find_gift_numbers(text) == []  # нет пробела или лишний пробел",
+      "def test_gift_6(): \n    text = ''\n    assert find_gift_numbers(text) == []"
+    ]
+  },
+  {
+    "num": "7.6",
+    "name": "Анализ повторяющихся слов",
+    "code": "import re\ndef find_repeated_words(text: str) -> dict:\n    \"\"\"\n    Находит слова, которые повторяются подряд 2 или более раз.\n    \"\"\"\n    pass",
+    "exclude": [],
+    "level": "middle",
+    "task_text": "Напишите функцию find_repeated_words(text: str) -> dict, которая находит слова, повторяющиеся подряд 2 или более раза.\n\nВозвращает словарь, где:\n- Ключ: повторяющееся слово (в нижнем регистре)\n- Значение: максимальное количество повторений подряд, найденное в тексте\n\nИспользуйте регулярные выражения с квантификаторами.\n\nПример:\ntext = 'Новый новый Год год год! Привет привет привет всем всем.'\nРезультат: {'новый': 2, 'год': 3, 'привет': 3, 'всем': 2}\n\nПримечание:\n- Слово - последовательность букв (кириллица и латиница)\n- Регистр игнорируется\n- Знаки препинания считаются разделителями\n- 'слово-слово' - это одно слово с дефисом",
+    "hints": {
+      "50": "Используйте (\\b\\w+\\b)(?:\\s+\\1)+ для поиска повторений.",
+      "100": "Игнорируйте регистр с флагом re.IGNORECASE."
+    },
+    "test_code": [
+      "def test_words_1(): \n    text = 'да да нет нет нет может'\n    assert find_repeated_words(text) == {'да': 2, 'нет': 3}",
+      "def test_words_2(): \n    text = 'hello hello world world world'\n    assert find_repeated_words(text) == {'hello': 2, 'world': 3}",
+      "def test_words_3(): \n    text = 'слово' \n    assert find_repeated_words(text) == {}",
+      "def test_words_4(): \n    text = 'Да да ДА да'\n    assert find_repeated_words(text) == {'да': 4}",
+      "def test_words_5(): \n    text = 'раз-два раз-два раз-два три три'\n    assert find_repeated_words(text) == {'раз-два': 3, 'три': 2}",
+      "def test_words_6(): \n    text = 'a a a b b a a c'\n    assert find_repeated_words(text) == {'a': 3, 'b': 2}"
+    ]
+  },
+  {
+    "num": "1",
+    "name": "Сумма четных чисел",
+    "code": "def sum_even_numbers(n: int) -> int:\n    \"\"\"Вернуть сумму всех четных чисел от 1 до n включительно\"\"\"\n    pass",
+    "level": "junior",
+    "task_text": "Напишите функцию sum_even_numbers(n), которая принимает целое число n и возвращает сумму всех четных чисел от 1 до n включительно.\nИспользуйте цикл for и range().",
+    "test_code": [
+      "assert sum_even_numbers(10) == 30",
+      "assert sum_even_numbers(1) == 0",
+      "assert sum_even_numbers(5) == 6",
+      "assert sum_even_numbers(0) == 0"
+    ]
+  },
+  {
+    "num": "2",
+    "name": "Обратный список",
+    "code": "def reverse_list(lst: list) -> list:\n    \"\"\"Вернуть список в обратном порядке без использования reversed()\"\"\"\n    pass",
+    "level": "junior",
+    "task_text": "Напишите функцию reverse_list(lst), которая возвращает список в обратном порядке.\nНе используйте встроенную функцию reversed() или срез [::-1].",
+    "test_code": [
+      "assert reverse_list([1, 2, 3]) == [3, 2, 1]",
+      "assert reverse_list(['a', 'b', 'c']) == ['c', 'b', 'a']",
+      "assert reverse_list([]) == []",
+      "assert reverse_list([5]) == [5]"
+    ]
+  },
+  {
+    "num": "3",
+    "name": "Подсчет слов",
+    "code": "def count_words(text: str) -> dict:\n    \"\"\"Посчитать частоту каждого слова в тексте\"\"\"\n    pass",
+    "level": "middle",
+    "task_text": "Напишите функцию count_words(text), которая принимает строку и возвращает словарь, где ключи - слова, значения - сколько раз они встретились.\nСлова приводить к нижнему регистру, игнорировать знаки препинания . , ! ?",
+    "test_code": [
+      "assert count_words('hello world hello') == {'hello': 2, 'world': 1}",
+      "assert count_words('Hello, world! hello.') == {'hello': 2, 'world': 1}",
+      "assert count_words('') == {}",
+      "assert count_words('a a a b b') == {'a': 3, 'b': 2}"
+    ]
+  },
+  {
+    "num": "4",
+    "name": "Генератор квадратов",
+    "code": "def squares_generator(n: int):\n    \"\"\"Генератор, который возвращает квадраты чисел от 0 до n-1\"\"\"\n    pass",
+    "level": "middle",
+    "task_text": "Напишите генератор squares_generator(n), который возвращает квадраты чисел от 0 до n-1.\nИспользуйте yield.",
+    "test_code": [
+      "assert list(squares_generator(5)) == [0, 1, 4, 9, 16]",
+      "assert list(squares_generator(0)) == []",
+      "assert list(squares_generator(3)) == [0, 1, 4]"
+    ]
+  },
+  {
+    "num": "5",
+    "name": "Фильтрация списка",
+    "code": "def filter_by_type(lst: list, type_filter) -> list:\n    \"\"\"Отфильтровать список по типу элементов\"\"\"\n    pass",
+    "level": "middle",
+    "task_text": "Напишите функцию filter_by_type(lst, type_filter), которая возвращает список элементов, имеющих заданный тип.\ntype_filter может быть: int, str, list, dict и т.д.",
+    "test_code": [
+      "assert filter_by_type([1, 'a', 2, 'b'], int) == [1, 2]",
+      "assert filter_by_type([1, [2], 'a', [3]], list) == [[2], [3]]",
+      "assert filter_by_type([], str) == []",
+      "assert filter_by_type([1, 2, 3], str) == []"
+    ]
+  },
+  {
+    "num": "6",
+    "name": "Декоратор времени",
+    "code": "import time\ndef timer_decorator(func):\n    \"\"\"Декоратор для измерения времени выполнения функции\"\"\"\n    pass",
+    "level": "hard",
+    "task_text": "Напишите декоратор timer_decorator, который измеряет время выполнения функции и выводит его в секундах.\nДекоратор должен работать с функциями, принимающими любые аргументы.",
+    "test_code": [
+      "@timer_decorator\ndef test_func():\n    time.sleep(0.1)\n    return 'done'\n\n# Запустить вручную и проверить вывод"
+    ]
+  },
+  {
+    "num": "7",
+    "name": "Слияние словарей",
+    "code": "def merge_dicts(dict1: dict, dict2: dict) -> dict:\n    \"\"\"Объединить два словаря, при конфликте берутся значения из dict2\"\"\"\n    pass",
+    "level": "junior",
+    "task_text": "Напишите функцию merge_dicts(dict1, dict2), которая объединяет два словаря.\nЕсли ключ есть в обоих словарях, берётся значение из dict2.",
+    "test_code": [
+      "assert merge_dicts({'a': 1}, {'b': 2}) == {'a': 1, 'b': 2}",
+      "assert merge_dicts({'a': 1}, {'a': 2, 'b': 3}) == {'a': 2, 'b': 3}",
+      "assert merge_dicts({}, {'x': 10}) == {'x': 10}",
+      "assert merge_dicts({}, {}) == {}"
+    ]
+  },
+  {
+    "num": "8",
+    "name": "Список уникальных элементов",
+    "code": "def unique_elements(lst: list) -> list:\n    \"\"\"Вернуть список уникальных элементов в порядке первого вхождения\"\"\"\n    pass",
+    "level": "junior",
+    "task_text": "Напишите функцию unique_elements(lst), которая возвращает список уникальных элементов в порядке их первого вхождения.\nНе используйте set() или готовые функции для удаления дубликатов.",
+    "test_code": [
+      "assert unique_elements([1, 2, 2, 3, 1]) == [1, 2, 3]",
+      "assert unique_elements(['a', 'b', 'a', 'c']) == ['a', 'b', 'c']",
+      "assert unique_elements([]) == []",
+      "assert unique_elements([1, 1, 1]) == [1]"
+    ]
+  },
+  {
+    "num": "9",
+    "name": "Генератор Фибоначчи",
+    "code": "def fibonacci_generator(n: int):\n    \"\"\"Генератор первых n чисел Фибоначчи\"\"\"\n    pass",
+    "level": "middle",
+    "task_text": "Напишите генератор fibonacci_generator(n), который возвращает первые n чисел последовательности Фибоначчи.\nФибоначчи: 0, 1, 1, 2, 3, 5, 8, 13, ...",
+    "test_code": [
+      "assert list(fibonacci_generator(5)) == [0, 1, 1, 2, 3]",
+      "assert list(fibonacci_generator(1)) == [0]",
+      "assert list(fibonacci_generator(0)) == []",
+      "assert list(fibonacci_generator(7)) == [0, 1, 1, 2, 3, 5, 8]"
+    ]
+  },
+  {
+    "num": "10",
+    "name": "Декоратор кэширования",
+    "code": "def cache_decorator(func):\n    \"\"\"Декоратор для кэширования результатов функции\"\"\"\n    pass",
+    "level": "hard",
+    "task_text": "Напишите декоратор cache_decorator, который кэширует результаты вызова функции.\nПри повторном вызове с теми же аргументами возвращать результат из кэша, не вычисляя заново.",
+    "test_code": [
+      "call_count = 0\n@cache_decorator\ndef expensive_func(x):\n    nonlocal call_count\n    call_count += 1\n    return x * 2\n\n# Первый вызов\nassert expensive_func(5) == 10\n# Второй вызов с теми же аргументами - должен взять из кэша\nassert expensive_func(5) == 10\n# Проверить что функция вызвалась только 1 раз"
+    ]
+  },
+  {
+    "num": "11",
+    "name": "Транспонирование матрицы",
+    "code": "def transpose_matrix(matrix: list) -> list:\n    \"\"\"Транспонировать матрицу (список списков)\"\"\"\n    pass",
+    "level": "middle",
+    "task_text": "Напишите функцию transpose_matrix(matrix), которая транспонирует матрицу (список списков).\nПредполагается, что все строки матрицы имеют одинаковую длину.",
+    "test_code": [
+      "assert transpose_matrix([[1, 2], [3, 4]]) == [[1, 3], [2, 4]]",
+      "assert transpose_matrix([[1, 2, 3], [4, 5, 6]]) == [[1, 4], [2, 5], [3, 6]]",
+      "assert transpose_matrix([[]]) == [[]]",
+      "assert transpose_matrix([[1]]) == [[1]]"
+    ]
+  },
+  {
+    "num": "12",
+    "name": "Глубокое слияние словарей",
+    "code": "def deep_merge(dict1: dict, dict2: dict) -> dict:\n    \"\"\"Рекурсивное глубокое слияние словарей\"\"\"\n    pass",
+    "level": "hard",
+    "task_text": "Напишите функцию deep_merge(dict1, dict2), которая рекурсивно сливает два словаря.\nЕсли значения - словари, сливать их рекурсивно, иначе брать значение из dict2.",
+    "test_code": [
+      "d1 = {'a': {'x': 1}, 'b': 2}\nd2 = {'a': {'y': 3}, 'c': 4}\nresult = deep_merge(d1, d2)\nassert result == {'a': {'x': 1, 'y': 3}, 'b': 2, 'c': 4}",
+      "assert deep_merge({}, {}) == {}",
+      "assert deep_merge({'x': 1}, {'x': 2}) == {'x': 2}"
+    ]
+  },
+  {
+    "num": "13",
+    "name": "Генератор простых чисел",
+    "code": "def primes_generator(limit: int):\n    \"\"\"Генератор простых чисел до limit\"\"\"\n    pass",
+    "level": "hard",
+    "task_text": "Напишите генератор primes_generator(limit), который возвращает все простые числа до limit включительно.",
+    "test_code": [
+      "assert list(primes_generator(10)) == [2, 3, 5, 7]",
+      "assert list(primes_generator(2)) == [2]",
+      "assert list(primes_generator(1)) == []",
+      "assert list(primes_generator(20)) == [2, 3, 5, 7, 11, 13, 17, 19]"
+    ]
+  },
+  {
+    "num": "14",
+    "name": "Декоратор валидации аргументов",
+    "code": "def validate_args(arg_types: list):\n    \"\"\"Декоратор для проверки типов аргументов\"\"\"\n    pass",
+    "level": "hard",
+    "task_text": "Напишите декоратор validate_args, который принимает список типов и проверяет,\nчто аргументы функции соответствуют этим типам. Если нет - бросать TypeError.",
+    "test_code": [
+      "@validate_args([int, str])\ndef func(x, y):\n    return f'{x}{y}'\n\nassert func(5, 'hello') == '5hello'\n# При вызове func(5, 10) должно возникнуть TypeError"
+    ]
+  },
+  {
+    "num": "15",
+    "name": "Группировка по ключу",
+    "code": "def group_by(lst: list, key_func) -> dict:\n    \"\"\"Группировать элементы списка по ключу\"\"\"\n    pass",
+    "level": "middle",
+    "task_text": "Напишите функцию group_by(lst, key_func), которая группирует элементы списка по ключу.\nkey_func - функция, которая принимает элемент и возвращает ключ для группировки.",
+    "test_code": [
+      "assert group_by([1, 2, 3, 4], lambda x: x % 2) == {0: [2, 4], 1: [1, 3]}",
+      "words = ['apple', 'banana', 'cherry', 'date']\nassert group_by(words, len) == {5: ['apple'], 6: ['banana', 'cherry'], 4: ['date']}",
+      "assert group_by([], lambda x: x) == {}"
+    ]
+  },
+  {
+    "num": "16",
+    "name": "Чередование списков",
+    "code": "def interleave_lists(list1: list, list2: list) -> list:\n    \"\"\"Чередовать элементы двух списков\"\"\"\n    pass",
+    "level": "junior",
+    "task_text": "Напишите функцию interleave_lists(list1, list2), которая чередует элементы двух списков.\nЕсли списки разной длины, оставшиеся элементы добавить в конец.",
+    "test_code": [
+      "assert interleave_lists([1, 2, 3], ['a', 'b', 'c']) == [1, 'a', 2, 'b', 3, 'c']",
+      "assert interleave_lists([1, 2], ['a', 'b', 'c', 'd']) == [1, 'a', 2, 'b', 'c', 'd']",
+      "assert interleave_lists([], [1, 2]) == [1, 2]",
+      "assert interleave_lists([1, 2], []) == [1, 2]"
+    ]
+  },
+  {
+    "num": "17",
+    "name": "Генератор скользящего окна",
+    "code": "def sliding_window(lst: list, size: int):\n    \"\"\"Генератор скользящего окна по списку\"\"\"\n    pass",
+    "level": "middle",
+    "task_text": "Напишите генератор sliding_window(lst, size), который возвращает последовательные подсписки заданного размера.\nЕсли size больше длины списка, не возвращать ничего.",
+    "test_code": [
+      "assert list(sliding_window([1, 2, 3, 4, 5], 3)) == [[1, 2, 3], [2, 3, 4], [3, 4, 5]]",
+      "assert list(sliding_window([1, 2, 3], 5)) == []",
+      "assert list(sliding_window([1, 2, 3], 1)) == [[1], [2], [3]]",
+      "assert list(sliding_window([], 2)) == []"
+    ]
+  },
+  {
+    "num": "18",
+    "name": "Декоратор повторных попыток",
+    "code": "def retry_decorator(max_attempts: int):\n    \"\"\"Декоратор для повторных попыток выполнения функции\"\"\"\n    pass",
+    "level": "hard",
+    "task_text": "Напишите декоратор retry_decorator, который принимает максимальное количество попыток.\nПри возникновении исключения в функции, повторить вызов до max_attempts раз.",
+    "test_code": [
+      "attempts = 0\n@retry_decorator(3)\ndef unstable_func():\n    nonlocal attempts\n    attempts += 1\n    if attempts < 3:\n        raise ValueError('Error')\n    return 'success'\n\nassert unstable_func() == 'success'\nassert attempts == 3"
+    ]
+  },
+  {
+    "num": "19",
+    "name": "Словарь инвертированный",
+    "code": "def invert_dict(d: dict) -> dict:\n    \"\"\"Инвертировать словарь (ключи ↔ значения)\"\"\"\n    pass",
+    "level": "middle",
+    "task_text": "Напишите функцию invert_dict(d), которая инвертирует словарь (меняет местами ключи и значения).\nЕсли в исходном словаре есть повторяющиеся значения, в новом словаре значения должны быть списками.",
+    "test_code": [
+      "assert invert_dict({'a': 1, 'b': 2}) == {1: 'a', 2: 'b'}",
+      "assert invert_dict({'a': 1, 'b': 1, 'c': 2}) == {1: ['a', 'b'], 2: 'c'}",
+      "assert invert_dict({}) == {}",
+      "assert invert_dict({'x': 'y'}) == {'y': 'x'}"
+    ]
+  },
+  {
+    "num": "20",
+    "name": "Генератор бегущей суммы",
+    "code": "def running_sum_generator(lst: list):\n    \"\"\"Генератор бегущей (кумулятивной) суммы\"\"\"\n    pass",
+    "level": "junior",
+    "task_text": "Напишите генератор running_sum_generator(lst), который возвращает бегущую сумму элементов списка.\nНапример, для [1, 2, 3, 4] -> [1, 3, 6, 10].",
+    "test_code": [
+      "assert list(running_sum_generator([1, 2, 3, 4])) == [1, 3, 6, 10]",
+      "assert list(running_sum_generator([])) == []",
+      "assert list(running_sum_generator([5])) == [5]",
+      "assert list(running_sum_generator([-1, 1, -1, 1])) == [-1, 0, -1, 0]"
+    ]
   }
 ]
