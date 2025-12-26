@@ -91,7 +91,7 @@ class Task(models.Model):
         ('other', 'Другое'),
     ]
 
-    num = models.CharField(max_length=20, unique=True, verbose_name="Номер задачи")
+    num = models.CharField(max_length=20, verbose_name="Номер задачи")
     name = models.CharField(max_length=255, verbose_name="Название задачи")
     code = models.TextField(verbose_name="Шаблон кода")
     level = models.CharField(max_length=20, choices=LEVEL_CHOICES, verbose_name="Уровень сложности")

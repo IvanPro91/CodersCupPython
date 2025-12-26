@@ -1342,5 +1342,457 @@
       "assert list(running_sum_generator([5])) == [5]",
       "assert list(running_sum_generator([-1, 1, -1, 1])) == [-1, 0, -1, 0]"
     ]
+  },
+  {
+    "num": "1.1",
+    "name": "Сумма элементов списка",
+    "code": "def sum_list(numbers: list) -> int:\n    \"\"\"Вернуть сумму всех чисел в списке\"\"\"\n    pass",
+    "level": "junior",
+    "task_text": "Напишите функцию sum_list(numbers), которая принимает список чисел и возвращает их сумму.\nИспользуйте цикл for.\nПример: sum_list([1, 2, 3]) → 6",
+    "test_code": [
+      "assert sum_list([1, 2, 3]) == 6",
+      "assert sum_list([]) == 0",
+      "assert sum_list([-5, 10, 3]) == 8",
+      "assert sum_list([5]) == 5"
+    ]
+  },
+  {
+    "num": "1.2",
+    "name": "Максимальный элемент",
+    "code": "def find_max(numbers: list) -> int:\n    \"\"\"Найти максимальное число в списке\"\"\"\n    pass",
+    "level": "junior",
+    "task_text": "Напишите функцию find_max(numbers), которая находит максимальное число в списке.\nНе используйте встроенные функции max().\nПример: find_max([3, 1, 4, 2]) → 4",
+    "test_code": [
+      "assert find_max([3, 1, 4, 2]) == 4",
+      "assert find_max([-10, -5, -1]) == -1",
+      "assert find_max([7]) == 7",
+      "assert find_max([5, 5, 5]) == 5"
+    ]
+  },
+  {
+    "num": "1.3",
+    "name": "Подсчет положительных чисел",
+    "code": "def count_positive(numbers: list) -> int:\n    \"\"\"Посчитать количество положительных чисел\"\"\"\n    pass",
+    "level": "junior",
+    "task_text": "Напишите функцию count_positive(numbers), которая подсчитывает количество положительных чисел в списке.\nПример: count_positive([-1, 2, -3, 4]) → 2",
+    "test_code": [
+      "assert count_positive([-1, 2, -3, 4]) == 2",
+      "assert count_positive([1, 2, 3]) == 3",
+      "assert count_positive([-1, -2, -3]) == 0",
+      "assert count_positive([]) == 0"
+    ]
+  },
+  {
+    "num": "1.4",
+    "name": "Удвоение элементов",
+    "code": "def double_list(numbers: list) -> list:\n    \"\"\"Вернуть новый список с удвоенными значениями\"\"\"\n    pass",
+    "level": "junior",
+    "task_text": "Напишите функцию double_list(numbers), которая возвращает новый список, где каждый элемент умножен на 2.\nНе изменяйте исходный список.\nПример: double_list([1, 2, 3]) → [2, 4, 6]",
+    "test_code": [
+      "assert double_list([1, 2, 3]) == [2, 4, 6]",
+      "assert double_list([]) == []",
+      "assert double_list([0]) == [0]",
+      "assert double_list([-3, 5]) == [-6, 10]"
+    ]
+  },
+  {
+    "num": "1.5",
+    "name": "Поиск элемента",
+    "code": "def find_element(lst: list, element) -> bool:\n    \"\"\"Проверить, есть ли элемент в списке\"\"\"\n    pass",
+    "level": "junior",
+    "task_text": "Напишите функцию find_element(lst, element), которая проверяет, есть ли элемент в списке.\nНе используйте оператор in.\nПример: find_element([1, 2, 3], 2) → True",
+    "test_code": [
+      "assert find_element([1, 2, 3], 2) == True",
+      "assert find_element(['a', 'b', 'c'], 'd') == False",
+      "assert find_element([], 5) == False",
+      "assert find_element([1, 1, 1], 1) == True"
+    ]
+  },
+  {
+    "num": "1.6",
+    "name": "Объединение списков",
+    "code": "def concat_lists(list1: list, list2: list) -> list:\n    \"\"\"Объединить два списка в один\"\"\"\n    pass",
+    "level": "junior",
+    "task_text": "Напишите функцию concat_lists(list1, list2), которая объединяет два списка в один.\nНе используйте оператор + или метод extend().\nПример: concat_lists([1, 2], [3, 4]) → [1, 2, 3, 4]",
+    "test_code": [
+      "assert concat_lists([1, 2], [3, 4]) == [1, 2, 3, 4]",
+      "assert concat_lists([], [1, 2]) == [1, 2]",
+      "assert concat_lists(['a'], ['b']) == ['a', 'b']",
+      "assert concat_lists([], []) == []"
+    ]
+  },
+  {
+    "num": "1.7",
+    "name": "Удаление дубликатов",
+    "code": "def remove_duplicates(lst: list) -> list:\n    \"\"\"Удалить повторяющиеся элементы из списка\"\"\"\n    pass",
+    "level": "junior",
+    "task_text": "Напишите функцию remove_duplicates(lst), которая удаляет повторяющиеся элементы из списка, сохраняя порядок.\nНе используйте множества (set).\nПример: remove_duplicates([1, 2, 2, 3, 1]) → [1, 2, 3]",
+    "test_code": [
+      "assert remove_duplicates([1, 2, 2, 3, 1]) == [1, 2, 3]",
+      "assert remove_duplicates(['a', 'b', 'a']) == ['a', 'b']",
+      "assert remove_duplicates([]) == []",
+      "assert remove_duplicates([1, 1, 1]) == [1]"
+    ]
+  },
+  {
+    "num": "1.8",
+    "name": "Четные индексы",
+    "code": "def even_index_elements(lst: list) -> list:\n    \"\"\"Вернуть элементы с четными индексами\"\"\"\n    pass",
+    "level": "junior",
+    "task_text": "Напишите функцию even_index_elements(lst), которая возвращает список элементов, стоящих на четных индексах.\nИндексация начинается с 0.\nПример: even_index_elements([0, 1, 2, 3, 4]) → [0, 2, 4]",
+    "test_code": [
+      "assert even_index_elements([0, 1, 2, 3, 4]) == [0, 2, 4]",
+      "assert even_index_elements(['a', 'b', 'c', 'd']) == ['a', 'c']",
+      "assert even_index_elements([]) == []",
+      "assert even_index_elements([5]) == [5]"
+    ]
+  },
+  {
+    "num": "1.9",
+    "name": "Сумма двух списков",
+    "code": "def sum_two_lists(list1: list, list2: list) -> list:\n    \"\"\"Сложить соответствующие элементы двух списков\"\"\"\n    pass",
+    "level": "junior",
+    "task_text": "Напишите функцию sum_two_lists(list1, list2), которая возвращает новый список, где каждый элемент равен сумме соответствующих элементов входных списков.\nСписки одинаковой длины.\nПример: sum_two_lists([1, 2, 3], [4, 5, 6]) → [5, 7, 9]",
+    "test_code": [
+      "assert sum_two_lists([1, 2, 3], [4, 5, 6]) == [5, 7, 9]",
+      "assert sum_two_lists([0, 0], [1, 2]) == [1, 2]",
+      "assert sum_two_lists([-1, 5], [3, -5]) == [2, 0]",
+      "assert sum_two_lists([], []) == []"
+    ]
+  },
+  {
+    "num": "1.10",
+    "name": "Подсчет вхождений",
+    "code": "def count_occurrences(lst: list, element) -> int:\n    \"\"\"Посчитать, сколько раз элемент встречается в списке\"\"\"\n    pass",
+    "level": "junior",
+    "task_text": "Напишите функцию count_occurrences(lst, element), которая подсчитывает, сколько раз элемент встречается в списке.\nПример: count_occurrences([1, 2, 1, 3, 1], 1) → 3",
+    "test_code": [
+      "assert count_occurrences([1, 2, 1, 3, 1], 1) == 3",
+      "assert count_occurrences(['a', 'b', 'c'], 'd') == 0",
+      "assert count_occurrences([], 5) == 0",
+      "assert count_occurrences([7, 7, 7], 7) == 3"
+    ]
+  },
+  {
+    "num": "2.1",
+    "name": "Создание словаря из списков",
+    "code": "def create_dict(keys: list, values: list) -> dict:\n    \"\"\"Создать словарь из двух списков\"\"\"\n    pass",
+    "level": "junior",
+    "task_text": "Напишите функцию create_dict(keys, values), которая создает словарь из двух списков одинаковой длины.\nПример: create_dict(['a', 'b'], [1, 2]) → {'a': 1, 'b': 2}",
+    "test_code": [
+      "assert create_dict(['a', 'b'], [1, 2]) == {'a': 1, 'b': 2}",
+      "assert create_dict([], []) == {}",
+      "assert create_dict(['x'], [10]) == {'x': 10}",
+      "assert create_dict(['имя', 'возраст'], ['Аня', 12]) == {'имя': 'Аня', 'возраст': 12}"
+    ]
+  },
+  {
+    "num": "2.2",
+    "name": "Получение ключей словаря",
+    "code": "def get_keys(d: dict) -> list:\n    \"\"\"Получить список всех ключей словаря\"\"\"\n    pass",
+    "level": "junior",
+    "task_text": "Напишите функцию get_keys(d), которая возвращает список всех ключей словаря.\nПример: get_keys({'a': 1, 'b': 2}) → ['a', 'b']",
+    "test_code": [
+      "assert sorted(get_keys({'a': 1, 'b': 2})) == ['a', 'b']",
+      "assert get_keys({}) == []",
+      "assert sorted(get_keys({1: 'a', 2: 'b'})) == [1, 2]"
+    ]
+  },
+  {
+    "num": "2.3",
+    "name": "Получение значений словаря",
+    "code": "def get_values(d: dict) -> list:\n    \"\"\"Получить список всех значений словаря\"\"\"\n    pass",
+    "level": "junior",
+    "task_text": "Напишите функцию get_values(d), которая возвращает список всех значений словаря.\nПример: get_values({'a': 1, 'b': 2}) → [1, 2]",
+    "test_code": [
+      "assert sorted(get_values({'a': 1, 'b': 2})) == [1, 2]",
+      "assert get_values({}) == []",
+      "assert sorted(get_values({'x': 10, 'y': 20, 'z': 10})) == [10, 10, 20]"
+    ]
+  },
+  {
+    "num": "2.4",
+    "name": "Проверка ключа",
+    "code": "def has_key(d: dict, key) -> bool:\n    \"\"\"Проверить, есть ли ключ в словаре\"\"\"\n    pass",
+    "level": "junior",
+    "task_text": "Напишите функцию has_key(d, key), которая проверяет, есть ли ключ в словаре.\nПример: has_key({'a': 1}, 'a') → True\nhas_key({'a': 1}, 'b') → False",
+    "test_code": [
+      "assert has_key({'a': 1}, 'a') == True",
+      "assert has_key({'a': 1}, 'b') == False",
+      "assert has_key({}, 'x') == False",
+      "assert has_key({1: 'a'}, 1) == True"
+    ]
+  },
+  {
+    "num": "2.5",
+    "name": "Слияние словарей",
+    "code": "def merge_dicts(dict1: dict, dict2: dict) -> dict:\n    \"\"\"Объединить два словаря\"\"\"\n    pass",
+    "level": "junior",
+    "task_text": "Напишите функцию merge_dicts(dict1, dict2), которая объединяет два словаря.\nЕсли ключ есть в обоих словарях, использовать значение из dict2.\nПример: merge_dicts({'a': 1}, {'b': 2}) → {'a': 1, 'b': 2}\nmerge_dicts({'a': 1}, {'a': 3}) → {'a': 3}",
+    "test_code": [
+      "assert merge_dicts({'a': 1}, {'b': 2}) == {'a': 1, 'b': 2}",
+      "assert merge_dicts({'a': 1}, {'a': 3}) == {'a': 3}",
+      "assert merge_dicts({}, {'x': 5}) == {'x': 5}",
+      "assert merge_dicts({'x': 1, 'y': 2}, {'y': 3, 'z': 4}) == {'x': 1, 'y': 3, 'z': 4}"
+    ]
+  },
+  {
+    "num": "2.6",
+    "name": "Подсчет суммы значений",
+    "code": "def sum_dict_values(d: dict) -> int:\n    \"\"\"Вычислить сумму всех значений словаря\"\"\"\n    pass",
+    "level": "junior",
+    "task_text": "Напишите функцию sum_dict_values(d), которая вычисляет сумму всех значений словаря.\nЗначения должны быть числами.\nПример: sum_dict_values({'a': 10, 'b': 20}) → 30",
+    "test_code": [
+      "assert sum_dict_values({'a': 10, 'b': 20}) == 30",
+      "assert sum_dict_values({}) == 0",
+      "assert sum_dict_values({'x': 5}) == 5",
+      "assert sum_dict_values({'a': -3, 'b': 7}) == 4"
+    ]
+  },
+  {
+    "num": "2.7",
+    "name": "Инвертирование словаря",
+    "code": "def invert_dict(d: dict) -> dict:\n    \"\"\"Поменять местами ключи и значения\"\"\"\n    pass",
+    "level": "junior",
+    "task_text": "Напишите функцию invert_dict(d), которая меняет местами ключи и значения словаря.\nПример: invert_dict({'a': 1, 'b': 2}) → {1: 'a', 2: 'b'}",
+    "test_code": [
+      "assert invert_dict({'a': 1, 'b': 2}) == {1: 'a', 2: 'b'}",
+      "assert invert_dict({}) == {}",
+      "assert invert_dict({'x': 'y'}) == {'y': 'x'}",
+      "assert invert_dict({1: 'один', 2: 'два'}) == {'один': 1, 'два': 2}"
+    ]
+  },
+  {
+    "num": "2.8",
+    "name": "Фильтрация по значению",
+    "code": "def filter_dict_by_value(d: dict, threshold: int) -> dict:\n    \"\"\"Отфильтровать словарь по значению\"\"\"\n    pass",
+    "level": "junior",
+    "task_text": "Напишите функцию filter_dict_by_value(d, threshold), которая возвращает новый словарь, содержащий только те пары ключ-значение, где значение больше threshold.\nПример: filter_dict_by_value({'a': 10, 'b': 5, 'c': 15}, 7) → {'a': 10, 'c': 15}",
+    "test_code": [
+      "assert filter_dict_by_value({'a': 10, 'b': 5, 'c': 15}, 7) == {'a': 10, 'c': 15}",
+      "assert filter_dict_by_value({'x': 1}, 5) == {}",
+      "assert filter_dict_by_value({}, 10) == {}",
+      "assert filter_dict_by_value({'a': 3, 'b': 4, 'c': 5}, 3) == {'c': 5}"
+    ]
+  },
+  {
+    "num": "2.9",
+    "name": "Подсчет частоты слов",
+    "code": "def word_frequency(text: str) -> dict:\n    \"\"\"Посчитать частоту слов в тексте\"\"\"\n    pass",
+    "level": "junior",
+    "task_text": "Напишите функцию word_frequency(text), которая подсчитывает, сколько раз каждое слово встречается в тексте.\nСлова разделены пробелами, регистр не учитывать.\nПример: word_frequency('hello world hello') → {'hello': 2, 'world': 1}",
+    "test_code": [
+      "assert word_frequency('hello world hello') == {'hello': 2, 'world': 1}",
+      "assert word_frequency('') == {}",
+      "assert word_frequency('a a a') == {'a': 3}",
+      "assert word_frequency('Hello hello') == {'hello': 2}"
+    ]
+  },
+  {
+    "num": "2.10",
+    "name": "Максимальное значение",
+    "code": "def max_value(d: dict) -> tuple:\n    \"\"\"Найти максимальное значение и соответствующий ключ\"\"\"\n    pass",
+    "level": "junior",
+    "task_text": "Напишите функцию max_value(d), которая находит максимальное значение в словаре и возвращает кортеж (ключ, значение).\nЕсли словарь пустой, вернуть (None, None).\nПример: max_value({'a': 10, 'b': 5, 'c': 15}) → ('c', 15)",
+    "test_code": [
+      "assert max_value({'a': 10, 'b': 5, 'c': 15}) == ('c', 15)",
+      "assert max_value({}) == (None, None)",
+      "assert max_value({'x': 5}) == ('x', 5)",
+      "assert max_value({'a': -10, 'b': -5}) == ('b', -5)"
+    ]
+  },
+  {
+    "num": "3.1",
+    "name": "Создание множества из списка",
+    "code": "def list_to_set(lst: list) -> set:\n    \"\"\"Преобразовать список в множество\"\"\"\n    pass",
+    "level": "junior",
+    "task_text": "Напишите функцию list_to_set(lst), которая преобразует список в множество.\nПример: list_to_set([1, 2, 2, 3, 1]) → {1, 2, 3}",
+    "test_code": [
+      "assert list_to_set([1, 2, 2, 3, 1]) == {1, 2, 3}",
+      "assert list_to_set([]) == set()",
+      "assert list_to_set(['a', 'b', 'a']) == {'a', 'b'}",
+      "assert list_to_set([1]) == {1}"
+    ]
+  },
+  {
+    "num": "3.2",
+    "name": "Пересечение множеств",
+    "code": "def intersection_set(set1: set, set2: set) -> set:\n    \"\"\"Найти пересечение двух множеств\"\"\"\n    pass",
+    "level": "junior",
+    "task_text": "Напишите функцию intersection_set(set1, set2), которая находит пересечение двух множеств (элементы, которые есть в обоих множествах).\nНе используйте оператор &.\nПример: intersection_set({1, 2, 3}, {2, 3, 4}) → {2, 3}",
+    "test_code": [
+      "assert intersection_set({1, 2, 3}, {2, 3, 4}) == {2, 3}",
+      "assert intersection_set({1, 2}, {3, 4}) == set()",
+      "assert intersection_set(set(), {1, 2}) == set()",
+      "assert intersection_set({'a', 'b'}, {'b', 'c'}) == {'b'}"
+    ]
+  },
+  {
+    "num": "3.3",
+    "name": "Объединение множеств",
+    "code": "def union_set(set1: set, set2: set) -> set:\n    \"\"\"Найти объединение двух множеств\"\"\"\n    pass",
+    "level": "junior",
+    "task_text": "Напишите функцию union_set(set1, set2), которая находит объединение двух множеств (все элементы из обоих множеств).\nНе используйте оператор |.\nПример: union_set({1, 2}, {3, 4}) → {1, 2, 3, 4}",
+    "test_code": [
+      "assert union_set({1, 2}, {3, 4}) == {1, 2, 3, 4}",
+      "assert union_set({1, 2}, {2, 3}) == {1, 2, 3}",
+      "assert union_set(set(), {1}) == {1}",
+      "assert union_set({'a'}, {'b'}) == {'a', 'b'}"
+    ]
+  },
+  {
+    "num": "3.4",
+    "name": "Разность множеств",
+    "code": "def difference_set(set1: set, set2: set) -> set:\n    \"\"\"Найти разность двух множеств\"\"\"\n    pass",
+    "level": "junior",
+    "task_text": "Напишите функцию difference_set(set1, set2), которая находит разность множеств (элементы, которые есть в set1, но нет в set2).\nНе используйте оператор -.\nПример: difference_set({1, 2, 3}, {2, 3}) → {1}",
+    "test_code": [
+      "assert difference_set({1, 2, 3}, {2, 3}) == {1}",
+      "assert difference_set({1, 2}, {3, 4}) == {1, 2}",
+      "assert difference_set(set(), {1}) == set()",
+      "assert difference_set({'a', 'b'}, {'b'}) == {'a'}"
+    ]
+  },
+  {
+    "num": "3.5",
+    "name": "Симметрическая разность",
+    "code": "def symmetric_difference(set1: set, set2: set) -> set:\n    \"\"\"Найти симметрическую разность множеств\"\"\"\n    pass",
+    "level": "junior",
+    "task_text": "Напишите функцию symmetric_difference(set1, set2), которая находит симметрическую разность множеств (элементы, которые есть только в одном из множеств).\nНе используйте оператор ^.\nПример: symmetric_difference({1, 2, 3}, {2, 3, 4}) → {1, 4}",
+    "test_code": [
+      "assert symmetric_difference({1, 2, 3}, {2, 3, 4}) == {1, 4}",
+      "assert symmetric_difference({1, 2}, {3, 4}) == {1, 2, 3, 4}",
+      "assert symmetric_difference(set(), {1}) == {1}",
+      "assert symmetric_difference({1, 1}, {1}) == set()"
+    ]
+  },
+  {
+    "num": "3.6",
+    "name": "Подмножество",
+    "code": "def is_subset(set1: set, set2: set) -> bool:\n    \"\"\"Проверить, является ли set1 подмножеством set2\"\"\"\n    pass",
+    "level": "junior",
+    "task_text": "Напишите функцию is_subset(set1, set2), которая проверяет, является ли set1 подмножеством set2 (все элементы set1 есть в set2).\nПример: is_subset({1, 2}, {1, 2, 3}) → True\nis_subset({1, 4}, {1, 2, 3}) → False",
+    "test_code": [
+      "assert is_subset({1, 2}, {1, 2, 3}) == True",
+      "assert is_subset({1, 4}, {1, 2, 3}) == False",
+      "assert is_subset(set(), {1, 2}) == True",
+      "assert is_subset(set(), set()) == True"
+    ]
+  },
+  {
+    "num": "3.7",
+    "name": "Уникальные элементы",
+    "code": "def find_unique_elements(lst: list) -> list:\n    \"\"\"Найти элементы, которые встречаются только один раз\"\"\"\n    pass",
+    "level": "junior",
+    "task_text": "Напишите функцию find_unique_elements(lst), которая находит элементы списка, которые встречаются только один раз.\nПример: find_unique_elements([1, 2, 2, 3, 4, 4, 5]) → [1, 3, 5]",
+    "test_code": [
+      "assert sorted(find_unique_elements([1, 2, 2, 3, 4, 4, 5])) == [1, 3, 5]",
+      "assert find_unique_elements([]) == []",
+      "assert find_unique_elements([1, 1, 1]) == []",
+      "assert find_unique_elements(['a', 'b', 'a', 'c']) == ['b', 'c']"
+    ]
+  },
+  {
+    "num": "3.8",
+    "name": "Общие элементы в нескольких списках",
+    "code": "def common_elements(lists: list) -> set:\n    \"\"\"Найти общие элементы во всех списках\"\"\"\n    pass",
+    "level": "junior",
+    "task_text": "Напишите функцию common_elements(lists), которая принимает список списков и возвращает множество элементов, которые есть во всех списках.\nПример: common_elements([[1, 2, 3], [2, 3, 4], [2, 5]]) → {2}",
+    "test_code": [
+      "assert common_elements([[1, 2, 3], [2, 3, 4], [2, 5]]) == {2}",
+      "assert common_elements([[1, 2], [3, 4]]) == set()",
+      "assert common_elements([[], [1, 2]]) == set()",
+      "assert common_elements([[1, 2, 3], [1, 2, 3]]) == {1, 2, 3}"
+    ]
+  },
+  {
+    "num": "3.9",
+    "name": "Удаление дубликатов с сохранением порядка",
+    "code": "def remove_duplicates_ordered(lst: list) -> list:\n    \"\"\"Удалить дубликаты, сохраняя порядок\"\"\"\n    pass",
+    "level": "junior",
+    "task_text": "Напишите функцию remove_duplicates_ordered(lst), которая удаляет повторяющиеся элементы из списка, сохраняя порядок их первого появления.\nИспользуйте множества для проверки.\nПример: remove_duplicates_ordered([1, 2, 2, 3, 1]) → [1, 2, 3]",
+    "test_code": [
+      "assert remove_duplicates_ordered([1, 2, 2, 3, 1]) == [1, 2, 3]",
+      "assert remove_duplicates_ordered([]) == []",
+      "assert remove_duplicates_ordered(['a', 'b', 'a', 'c']) == ['a', 'b', 'c']",
+      "assert remove_duplicates_ordered([1]) == [1]"
+    ]
+  },
+  {
+    "num": "3.10",
+    "name": "Элементы только в одном множестве",
+    "code": "def unique_in_sets(set1: set, set2: set) -> tuple:\n    \"\"\"Найти элементы, которые есть только в одном из множеств\"\"\"\n    pass",
+    "level": "junior",
+    "task_text": "Напишите функцию unique_in_sets(set1, set2), которая возвращает кортеж из двух множеств:\n1. Элементы, которые есть только в set1\n2. Элементы, которые есть только в set2\nПример: unique_in_sets({1, 2, 3}, {2, 3, 4}) → ({1}, {4})",
+    "test_code": [
+      "assert unique_in_sets({1, 2, 3}, {2, 3, 4}) == ({1}, {4})",
+      "assert unique_in_sets({1, 2}, {3, 4}) == ({1, 2}, {3, 4})",
+      "assert unique_in_sets(set(), {1, 2}) == (set(), {1, 2})",
+      "assert unique_in_sets({'a'}, {'a'}) == (set(), set())"
+    ]
+  },
+  {
+    "num": "4.1",
+    "name": "Сумма кортежа",
+    "code": "def sum_tuple(t: tuple) -> int:\n    \"\"\"Вычислить сумму элементов кортежа\"\"\"\n    pass",
+    "level": "junior",
+    "task_text": "Напишите функцию sum_tuple(t), которая вычисляет сумму элементов кортежа.\nПример: sum_tuple((1, 2, 3)) → 6",
+    "test_code": [
+      "assert sum_tuple((1, 2, 3)) == 6",
+      "assert sum_tuple(()) == 0",
+      "assert sum_tuple((5,)) == 5",
+      "assert sum_tuple((-1, 0, 1)) == 0"
+    ]
+  },
+  {
+    "num": "4.2",
+    "name": "Преобразование список ↔ кортеж",
+    "code": "def convert_list_tuple(lst: list) -> tuple:\n    \"\"\"Преобразовать список в кортеж\"\"\"\n    pass",
+    "level": "junior",
+    "task_text": "Напишите функцию convert_list_tuple(lst), которая преобразует список в кортеж.\nПример: convert_list_tuple([1, 2, 3]) → (1, 2, 3)",
+    "test_code": [
+      "assert convert_list_tuple([1, 2, 3]) == (1, 2, 3)",
+      "assert convert_list_tuple([]) == ()",
+      "assert convert_list_tuple(['a', 'b']) == ('a', 'b')"
+    ]
+  },
+  {
+    "num": "4.3",
+    "name": "Обмен значений",
+    "code": "def swap_values(a, b) -> tuple:\n    \"\"\"Поменять местами два значения\"\"\"\n    pass",
+    "level": "junior",
+    "task_text": "Напишите функцию swap_values(a, b), которая возвращает кортеж (b, a).\nПример: swap_values(1, 2) → (2, 1)",
+    "test_code": [
+      "assert swap_values(1, 2) == (2, 1)",
+      "assert swap_values('a', 'b') == ('b', 'a')",
+      "assert swap_values([1], [2]) == ([2], [1])",
+      "assert swap_values(None, True) == (True, None)"
+    ]
+  },
+  {
+    "num": "4.4",
+    "name": "Поиск минимума и максимума",
+    "code": "def min_max_tuple(t: tuple) -> tuple:\n    \"\"\"Найти минимальный и максимальный элемент\"\"\"\n    pass",
+    "level": "junior",
+    "task_text": "Напишите функцию min_max_tuple(t), которая находит минимальный и максимальный элемент в кортеже и возвращает их в виде кортежа (min, max).\nПример: min_max_tuple((3, 1, 4, 2)) → (1, 4)",
+    "test_code": [
+      "assert min_max_tuple((3, 1, 4, 2)) == (1, 4)",
+      "assert min_max_tuple((5,)) == (5, 5)",
+      "assert min_max_tuple((0, 0, 0)) == (0, 0)",
+      "assert min_max_tuple((-5, -1, -3)) == (-5, -1)"
+    ]
+  },
+  {
+    "num": "4.5",
+    "name": "Объединение кортежей",
+    "code": "def concatenate_tuples(t1: tuple, t2: tuple) -> tuple:\n    \"\"\"Объединить два кортежа в один\"\"\"\n    pass",
+    "level": "junior",
+    "task_text": "Напишите функцию concatenate_tuples(t1, t2), которая объединяет два кортежа в один.\nПример: concatenate_tuples((1, 2), (3, 4)) → (1, 2, 3, 4)",
+    "test_code": [
+      "assert concatenate_tuples((1, 2), (3, 4)) == (1, 2, 3, 4)",
+      "assert concatenate_tuples((), (1, 2)) == (1, 2)",
+      "assert concatenate_tuples(('a',), ('b', 'c')) == ('a', 'b', 'c')",
+      "assert concatenate_tuples((), ()) == ()"
+    ]
   }
 ]

@@ -92,7 +92,7 @@ class Command(BaseCommand):
 
         # Проверяем существование
         try:
-            existing_task = Task.objects.get(num=task_num)
+            existing_task = Task.objects.get(name=task_name)
             if existing_task and not self.update_existing and not self.force:
                 self.stdout.write(self.style.WARNING(f'  Задача уже существует, пропускаем'))
                 return 'skipped'
