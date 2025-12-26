@@ -18,24 +18,6 @@
                         <div class="option-description">Один пользователь, одна задача</div>
                     </div>
                 </div>
-                <div class="tab-option" data-type="duel">
-                    <div class="option-icon collaborative">
-                        <i class="fas fa-user-friends"></i>
-                    </div>
-                    <div class="option-content">
-                        <div class="option-title">Дуэль программирования</div>
-                        <div class="option-description">2 участника, случайная задача, отсчет времени</div>
-                    </div>
-                </div>
-                <div class="tab-option" data-type="collaborative">
-                    <div class="option-icon collaborative">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <div class="option-content">
-                        <div class="option-title">Совместное программирование</div>
-                        <div class="option-description">Пригласите друга по username для совместной работы</div>
-                    </div>
-                </div>
             </div>
 
             <!-- Форма для одиночного редактора -->
@@ -44,54 +26,6 @@
                     <label class="form-label">Название файла</label>
                     <input type="text" class="form-input" id="singleFileName" placeholder="script.py" value="script.py">
                 </div>
-            </div>
-
-            <!-- Форма для дуэли программирования -->
-            <div class="modal-form" id="duelForm" style="display: none;">
-                <div class="form-group">
-                    <label class="form-label">Название сессии</label>
-                    <input type="text" class="form-input" id="sessionName" placeholder="Дуэль программирования">
-                </div>
-                <div class="form-group">
-                    <div class="info-box">
-                        <i class="fas fa-info-circle"></i> Будет создана сессия для 2 участников с случайной задачей
-                    </div>
-                </div>
-            </div>
-
-            <!-- Форма для совместного программирования -->
-            <div class="modal-form" id="collaborativeForm" style="display: none;">
-                <div class="form-group">
-                    <label class="form-label">Название сессии</label>
-                    <input type="text" class="form-input" id="collabSessionName" placeholder="Совместная работа">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Имя пользователя для приглашения</label>
-                    <div class="username-input-container">
-                        <input type="text" class="form-input" id="inviteUsername" placeholder="Введите username друга">
-                        <button class="search-btn" id="searchUserBtn" type="button">
-                            <i class="fas fa-search"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Выберите задачу</label>
-                    <select class="form-select" id="taskSelect">
-                        <option value="random">Случайная задача</option>
-                        <option value="palindrome">Палиндром</option>
-                        <option value="primes">Простые числа</option>
-                        <option value="anagrams">Анаграммы</option>
-                        <option value="fibonacci">Числа Фибоначчи</option>
-                        <option value="unique">Уникальные символы</option>
-                        <option value="custom">Своя задача</option>
-                    </select>
-                </div>
-                <div class="form-group" id="customTaskGroup" style="display: none;">
-                    <label class="form-label">Описание задачи</label>
-                    <textarea class="form-input" id="customTaskDescription" rows="3"
-                              placeholder="Опишите задачу..."></textarea>
-                </div>
-                <div class="user-search-results" id="userSearchResults" style="display: none;"></div>
             </div>
 
             <div class="modal-actions">
@@ -111,6 +45,8 @@
             this.web_socket = web_socket;
             this.cls_editor = cls_editor;
             this.modal = $('#newTabModal');
+            this.selectedTask = null;
+            this.taskSearchTimeout = null;
             this.init();
         }
 
@@ -138,14 +74,59 @@
                 self.onTabOptionClick($(this));
             });
 
-            // Изменение выбора задачи для совместного программирования
-            $('#taskSelect').on('change', function(e) {
-                self.onTaskSelectChange($(this).val());
-            });
-
             // Кнопка поиска пользователя
             $('#searchUserBtn').on('click', function() {
                 self.onSearchUser();
+            });
+
+            // Поиск задач при вводе
+            $('#taskSearchInput').on('input', function() {
+                clearTimeout(self.taskSearchTimeout);
+                const query = $(this).val().trim();
+
+                if (query.length === 0) {
+                    self.hideTaskSearchResults();
+                    $('#clearTaskSearch').hide();
+                    return;
+                }
+
+                $('#clearTaskSearch').show();
+
+                self.taskSearchTimeout = setTimeout(() => {
+                    self.searchTasks(query);
+                }, 300);
+            });
+
+            // Очистка поиска задач
+            $('#clearTaskSearch').on('click', function() {
+                $('#taskSearchInput').val('');
+                self.hideTaskSearchResults();
+                $(this).hide();
+            });
+
+            // Очистка выбранной задачи
+            $('#clearTaskSelection').on('click', function() {
+                self.clearTaskSelection();
+            });
+
+            // Клик вне результатов поиска задач
+            $(document).on('click', function(e) {
+                if (!$(e.target).closest('.task-search-container').length) {
+                    self.hideTaskSearchResults();
+                }
+            });
+
+            // Выбор задачи из результатов поиска
+            $(document).on('click', '.task-result-item', function() {
+                const taskId = $(this).data('task-id');
+                const taskTitle = $(this).data('task-title');
+                const taskDescription = $(this).data('task-description');
+
+                self.selectTask({
+                    id: taskId,
+                    title: taskTitle,
+                    description: taskDescription
+                });
             });
 
             // Делегирование событий для кнопок приглашения из результатов поиска
@@ -182,9 +163,16 @@
 
             // Скрываем результаты поиска
             $('#userSearchResults').hide().empty();
+            $('#taskSearchResults').hide().empty();
 
-            // Скрываем кастомную задачу
+            // Скрываем кастомную задачу и информацию о выбранной задаче
             $('#customTaskGroup').hide();
+            $('#selectedTaskInfo').hide();
+            $('#clearTaskSearch').hide();
+
+            // Очищаем поля
+            $('#taskSearchInput').val('');
+            this.selectedTask = null;
 
             // Делаем кнопку создания неактивной
             $('#createTab').prop('disabled', true);
@@ -221,9 +209,6 @@
             if (type === 'single') {
                 $('#singleForm').show();
                 this.setupAutoFocus('#singleFileName');
-            } else if (type === 'duel') {
-                $('#duelForm').show();
-                this.setupAutoFocus('#sessionName');
             } else if (type === 'collaborative') {
                 $('#collaborativeForm').show();
                 this.setupAutoFocus('#collabSessionName');
@@ -240,13 +225,156 @@
             }
         }
 
-        onTaskSelectChange(taskType) {
-            if (taskType === 'custom') {
-                $('#customTaskGroup').show();
-                this.setupAutoFocus('#customTaskDescription');
-            } else {
-                $('#customTaskGroup').hide();
+        async searchTasks(query) {
+            const $resultsContainer = $('#taskSearchResults');
+
+            // Показываем индикатор загрузки
+            $resultsContainer.html(`
+                <div class="search-loading">
+                    <i class="fas fa-spinner fa-spin"></i> Поиск задач...
+                </div>
+            `).show();
+
+            try {
+                // Запрос к серверу для поиска задач
+                const response = await this.fetchTasksFromServer(query);
+
+                if (response.tasks && response.tasks.length > 0) {
+                    const html = response.tasks.map(task => `
+                        <div class="task-result-item"
+                             data-task-id="${task.id}"
+                             data-task-title="${task.title}"
+                             data-task-description="${task.description}">
+                            <div class="task-result-title">${task.title}</div>
+                            <div class="task-result-difficulty ${task.difficulty}">
+                                ${this.getDifficultyText(task.difficulty)}
+                            </div>
+                            <div class="task-result-description">${task.description.substring(0, 100)}...</div>
+                        </div>
+                    `).join('');
+
+                    $resultsContainer.html(html);
+                } else {
+                    $resultsContainer.html(`
+                        <div class="search-no-results">
+                            <i class="fas fa-search"></i> Задачи не найдены
+                        </div>
+                    `);
+                }
+            } catch (error) {
+                console.error('Ошибка поиска задач:', error);
+                $resultsContainer.html(`
+                    <div class="search-error">
+                        <i class="fas fa-exclamation-triangle"></i> Ошибка при поиске задач
+                    </div>
+                `);
             }
+        }
+
+        async fetchTasksFromServer(query) {
+            // Здесь будет реальный AJAX запрос к вашему серверу
+            // Пример моковых данных для демонстрации
+            const mockTasks = [
+                {id: 1, title: 'Палиндром', description: 'Напишите функцию, которая проверяет, является ли строка палиндромом.', difficulty: 'easy'},
+                {id: 2, title: 'Простые числа', description: 'Найти все простые числа до заданного N.', difficulty: 'medium'},
+                {id: 3, title: 'Анаграммы', description: 'Проверить, являются ли две строки анаграммами.', difficulty: 'easy'},
+                {id: 4, title: 'Числа Фибоначчи', description: 'Вычислить n-ное число Фибоначчи.', difficulty: 'easy'},
+                {id: 5, title: 'Уникальные символы', description: 'Определить, все ли символы в строке уникальны.', difficulty: 'easy'},
+                {id: 6, title: 'Сортировка пузырьком', description: 'Реализуйте алгоритм сортировки пузырьком.', difficulty: 'medium'},
+                {id: 7, title: 'Бинарный поиск', description: 'Реализуйте алгоритм бинарного поиска.', difficulty: 'medium'},
+                {id: 8, title: 'Обратная строка', description: 'Напишите функцию для обращения строки.', difficulty: 'easy'},
+                {id: 9, title: 'Проверка скобок', description: 'Проверьте правильность расстановки скобок в выражении.', difficulty: 'medium'},
+                {id: 10, title: 'Наибольший общий делитель', description: 'Найдите НОД двух чисел.', difficulty: 'easy'}
+            ];
+
+            // Имитация задержки сети
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            // Фильтрация по запросу
+            const filteredTasks = mockTasks.filter(task =>
+                task.title.toLowerCase().includes(query.toLowerCase()) ||
+                task.description.toLowerCase().includes(query.toLowerCase())
+            );
+
+            return { tasks: filteredTasks };
+        }
+
+        getDifficultyText(difficulty) {
+            const difficultyMap = {
+                'easy': 'Легкая',
+                'medium': 'Средняя',
+                'hard': 'Сложная'
+            };
+            return difficultyMap[difficulty] || difficulty;
+        }
+
+        hideTaskSearchResults() {
+            $('#taskSearchResults').hide().empty();
+        }
+
+        selectTask(task) {
+            this.selectedTask = task;
+
+            // Обновляем UI
+            $('#selectedTaskTitle').text(task.title);
+            $('#selectedTaskDescription').text(task.description);
+            $('#selectedTaskInfo').show();
+
+            // Скрываем поле поиска и результаты
+            $('#taskSearchInput').val('');
+            $('#clearTaskSearch').hide();
+            this.hideTaskSearchResults();
+
+            // Закрываем модальное окно после выбора
+            this.hide();
+
+            // Загружаем данные задачи с сервера
+            this.loadTaskData(task.id);
+        }
+
+        clearTaskSelection() {
+            this.selectedTask = null;
+            $('#selectedTaskInfo').hide();
+            $('#taskSearchInput').focus();
+        }
+
+        async loadTaskData(taskId) {
+            try {
+                // AJAX запрос для загрузки данных задачи
+                const taskData = await this.fetchTaskDetails(taskId);
+
+                // Здесь можно обработать загруженные данные задачи
+                console.log('Загружены данные задачи:', taskData);
+
+                // Например, передать данные в редактор
+                if (this.cls_editor && this.cls_editor.setTaskData) {
+                    this.cls_editor.setTaskData(taskData);
+                }
+
+            } catch (error) {
+                console.error('Ошибка загрузки данных задачи:', error);
+                this.showError(null, 'Не удалось загрузить данные задачи');
+            }
+        }
+
+        async fetchTaskDetails(taskId) {
+            // Реальный AJAX запрос для получения деталей задачи
+            // Пример моковых данных
+            const mockTaskDetails = {
+                id: taskId,
+                title: this.selectedTask.title,
+                description: this.selectedTask.description,
+                template: `# Решение задачи "${this.selectedTask.title}"\n\ndef solution(input_data):\n    # Ваш код здесь\n    pass\n\nif __name__ == "__main__":\n    # Тестовые данные\n    test_data = ""\n    result = solution(test_data)\n    print(result)`,
+                testCases: [
+                    {input: 'test1', expected: 'result1'},
+                    {input: 'test2', expected: 'result2'}
+                ]
+            };
+
+            // Имитация задержки сети
+            await new Promise(resolve => setTimeout(resolve, 300));
+
+            return mockTaskDetails;
         }
 
         onSearchUser() {
@@ -352,8 +480,6 @@
             try {
                 if (type === 'single') {
                     data = this.getSingleTabData();
-                } else if (type === 'duel') {
-                    data = this.getDuelTabData();
                 } else if (type === 'collaborative') {
                     data = this.getCollaborativeTabData();
                 }
@@ -379,18 +505,6 @@
             };
         }
 
-         getDuelTabData() {
-            const sessionName = $('#sessionName').val().trim();
-
-            if (!sessionName) {
-                throw new Error('Введите название сессии');
-            }
-
-            return {
-                name: sessionName || 'Дуэль программирования'
-            };
-        }
-
         async SendingDataToServer(type, data){
             let status_create = await this.web_socket.send("create_new_code_tab", {type: type, data_action: data})
             this.cls_editor.addNewTab(status_create)
@@ -399,7 +513,6 @@
         getCollaborativeTabData() {
             const sessionName = $('#collabSessionName').val().trim();
             const username = $('#inviteUsername').val().trim();
-            const taskType = $('#taskSelect').val();
 
             if (!sessionName) {
                 throw new Error('Введите название сессии');
@@ -407,17 +520,16 @@
 
             const data = {
                 name: sessionName,
-                invitedUsername: username || null,
-                taskType: taskType
+                invitedUsername: username || null
             };
 
-            if (taskType === 'custom') {
-                const customTask = $('#customTaskDescription').val().trim();
-                if (!customTask) {
-                    throw new Error('Введите описание задачи');
-                }
-                data.customTask = customTask;
+            // Добавляем данные о выбранной задаче, если есть
+            if (this.selectedTask) {
+                data.taskId = this.selectedTask.id;
+                data.taskTitle = this.selectedTask.title;
+                data.taskDescription = this.selectedTask.description;
             }
+
             return data;
         }
 
@@ -475,44 +587,144 @@
                 // Заполняем данные в зависимости от типа
                 if (type === 'single' && data.name) {
                     $('#singleFileName').val(data.name);
-                } else if (type === 'duel' && data.name) {
-                    $('#sessionName').val(data.name);
                 } else if (type === 'collaborative') {
                     if (data.name) $('#collabSessionName').val(data.name);
                     if (data.username) $('#inviteUsername').val(data.username);
-                    if (data.taskType) {
-                        $('#taskSelect').val(data.taskType);
-                        if (data.taskType === 'custom' && data.customTask) {
-                            $('#customTaskDescription').val(data.customTask);
-                            $('#customTaskGroup').show();
-                        }
+                    if (data.task) {
+                        this.selectTask(data.task);
                     }
                 }
             }
         }
     }
-
-
-
-    // Пример использования:
-    /*
-    // Показать модальное окно
-    showNewTabModal();
-
-    // Установить обработчик создания таба
-    window.newTabModal.setOnCreateCallback((type, data) => {
-        console.log('Создается таб типа:', type);
-        console.log('Данные:', data);
-
-        // Здесь можно создать таб в основном приложении
-        // Например: createTab(type, data);
-    });
-
-    // Предзаполнить форму
-    window.newTabModal.prefillForm('collaborative', {
-        name: 'Моя сессия',
-        username: 'friend123',
-        taskType: 'palindrome'
-    });
-    */
 </script>
+
+<style>
+/* Стили для поиска задач */
+.task-search-container {
+    position: relative;
+}
+
+.task-search-input-wrapper {
+    position: relative;
+}
+
+.task-search-input-wrapper .search-btn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #666;
+}
+
+.task-search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-top: 4px;
+}
+
+.task-result-item {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.task-result-item:hover {
+    background-color: #f5f5f5;
+}
+
+.task-result-item:last-child {
+    border-bottom: none;
+}
+
+.task-result-title {
+    font-weight: bold;
+    margin-bottom: 4px;
+    color: #333;
+}
+
+.task-result-difficulty {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    margin-bottom: 6px;
+}
+
+.task-result-difficulty.easy {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.task-result-difficulty.medium {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.task-result-difficulty.hard {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.task-result-description {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.4;
+}
+
+.selected-task-info {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    padding: 12px;
+    margin-top: 10px;
+}
+
+.selected-task-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.selected-task-description {
+    color: #495057;
+    line-height: 1.5;
+}
+
+.clear-selection-btn {
+    background: none;
+    border: none;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 2px;
+    margin-left: auto;
+}
+
+.clear-selection-btn:hover {
+    color: #dc3545;
+}
+
+.search-loading, .search-no-results, .search-error {
+    padding: 20px;
+    text-align: center;
+    color: #6c757d;
+}
+
+.search-loading i {
+    margin-right: 8px;
+}
+</style>

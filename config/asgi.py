@@ -49,16 +49,13 @@ def register_socketio_handlers():
     async def disconnect(sid):
         print(f'Socket.IO отключен: {sid}')
 
-    # Регистрируем обработчики из приложения
     from code_cup.code_websocket import register_handlers
     register_handlers(sio)
 
 
-# Регистрируем все обработчики
 register_socketio_handlers()
 
 
-# Маршрутизация: WebSocket и HTTP
 application = ProtocolTypeRouter({
     "http": get_asgi_application(),
     "websocket": socketio_app,

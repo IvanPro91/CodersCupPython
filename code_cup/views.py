@@ -1,29 +1,18 @@
-import ast
 import json
-import time
 
 from django.contrib.auth.decorators import login_required
 from django.core.handlers.wsgi import WSGIRequest
-from django.http import QueryDict, JsonResponse, Http404
+from django.core.paginator import Paginator
+from django.db.models import Q
+from django.http import JsonResponse, Http404, QueryDict
 from django.shortcuts import render
 from django.views.decorators.http import require_POST, require_GET
-from code_cup.models import UserTabs
 from django.views.decorators.csrf import csrf_exempt
-from io import StringIO
-import contextlib
 
-
-# Запрещенные команды и модули
-FORBIDDEN_COMMANDS = [
-    'os.system', 'subprocess', 'eval', 'exec', '__import__', 'open',
-    'compile', 'globals', 'locals', 'getattr', 'setattr', 'delattr'
-]
-
-FORBIDDEN_MODULES = [
-    'os', 'sys', 'subprocess', 'shutil', 'socket', 'threading',
-    'multiprocessing', 'ctypes', 'mmap', 'resource', 'pty', 'fcntl'
-]
-
+from code_cup.models import UserTabs, Task
+from code_cup.tasks import execute_user_code
+from code_cup.views_utils import CodeSecurityChecker
+from celery.result import AsyncResult
 
 @login_required(login_url="/")
 def main_page(request):
@@ -52,461 +41,163 @@ def tab_content_view(request: WSGIRequest, id_tab_view: int):
                           })
     raise Http404("Page not found.")
 
+@csrf_exempt
+@require_GET
+def get_status(request, task_id):
+    result = AsyncResult(task_id)
+    response = {
+        'status': result.status, # PENDING, STARTED, SUCCESS, FAILURE
+        'result': result.result if result.ready() else None
+    }
+    return JsonResponse(response)
+
+@csrf_exempt
+def run_code(request):
+    code = request.POST.get('code', '').strip()
+    id_task = request.POST.get('task')
+
+    is_safe, msg = CodeSecurityChecker.check_code_security(code)
+    if not is_safe:
+        return JsonResponse({'success': False, 'error': msg})
+
+    # Запускаем задачу асинхронно
+    task = execute_user_code.delay(id_task, code)
+
+    return JsonResponse({
+        'success': True,
+        'task_id': task.id
+    })
 
 
+# code_cup/views.py
+@csrf_exempt
+def get_task_details(request, task_id):
+    """Получение детальной информации о задаче"""
+    if request.method != 'GET':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
 
-class CodeSecurityChecker:
-    @staticmethod
-    def check_code_security(code):
-        """Проверка кода на наличие опасных конструкций"""
+    try:
+        task = Task.objects.get(id=task_id, is_active=True)
+
+        # Получаем количество тестов и подсказок
+        test_cases_count = task.test_cases.count()
+        hints_count = task.task_hints.count()
+
+        # Парсим JSON поля
         try:
-            tree = ast.parse(code)
+            tags = json.loads(task.tags_json) if task.tags_json else []
+        except:
+            tags = []
 
-            for node in ast.walk(tree):
-                # Проверка импортов
-                if isinstance(node, ast.Import):
-                    for alias in node.names:
-                        if alias.name in FORBIDDEN_MODULES:
-                            return False, f"Запрещенный импорт: {alias.name}"
-
-                # Проверка импортов из модулей
-                if isinstance(node, ast.ImportFrom):
-                    if node.module in FORBIDDEN_MODULES:
-                        return False, f"Запрещенный импорт из: {node.module}"
-
-                # Проверка вызовов функций
-                if isinstance(node, ast.Call):
-                    if isinstance(node.func, ast.Name):
-                        if node.func.id in FORBIDDEN_COMMANDS:
-                            return False, f"Запрещенная функция: {node.func.id}"
-
-                    # Проверка атрибутов
-                    if isinstance(node.func, ast.Attribute):
-                        attr_name = node.func.attr
-                        if attr_name in FORBIDDEN_COMMANDS:
-                            return False, f"Запрещенный метод: {attr_name}"
-
-                        # Проверка os.system и подобных
-                        if isinstance(node.func.value, ast.Name):
-                            if node.func.value.id in FORBIDDEN_MODULES:
-                                return False, f"Запрещенный вызов: {node.func.value.id}.{attr_name}"
-
-            return True, "Код безопасен"
-
-        except SyntaxError as e:
-            return False, f"Синтаксическая ошибка: {str(e)}"
-
-
-class SafeCodeRunner:
-    @staticmethod
-    def execute_line_by_line(code):
-        """Выполнение кода построчно с захватом вывода"""
-        lines = code.split('\n')
-        results = []
-        local_vars = {}
-        global_vars = {'__builtins__': {}}
-
-        # Создаем безопасное пространство имен
-        safe_builtins = {
-            'print': print,
-            'len': len,
-            'str': str,
-            'int': int,
-            'float': float,
-            'list': list,
-            'dict': dict,
-            'tuple': tuple,
-            'set': set,
-            'range': range,
-            'bool': bool,
-            'type': type,
-            'sum': sum,
-            'max': max,
-            'min': min,
-            'abs': abs,
-            'round': round,
-            'sorted': sorted,
-            'enumerate': enumerate,
-            'zip': zip
+        task_data = {
+            'id': task.id,
+            'num': task.num,
+            'name': task.name,
+            'description': task.task_text,
+            'formatted_description': task.get_formatted_task_text(),
+            'level': task.level,
+            'level_display': task.get_level_display(),
+            'category': task.category,
+            'category_display': task.get_category_display(),
+            'time_limit': task.time_limit,
+            'memory_limit': task.memory_limit,
+            'code_template': task.code,
+            'tags': tags,
+            'test_cases_count': test_cases_count,
+            'hints_count': hints_count,
+            'created_at': task.created_at.strftime('%d.%m.%Y'),
         }
 
-        global_vars['__builtins__'] = safe_builtins
+        return JsonResponse(task_data)
 
-        for i, line in enumerate(lines):
-            line = line.strip()
-            if not line or line.startswith('#'):
-                results.append({
-                    'line': i + 1,
-                    'code': line,
-                    'output': '',
-                    'success': True,
-                    'error': None
-                })
-                continue
-
-            try:
-                # Захватываем вывод print
-                output_buffer = StringIO()
-                with contextlib.redirect_stdout(output_buffer):
-                    # Пытаемся выполнить как выражение
-                    try:
-                        compiled = compile(line, '<string>', 'eval')
-                        result = eval(compiled, global_vars, local_vars)
-                        output = str(result) if result is not None else ''
-
-                        # Сохраняем результат в локальные переменные
-                        if '=' in line and not line.strip().startswith('if') and not line.strip().startswith('for'):
-                            var_name = line.split('=')[0].strip()
-                            local_vars[var_name] = result
-
-                    except SyntaxError:
-                        # Если не выражение, выполняем как statement
-                        compiled = compile(line, '<string>', 'exec')
-                        exec(compiled, global_vars, local_vars)
-                        output = output_buffer.getvalue().strip()
-
-                results.append({
-                    'line': i + 1,
-                    'code': line,
-                    'output': output,
-                    'success': True,
-                    'error': None
-                })
-
-            except Exception as e:
-                results.append({
-                    'line': i + 1,
-                    'code': line,
-                    'output': None,
-                    'success': False,
-                    'error': str(e)
-                })
-
-        return results
-
-    @staticmethod
-    def analyze_code(code):
-        """Анализ кода: подсчет функций и классов"""
-        functions_count = 0
-        classes_count = 0
-
-        try:
-            tree = ast.parse(code)
-
-            for node in ast.walk(tree):
-                if isinstance(node, ast.FunctionDef):
-                    functions_count += 1
-                elif isinstance(node, ast.ClassDef):
-                    classes_count += 1
-
-        except:
-            pass
-
-        return functions_count, classes_count
+    except Task.DoesNotExist:
+        return JsonResponse({'error': 'Task not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
 
 
-class CodeSecurityChecker:
-    @staticmethod
-    def check_code_security(code):
-        """Проверка кода на наличие опасных конструкций"""
-        try:
-            tree = ast.parse(code)
-
-            for node in ast.walk(tree):
-                # Проверка импортов
-                if isinstance(node, ast.Import):
-                    for alias in node.names:
-                        if alias.name in FORBIDDEN_MODULES:
-                            return False, f"Запрещенный импорт: {alias.name}"
-
-                # Проверка импортов из модулей
-                if isinstance(node, ast.ImportFrom):
-                    if node.module in FORBIDDEN_MODULES:
-                        return False, f"Запрещенный импорт из: {node.module}"
-
-                # Проверка вызовов функций
-                if isinstance(node, ast.Call):
-                    if isinstance(node.func, ast.Name):
-                        if node.func.id in FORBIDDEN_COMMANDS:
-                            return False, f"Запрещенная функция: {node.func.id}"
-
-                    # Проверка атрибутов
-                    if isinstance(node.func, ast.Attribute):
-                        attr_name = node.func.attr
-                        if attr_name in FORBIDDEN_COMMANDS:
-                            return False, f"Запрещенный метод: {attr_name}"
-
-                        # Проверка os.system и подобных
-                        if isinstance(node.func.value, ast.Name):
-                            if node.func.value.id in FORBIDDEN_MODULES:
-                                return False, f"Запрещенный вызов: {node.func.value.id}.{attr_name}"
-
-            return True, "Код безопасен"
-
-        except SyntaxError as e:
-            return False, f"Синтаксическая ошибка: {str(e)}"
-
-
-class CodeSecurityChecker:
-    @staticmethod
-    def check_code_security(code):
-        """Проверка кода на наличие опасных конструкций"""
-        try:
-            tree = ast.parse(code)
-
-            for node in ast.walk(tree):
-                # Проверка импортов
-                if isinstance(node, ast.Import):
-                    for alias in node.names:
-                        if alias.name in FORBIDDEN_MODULES:
-                            return False, f"Запрещенный импорт: {alias.name}"
-
-                # Проверка импортов из модулей
-                if isinstance(node, ast.ImportFrom):
-                    if node.module in FORBIDDEN_MODULES:
-                        return False, f"Запрещенный импорт из: {node.module}"
-
-                # Проверка вызовов функций
-                if isinstance(node, ast.Call):
-                    if isinstance(node.func, ast.Name):
-                        if node.func.id in FORBIDDEN_COMMANDS:
-                            return False, f"Запрещенная функция: {node.func.id}"
-
-                    # Проверка атрибутов
-                    if isinstance(node.func, ast.Attribute):
-                        attr_name = node.func.attr
-                        if attr_name in FORBIDDEN_COMMANDS:
-                            return False, f"Запрещенный метод: {attr_name}"
-
-                        # Проверка os.system и подобных
-                        if isinstance(node.func.value, ast.Name):
-                            if node.func.value.id in FORBIDDEN_MODULES:
-                                return False, f"Запрещенный вызов: {node.func.value.id}.{attr_name}"
-
-            return True, "Код безопасен"
-
-        except SyntaxError as e:
-            return False, f"Синтаксическая ошибка: {str(e)}"
-
-
-class SafeCodeRunner:
-    @staticmethod
-    def execute_code(code):
-        """Выполнение кода с захватом вывода и детальным анализом"""
-        # Создаем безопасное пространство имен
-        safe_builtins = {
-            'print': print,
-            'len': len,
-            'str': str,
-            'int': int,
-            'float': float,
-            'list': list,
-            'dict': dict,
-            'tuple': tuple,
-            'set': set,
-            'range': range,
-            'bool': bool,
-            'type': type,
-            'sum': sum,
-            'max': max,
-            'min': min,
-            'abs': abs,
-            'round': round,
-            'sorted': sorted,
-            'enumerate': enumerate,
-            'zip': zip
-        }
-
-        global_vars = {'__builtins__': safe_builtins}
-        output_buffer = StringIO()
-        lines = code.split('\n')
-        results = []
-
-        try:
-            # Сначала выполняем весь код для получения общего вывода
-            with contextlib.redirect_stdout(output_buffer):
-                exec(code, global_vars, {})
-
-            full_output = output_buffer.getvalue().strip()
-            output_lines = full_output.split('\n') if full_output else []
-
-            # Создаем детализированные результаты для каждой строки
-            output_index = 0
-
-            for i, line in enumerate(lines):
-                line_num = i + 1
-                line_text = line.rstrip()
-
-                if not line_text:
-                    # Пустая строка
-                    results.append({
-                        'line': line_num,
-                        'code': '',
-                        'output': '',
-                        'success': True,
-                        'error': None
-                    })
-                    continue
-
-                # Проверяем, является ли строка определением функции/класса
-                is_definition = line_text.endswith(':') or line_text.startswith(
-                    ('def ', 'class ', 'if ', 'for ', 'while '))
-
-                # Определяем вывод для строки
-                line_output = ''
-                if output_index < len(output_lines) and not is_definition:
-                    # Присваиваем вывод только исполняемым строкам
-                    line_output = output_lines[output_index]
-                    output_index += 1
-
-                results.append({
-                    'line': line_num,
-                    'code': line_text,
-                    'output': line_output,
-                    'success': True,
-                    'error': None
-                })
-
-            return results, full_output
-
-        except Exception as e:
-            # Если есть ошибка, возвращаем информацию о ней
-            error_line = 1
-            error_msg = str(e)
-
-            # Пытаемся определить строку с ошибкой
-            if 'line' in error_msg.lower():
-                import re
-                match = re.search(r'line (\d+)', error_msg)
-                if match:
-                    error_line = int(match.group(1))
-
-            for i, line in enumerate(lines):
-                line_num = i + 1
-                line_text = line.rstrip()
-
-                if line_num == error_line:
-                    results.append({
-                        'line': line_num,
-                        'code': line_text,
-                        'output': None,
-                        'success': False,
-                        'error': error_msg
-                    })
-                else:
-                    results.append({
-                        'line': line_num,
-                        'code': line_text,
-                        'output': '',
-                        'success': True if line_num < error_line else False,
-                        'error': None
-                    })
-
-            return results, None
-
-    @staticmethod
-    def analyze_code(code):
-        """Анализ кода: подсчет функций и классов"""
-        functions_count = 0
-        classes_count = 0
-
-        try:
-            tree = ast.parse(code)
-
-            for node in ast.walk(tree):
-                if isinstance(node, ast.FunctionDef):
-                    functions_count += 1
-                elif isinstance(node, ast.ClassDef):
-                    classes_count += 1
-
-        except:
-            pass
-
-        return functions_count, classes_count
 
 
 @csrf_exempt
-@require_POST
-def run_code(request):
-    """Обработчик выполнения кода с обработкой ошибок JSON"""
+def search_tasks(request):
+    """Поиск задач по названию и описанию"""
+    if request.method != 'GET':
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+    query = request.GET.get('q', '').strip()
+    level = request.GET.get('level', '').strip()
+    category = request.GET.get('category', '').strip()
+    page = int(request.GET.get('page', 1))
+    per_page = int(request.GET.get('per_page', 10))
+
     try:
-        data = request.POST
-        code = data.get('code', '').strip()
-        tab_id = data.get('tab_id')
-        language = data.get('language', 'python')
+        # Базовый запрос только активных задач
+        tasks = Task.objects.filter(is_active=True)
 
-        if not code:
-            return JsonResponse({
-                'success': False,
-                'error': 'Код не может быть пустым'
-            })
+        # Фильтрация по поисковому запросу
+        if query:
+            tasks = tasks.filter(
+                Q(name__icontains=query) |
+                Q(num__icontains=query) |
+                Q(task_text__icontains=query)
+            )
 
-        # Запоминаем время начала
-        start_time = time.time()
+        # Фильтрация по уровню сложности
+        if level:
+            tasks = tasks.filter(level=level)
 
-        # Проверка безопасности кода
-        is_safe, message = CodeSecurityChecker.check_code_security(code)
-        if not is_safe:
-            return JsonResponse({
-                'success': False,
-                'error': f'Код не прошел проверку безопасности: {message}'
-            })
+        # Фильтрация по категории
+        if category:
+            tasks = tasks.filter(category=category)
 
-        # Выполнение кода
-        line_results, final_output = SafeCodeRunner.execute_code(code)
+        # Пагинация
+        paginator = Paginator(tasks, per_page)
+        page_obj = paginator.get_page(page)
 
-        # Анализ кода
-        functions_count, classes_count = SafeCodeRunner.analyze_code(code)
+        # Формирование ответа
+        tasks_data = []
+        for task in page_obj:
+            # Парсим JSON поля
+            try:
+                tags = json.loads(task.tags_json) if task.tags_json else []
+            except:
+                tags = []
 
-        # Подсчитываем статистику
-        total_lines = len(line_results)
-        successful_lines = sum(1 for r in line_results if r['success'])
-        error_lines = sum(1 for r in line_results if not r['success'])
+            task_data = {
+                'id': task.id,
+                'num': task.num,
+                'name': task.name,
+                'description': task.task_text[:150] + '...' if len(task.task_text) > 150 else task.task_text,
+                'level': task.level,
+                'level_display': task.get_level_display(),
+                'category': task.category,
+                'category_display': task.get_category_display(),
+                'time_limit': task.time_limit,
+                'memory_limit': task.memory_limit,
+                'tags': tags,
+                'hints_count': task.task_hints.count(),
+                'test_cases_count': task.test_cases.count(),
+            }
+            tasks_data.append(task_data)
 
-        # Время выполнения
-        execution_time = int((time.time() - start_time) * 1000)  # в миллисекундах
-
-        # Формируем сводку
-        execution_summary = {
-            'execution_time': execution_time,
-            'total_lines': total_lines,
-            'successful_lines': successful_lines,
-            'error_lines': error_lines,
-            'functions_count': functions_count,
-            'classes_count': classes_count
+        response = {
+            'tasks': tasks_data,
+            'total': paginator.count,
+            'page': page,
+            'per_page': per_page,
+            'total_pages': paginator.num_pages,
+            'has_next': page_obj.has_next(),
+            'has_previous': page_obj.has_previous(),
         }
 
-        # Фильтруем вывод (убираем пустые строки)
-        filtered_line_results = []
-        for result in line_results:
-            # Оставляем только строки с выводом или ошибками
-            if (result.get('output') and result['output'].strip()) or not result['success']:
-                filtered_line_results.append({
-                    'line': result['line'],
-                    'code': result['code'][:100] + ('...' if len(result['code']) > 100 else ''),
-                    'output': result.get('output', ''),
-                    'success': result['success'],
-                    'error': result.get('error')
-                })
-
-        return JsonResponse({
-            'success': True,
-            'tab_id': tab_id,
-            'execution_summary': execution_summary,
-            'line_results': filtered_line_results,
-            'functions_count': functions_count,
-            'classes_count': classes_count,
-            'final_output': final_output if final_output else None,
-            'execution_time_ms': execution_time
-        })
+        return JsonResponse(response)
 
     except Exception as e:
-        import traceback
-        traceback_str = traceback.format_exc()
-        print(f"Ошибка в run_code: {str(e)}")
-        print(f"Traceback: {traceback_str}")
-
         return JsonResponse({
-            'success': False,
-            'error': f'Ошибка сервера: {str(e)}'
-        })
+            'error': str(e),
+            'tasks': [],
+            'total': 0,
+            'page': 1,
+            'per_page': per_page,
+            'total_pages': 0
+        }, status=500)
