@@ -5,10 +5,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CodeEditor - Python редактор</title>
+
+    <!-- 1. jQuery -->
     <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
-    <link rel="stylesheet" href="{% static 'css/codemirror.min.css' %}">
-    <link rel="stylesheet" href="{% static 'css/monokai.min.css' %}">
-    <link rel="stylesheet" href="{% static 'css/dracula.min.css' %}">
+
+    <!-- 2. Monaco Editor (с RequireJS) -->
+    <script src="https://unpkg.com/monaco-editor@0.45.0/min/vs/loader.js"></script>
+
+    <!-- 3. Стили -->
     <link rel="stylesheet" href="{% static 'css/all.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
 </head>
@@ -29,87 +33,72 @@
     </div>
 </div>
 
-<!-- Модальное окно создания нового таба -->
+<!-- Модальные окна -->
 {% include 'modal/modal_new_tab.html' %}
 
-<!-- Модальное окно ожидания участников -->
-{% include 'modal/modal_waiting_user.html' %}
-
-<!-- Модальное окно приглашения -->
-{% include 'modal/modal_welcome_user.html' %}
-
-<script src="{% static 'js/codemirror.min.js' %}"></script>
-<script src="{% static 'js/python.min.js' %}"></script>
-<script src="{% static 'js/matchbrackets.min.js' %}"></script>
-<script src="{% static 'js/active-line.min.js' %}"></script>
-<script src="{% static 'js/socket.io.min.js' %}"></script>
-<script src="{% static 'web_socket_code.js' %}"></script>
-<script src="{% static 'code_editor.js' %}"></script>
-
+<!-- Scripts -->
 <script>
+    // Решение конфликта AMD: загружаем Socket.IO до других скриптов
+    (function() {
+        // Временно отключаем define для загрузки Socket.IO
+        var originalDefine = window.define;
+        window.define = undefined;
 
-    //
-    // const wsUrl = `ws://${window.location.host}/ws/code_cup/${currentRoomId}/`;
-    // let isConnected = false;
-    // console.log('🔗 Подключение к:', wsUrl);
-    //
-    // socket = new WebSocket(wsUrl);
-    // console.log(socket)
-    //
-    // socket.onopen = function () {
-    //     console.log('✅ WebSocket подключен!');
-    //     isConnected = true;
-    //     if (currentRoomId) {
-    //         console.log('Пользователь подключился к чату'); // Избегаем спама при переподключении
-    //     }
-    // };
-    //
-    // socket.onmessage = function (event) {
-    //     try {
-    //         const data = JSON.parse(event.data);
-    //         console.log('Получено:', data);
-    //     } catch (e) {
-    //         console.error('Ошибка парсинга:', e);
-    //     }
-    // };
-    //
-    // socket.onclose = function (event) {
-    //     console.log('WebSocket отключен');
-    //     isConnected = false;
-    //     тут сделаем так, чтобы было уведомление и редирект на начальный экран
-    //
-    //
-    //     Пробуем переподключиться через 3 секунды
-    //     setTimeout(function () {
-    //         if (!isConnected) {
-    //             socket = new WebSocket(wsUrl);
-    //         }
-    //     }, 3000);
-    // };
+        var script = document.createElement('script');
+        script.src = '{% static "js/socket.io.min.js" %}';
+        script.onload = function() {
+            // Восстанавливаем define
+            window.define = originalDefine;
+            console.log('Socket.IO загружен');
 
+            // Теперь загружаем остальные скрипты
+            var scripts = [
+                '{% static "web_socket_code.js" %}',
+                '{% static "code_editor.js" %}'
+            ];
+
+            scripts.forEach(function(src) {
+                var s = document.createElement('script');
+                s.src = src;
+                document.body.appendChild(s);
+            });
+        };
+        document.head.appendChild(script);
+    })();
 </script>
 
-
 <script>
-    const currentRoomId = '{{ user.token }}'
-    let newTabModal = null
-    let codeEditor = null
+    // Перенесите этот код в отдельный файл или оставьте здесь
+    const currentRoomId = '{{ user.token }}';
+    let newTabModal = null;
+    let codeEditor = null;
 
-    async function initApp() {
-        const socket = new SocketIOCode(currentRoomId);
-        await socket.connect()
+    // Ждем загрузки всех скриптов
+    window.addEventListener('load', async function() {
+        // Проверяем, загружен ли Socket.IO
+        if (typeof io === 'undefined' && typeof window.io === 'undefined') {
+            console.error('Socket.IO не загружен!');
+            return;
+        }
 
-        codeEditor = new CodeEditor(socket);
-        newTabModal = new NewTabModal(socket, codeEditor);
+        try {
+            const socket = new SocketIOCode(currentRoomId);
+            await socket.connect();
 
-        await codeEditor.renderTabs()
-    }
+            codeEditor = new CodeEditor(socket);
+            newTabModal = new NewTabModal(socket, codeEditor);
 
-    $("#addTabBtn").click(function () {
-        newTabModal.show();
-    })
+            await codeEditor.renderTabs();
 
-    document.addEventListener('DOMContentLoaded', initApp);
+            $("#addTabBtn").click(function () {
+                newTabModal.show();
+            });
+
+            console.log('✅ Приложение инициализировано');
+        } catch (error) {
+            console.error('❌ Ошибка инициализации:', error);
+        }
+    });
 </script>
 </body>
 </html>

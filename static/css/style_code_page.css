@@ -1,0 +1,2075 @@
+/* Подключаем JetBrains Mono */
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&display=swap');
+
+    :root {
+        --editor-font-size: 14px;
+        --pycharm-bg: #1e1e1e;
+        --pycharm-fg: #d4d4d4;
+        --pycharm-accent: #569cd6;
+        --pycharm-string: #ce9178;
+        --pycharm-number: #b5cea8;
+        --pycharm-keyword: #c586c0;
+        --pycharm-comment: #6a9955;
+        --pycharm-selection: #264f78;
+        --pycharm-gutter: #1e1e1e;
+        --pycharm-gutter-fg: #858585;
+        --pycharm-error: #f44747;
+        --pycharm-warning: #ffcc00;
+        --pycharm-success: #4CAF50;
+        --pycharm-info: #4d9feb;
+        --pycharm-border: #3c3f41;
+        --sidebar-bg: #252526;
+        --sidebar-border: #3c3f41;
+        --sidebar-header: #2d2d30;
+    }
+
+    /* Основной контейнер редактора */
+    .single-editor {
+        display: flex;
+        flex-direction: column;
+        height: calc(100vh - 100px);
+        min-height: 500px;
+        max-height: 1000px;
+        border: 1px solid var(--pycharm-border);
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 10px;
+        background: var(--pycharm-bg);
+    }
+
+    /* Заголовок редактора */
+    .single-header {
+        background: var(--pycharm-bg);
+        border-bottom: 1px solid var(--pycharm-border);
+        padding: 8px 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-shrink: 0;
+        min-height: 50px;
+    }
+
+    .single-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .single-title {
+        color: var(--pycharm-fg);
+        font-family: 'JetBrains Mono', 'Fira Code', monospace;
+        font-weight: 500;
+    }
+
+    /* Управление шрифтом */
+    .font-size-controls {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        margin-left: 15px;
+        background: rgba(255, 255, 255, 0.05);
+        padding: 3px 8px;
+        border-radius: 4px;
+        border: 1px solid var(--pycharm-border);
+    }
+
+    .font-btn {
+        background: transparent;
+        border: none;
+        padding: 2px 8px;
+        font-size: 12px;
+        color: var(--pycharm-gutter-fg);
+        cursor: pointer;
+    }
+
+    .font-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--pycharm-fg);
+    }
+
+    .font-size-display {
+        color: var(--pycharm-fg);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12px;
+        min-width: 40px;
+        text-align: center;
+    }
+
+    /* Кнопки в стиле VS Code */
+    .tab-run-btn, .console-btn {
+        background: #0e639c;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 6px 12px;
+        font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .tab-run-btn:hover, .console-btn:hover {
+        background: #1177bb;
+        border-color: #0e639c;
+    }
+
+    .tab-run-btn:active, .console-btn:active {
+        background: #0e639c;
+        transform: translateY(1px);
+    }
+
+    /* Контейнер для редактора и боковой панели */
+    .editor-content-wrapper {
+        display: flex;
+        flex: 1;
+        overflow: hidden;
+        min-height: 300px;
+    }
+
+    /* Область с редактором кода */
+    .code-mirror-wrapper {
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+        min-width: 300px;
+    }
+
+    /* Monaco Editor контейнер */
+    .code-mirror-wrapper .monaco-editor {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+    }
+
+    /* Monaco Editor custom styles */
+    .monaco-editor .margin {
+        background-color: var(--pycharm-gutter);
+    }
+
+    .monaco-editor .line-numbers {
+        color: var(--pycharm-gutter-fg);
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Боковая панель структуры кода */
+    .code-structure-sidebar {
+        width: 250px;
+        min-width: 200px;
+        max-width: 300px;
+        background: var(--sidebar-bg);
+        border-left: 1px solid var(--sidebar-border);
+        display: flex;
+        flex-direction: column;
+        font-family: 'JetBrains Mono', 'Fira Code', monospace;
+        overflow: hidden;
+        flex-shrink: 0;
+        position: relative;
+    }
+
+    .structure-header {
+        background: var(--sidebar-header);
+        color: var(--pycharm-fg);
+        padding: 10px 12px;
+        font-size: 13px;
+        font-weight: 600;
+        border-bottom: 1px solid var(--sidebar-border);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+        white-space: nowrap;
+        overflow: hidden;
+    }
+
+    .structure-header i {
+        color: var(--pycharm-accent);
+    }
+
+    .structure-content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 5px 0;
+        position: relative;
+        width: 100%;
+        scrollbar-width: thin;
+        scrollbar-color: #4c5052 var(--pycharm-gutter);
+    }
+
+    /* Секции структуры */
+    .structure-section {
+        width: 100%;
+        margin-bottom: 5px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .section-header {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 8px 12px;
+        color: var(--pycharm-fg);
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: background 0.2s;
+        user-select: none;
+        width: 100%;
+        box-sizing: border-box;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .section-header:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .section-header i:first-child {
+        width: 16px;
+        text-align: center;
+        color: var(--pycharm-info);
+    }
+
+    .section-toggle {
+        margin-left: auto;
+        font-size: 10px;
+        opacity: 0.7;
+        transition: transform 0.2s;
+    }
+
+    .section-header span {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        flex: 1;
+    }
+
+    .section-items {
+        max-height: 200px;
+        overflow-y: auto;
+        background: rgba(0, 0, 0, 0.2);
+        width: 100%;
+        box-sizing: border-box;
+        scrollbar-width: thin;
+        scrollbar-color: #4c5052 rgba(0, 0, 0, 0.2);
+    }
+
+    /* Элементы структуры */
+    .structure-item {
+        padding: 6px 12px 6px 28px;
+        color: var(--pycharm-fg);
+        font-size: 12px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s;
+        border-left: 3px solid transparent;
+        width: 100%;
+        box-sizing: border-box;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .structure-item:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-left: 3px solid var(--pycharm-info);
+        padding-left: 25px;
+    }
+
+    .structure-item i {
+        font-size: 11px;
+        width: 16px;
+        text-align: center;
+    }
+
+    .item-name {
+        flex: 1;
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 400;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        min-width: 0;
+    }
+
+    .item-line {
+        color: var(--pycharm-gutter-fg);
+        font-size: 11px;
+        font-family: 'JetBrains Mono', monospace;
+        opacity: 0.8;
+    }
+
+    /* Цвета для разных типов функций */
+    .func-function i {
+        color: #4d9feb;
+    }
+
+    .func-magic i {
+        color: #c586c0;
+    }
+
+    .func-private i {
+        color: #f44747;
+    }
+
+    .func-constant i {
+        color: #b5cea8;
+    }
+
+    /* Цвета для разных типов классов */
+    .class-class i {
+        color: #4CAF50;
+    }
+
+    .class-abstract i {
+        color: #ff9800;
+    }
+
+    .class-mixin i {
+        color: #9c27b0;
+    }
+
+    .class-exception i {
+        color: #f44336;
+    }
+
+    .import i {
+        color: #ce9178;
+    }
+
+    .empty-message {
+        padding: 10px 12px 10px 28px;
+        color: var(--pycharm-comment);
+        font-size: 11px;
+        font-style: italic;
+    }
+
+    /* Статус бар внизу */
+    .editor-status-bar {
+        background: var(--pycharm-gutter);
+        border-top: 1px solid var(--pycharm-border);
+        padding: 6px 15px;
+        display: flex;
+        justify-content: flex-end;
+        font-size: 12px;
+        font-family: 'JetBrains Mono', monospace;
+        flex-shrink: 0;
+        min-height: 32px;
+    }
+
+    .status-stats {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+    }
+
+    .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        color: white;
+        cursor: default;
+        padding: 3px 8px;
+        border-radius: 3px;
+        transition: all 0.2s;
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .stat-item:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--pycharm-fg);
+    }
+
+    .stat-item i {
+        font-size: 12px;
+        opacity: 0.8;
+    }
+
+    .stat-item.error-stat {
+        color: var(--pycharm-error);
+    }
+
+    .stat-item.error-stat.has-errors {
+        background: rgba(255, 107, 107, 0.15);
+        cursor: pointer;
+        animation: pulse 2s infinite;
+    }
+
+    .stat-item.error-stat.has-errors:hover {
+        background: rgba(255, 107, 107, 0.25);
+    }
+
+    @keyframes pulse {
+        0% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0.7;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
+
+    /* Консоль */
+    .console-container {
+        background: var(--pycharm-bg);
+        border: 1px solid var(--pycharm-border);
+        border-radius: 0 0 4px 4px;
+        margin-top: 5px;
+        display: flex;
+        flex-direction: column;
+        height: 200px;
+        min-height: 150px;
+        max-height: 300px;
+        overflow: hidden;
+    }
+
+    .console-header {
+        background: var(--pycharm-gutter);
+        border-bottom: 1px solid var(--pycharm-border);
+        padding: 8px 15px;
+        flex-shrink: 0;
+    }
+
+    .console-title {
+        color: var(--pycharm-fg);
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 500;
+    }
+
+
+    .console-line {
+        padding: 3px 0;
+        font-size: 13px;
+        line-height: 1.4;
+        font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    }
+
+    .console-line.info {
+        color: var(--pycharm-info);
+    }
+
+    .console-line.success {
+        color: var(--pycharm-success);
+    }
+
+    .console-line.warning {
+        color: var(--pycharm-warning);
+    }
+
+    .console-line.error {
+        color: var(--pycharm-error);
+    }
+
+    .console-line.output {
+        color: #f0f0f0;
+        font-family: 'JetBrains Mono', 'Fira Code', monospace;
+        font-size: 12px;
+    }
+
+    .timestamp {
+        color: #777;
+        font-size: 11px;
+        margin-right: 8px;
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Модальное окно ошибок */
+    .pep8-errors-modal {
+        position: absolute;
+        bottom: 40px;
+        right: 15px;
+        width: 400px;
+        max-height: 300px;
+        background: var(--pycharm-bg);
+        border: 1px solid var(--pycharm-border);
+        border-radius: 6px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        overflow: hidden;
+        font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    }
+
+    .pep8-modal-header {
+        background: var(--pycharm-gutter);
+        padding: 12px 15px;
+        border-bottom: 1px solid var(--pycharm-border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .pep8-modal-header h4 {
+        margin: 0;
+        font-size: 14px;
+        color: var(--pycharm-fg);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 500;
+    }
+
+    .pep8-modal-header h4 i {
+        color: var(--pycharm-error);
+    }
+
+    .close-modal {
+        color: var(--pycharm-gutter-fg);
+        font-size: 20px;
+        cursor: pointer;
+        padding: 0 5px;
+        transition: color 0.2s;
+    }
+
+    .close-modal:hover {
+        color: var(--pycharm-fg);
+    }
+
+    .pep8-modal-body {
+        padding: 10px;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    .error-group-title {
+        color: var(--pycharm-comment);
+        font-size: 11px;
+        text-transform: uppercase;
+        margin: 8px 0 5px 0;
+        padding-bottom: 3px;
+        border-bottom: 1px solid var(--pycharm-border);
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+
+    .error-item {
+        padding: 8px 10px;
+        margin: 4px 0;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 13px;
+        border-left: 3px solid transparent;
+    }
+
+    .error-item:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-left: 3px solid var(--pycharm-error);
+        transform: translateX(2px);
+    }
+
+    .error-line {
+        color: var(--pycharm-error);
+        font-weight: 600;
+        margin-right: 10px;
+        min-width: 70px;
+        display: inline-block;
+    }
+
+    .error-message {
+        color: var(--pycharm-fg);
+    }
+
+    .pep8-modal-footer {
+        padding: 12px 15px;
+        border-top: 1px solid var(--pycharm-border);
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    .pep8-modal-footer button {
+        background: #4c5052;
+        color: #b0b0b0;
+        border: 1px solid #3c3f41;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .pep8-modal-footer button:hover {
+        background: #5a5e5f;
+        color: #d0d0d0;
+        border-color: #4c5052;
+    }
+
+    .pep8-modal-footer button:first-child {
+        background: #4CAF50;
+        color: white;
+        border-color: #45a049;
+    }
+
+    .pep8-modal-footer button:first-child:hover {
+        background: #45a049;
+    }
+
+    /* Анимация загрузки */
+    .loading {
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        border: 2px solid var(--pycharm-fg);
+        border-top: 2px solid transparent;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-right: 8px;
+        vertical-align: middle;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* Monaco Editor decorations */
+    .error-line-decoration {
+        background: rgba(244, 71, 71, 0.1);
+    }
+
+    .warning-line-decoration {
+        background: rgba(255, 204, 0, 0.1);
+    }
+
+    .error-glyph-margin {
+        background: #f44747;
+    }
+
+    .warning-glyph-margin {
+        background: #ffcc00;
+    }
+
+    /* Основные стили для функциональности создания задач */
+    .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .create-task-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 8px 15px;
+        font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        box-shadow: 0 2px 5px rgba(102, 126, 234, 0.3);
+    }
+
+    .create-task-btn:hover {
+        background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+    }
+
+    /* Модальное окно создания задачи */
+    .task-creation-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 9999;
+        justify-content: center;
+        align-items: center;
+        backdrop-filter: blur(5px);
+    }
+
+    .task-modal-content {
+        background: #2b2b2b;
+        border-radius: 8px;
+        width: 90%;
+        max-width: 800px;
+        max-height: 90vh;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        border: 1px solid #3c3f41;
+        overflow: hidden;
+    }
+
+    /* Стили для консоли и изменения размера */
+    .console-resize-handle {
+        height: 5px;
+        background: var(--pycharm-border);
+        cursor: ns-resize;
+        flex-shrink: 0;
+        position: relative;
+        z-index: 10;
+        transition: background 0.2s;
+    }
+
+    .console-resize-handle:hover {
+        background: var(--pycharm-info);
+    }
+
+    .console-resize-handle::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 30px;
+        height: 3px;
+        background: var(--pycharm-gutter-fg);
+        border-radius: 2px;
+        opacity: 0.5;
+    }
+
+    .console-resize-handle:hover::after {
+        opacity: 1;
+        background: var(--pycharm-info);
+    }
+
+    /* Улучшенные стили для консоли */
+    .console-container {
+        background: var(--pycharm-bg);
+        border: 1px solid var(--pycharm-border);
+        border-radius: 0 0 4px 4px;
+        margin-top: 5px;
+        display: flex;
+        flex-direction: column;
+        height: 200px;
+        min-height: 100px;
+        max-height: 800px;
+        overflow: hidden;
+        position: relative;
+        transition: height 0.2s ease;
+        user-select: none;
+    }
+
+    /* Остальные стили остаются без изменений... */
+
+    /* Адаптивность */
+    @media (max-height: 800px) {
+        .single-editor {
+            height: calc(100vh - 80px);
+            min-height: 400px;
+        }
+
+        .console-container {
+            height: 180px;
+            min-height: 120px;
+        }
+    }
+
+    @media (max-height: 600px) {
+        .single-editor {
+            height: calc(100vh - 60px);
+            min-height: 300px;
+        }
+
+        .console-container {
+            height: 150px;
+            min-height: 100px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .editor-content-wrapper {
+            flex-direction: column;
+        }
+
+        .code-structure-sidebar {
+            width: 100%;
+            max-width: none;
+            height: 200px;
+            border-left: none;
+            border-top: 1px solid var(--sidebar-border);
+        }
+
+        .single-editor {
+            height: auto;
+            min-height: 600px;
+        }
+    }
+
+    /* Дополнительные стили для Monaco Editor */
+    .monaco-editor .view-overlays .current-line {
+        border: none !important;
+        background-color: rgba(33, 66, 131, 0.15) !important;
+    }
+
+    .monaco-editor .selected-text {
+        background-color: var(--pycharm-selection) !important;
+    }
+
+    .monaco-editor .cursor {
+        background-color: var(--pycharm-fg) !important;
+        border-left: 2px solid var(--pycharm-fg) !important;
+    }
+
+    /* В вашем CSS файле */
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
+
+    /* Опционально: можно сделать фон вокруг редактора чуть мягче */
+    .monaco-editor, .monaco-editor-background, .monaco-editor .margin {
+        background-color: #282c34 !important; /* Цвет фона One Dark */
+    }
+
+    /* Добавьте эти стили к существующим */
+
+.editor-content-wrapper {
+    display: flex;
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+}
+
+.left-sidebar {
+    order: 1;
+    border-right: 1px solid #ddd;
+    border-left: none;
+}
+
+.code-mirror-wrapper {
+    order: 2;
+    flex: 1;
+}
+
+.right-console {
+    order: 3;
+    border-left: 1px solid #ddd;
+    border-right: none;
+}
+
+/* Если нужно изменить поведение изменения размера для нового расположения */
+.console-resize-handle {
+    cursor: ew-resize;
+    height: 100%;
+    width: 5px;
+    position: absolute;
+    left: -3px;
+    top: 0;
+    background: transparent;
+    z-index: 10;
+}
+
+/* Для структуры кода слева */
+.code-structure-sidebar {
+    width: 250px;
+    min-width: 200px;
+    max-width: 350px;
+    background: #f8f9fa;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+    resize: horizontal;
+}
+
+/* Адаптивная верстка для мобильных устройств */
+@media (max-width: 768px) {
+    .editor-content-wrapper {
+        flex-direction: column;
+    }
+
+    .left-sidebar,
+    .right-console,
+    .code-structure-sidebar {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 100% !important;
+        height: 200px;
+        border-right: none;
+        border-left: none;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .code-mirror-wrapper {
+        height: 300px;
+    }
+}
+/* Стили для структуры кода внизу */
+
+.bottom-sidebar {
+    border-top: 1px solid #ddd;
+    background: #f8f9fa;
+    margin-top: 10px;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.bottom-sidebar.collapsed {
+    height: 40px;
+}
+
+.bottom-sidebar.collapsed .structure-content {
+    display: none;
+}
+
+.structure-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 15px;
+    background: #e9ecef;
+    border-bottom: 1px solid #ddd;
+    font-weight: 600;
+    color: #495057;
+    cursor: pointer;
+    user-select: none;
+}
+
+.structure-header:hover {
+    background: #dee2e6;
+}
+
+.structure-header i {
+    margin-right: 8px;
+    color: #6c757d;
+}
+
+.structure-header-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.structure-collapse-btn {
+    background: none;
+    border: none;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 3px;
+    transition: all 0.2s;
+}
+
+.structure-collapse-btn:hover {
+    background: #ced4da;
+    color: #495057;
+}
+
+.structure-content {
+    padding: 10px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.structure-sections-container {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.structure-section {
+    flex: 1;
+    min-width: 200px;
+    background: white;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+    overflow: hidden;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    cursor: pointer;
+    font-weight: 500;
+    color: #495057;
+}
+
+.section-header:hover {
+    background: #e9ecef;
+}
+
+.section-header i:first-child {
+    margin-right: 8px;
+    color: #6c757d;
+}
+
+.section-toggle {
+    transition: transform 0.2s;
+}
+
+.section-items {
+    max-height: 200px;
+    overflow-y: auto;
+    padding: 8px 0;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .structure-sections-container {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .structure-section {
+        min-width: 100%;
+    }
+
+    .structure-content {
+        max-height: 200px;
+    }
+}
+
+/* Для консоли справа */
+.right-console {
+    width: 300px;
+    min-width: 250px;
+    max-width: 500px;
+    border-left: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+}
+
+.console-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 15px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #ddd;
+    font-weight: 600;
+}
+
+
+/* Общие стили для редактора */
+.editor-content-wrapper {
+    display: flex;
+    flex: 1;
+    min-height: 400px;
+    position: relative;
+}
+
+.code-mirror-wrapper {
+    flex: 1;
+    position: relative;
+}
+
+.editor-status-bar {
+    padding: 5px 15px;
+    background: #f8f9fa;
+    border-top: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+}
+
+.status-stats {
+    display: flex;
+    gap: 20px;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #6c757d;
+    position: relative;
+    cursor: help;
+}
+
+.stat-item i {
+    font-size: 14px;
+}
+
+.error-stat {
+    color: #dc3545;
+}
+
+.stat-item[data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 1000;
+}
+
+/* Обновленные стили для редактора и консоли */
+
+.editor-content-wrapper {
+    display: flex;
+    flex: 1;
+    min-height: 500px;
+    position: relative;
+    gap: 15px;
+    margin: 10px 0;
+}
+
+.code-mirror-wrapper {
+    flex: 1;
+    position: relative;
+    min-width: 400px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border: 1px solid #e1e4e8;
+}
+
+/* Консоль - шире и с новым стилем */
+.right-console {
+    flex: 0 0 45%; /* Занимает 45% ширины, можно регулировать */
+    min-width: 400px;
+    max-width: 800px;
+    display: flex;
+    flex-direction: column;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+    border: 1px solid #e1e4e8;
+    background: #fff;
+}
+
+.console-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-weight: 600;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.console-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+}
+
+.console-title i {
+    font-size: 18px;
+}
+
+.console-header-info {
+    flex: 1;
+    margin: 0 15px;
+}
+
+.console-hint {
+    font-size: 12px;
+    opacity: 0.9;
+    font-weight: normal;
+}
+
+.console-status {
+    font-size: 12px;
+    padding: 2px 8px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 10px;
+    margin-left: 8px;
+}
+
+.console-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.console-btn {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.console-btn:hover {
+    background: rgba(255,255,255,0.3);
+    transform: translateY(-1px);
+}
+
+.console-copy-btn:hover {
+    background: #4CAF50;
+}
+
+
+.console-line {
+    padding: 4px 0;
+    border-bottom: 1px solid #2d2d2d;
+}
+
+.console-line:last-child {
+    border-bottom: none;
+}
+
+.console-line.info {
+    color: #569cd6;
+}
+
+.console-line.error {
+    color: #f44747;
+}
+
+.console-line.success {
+    color: #4ec9b0;
+}
+
+.console-line.warning {
+    color: #dcdcaa;
+}
+
+.console-line i {
+    margin-right: 8px;
+    width: 16px;
+}
+
+.console-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 15px;
+    background: #252526;
+    color: #858585;
+    font-size: 12px;
+    border-top: 1px solid #2d2d2d;
+}
+
+.console-time {
+    font-family: 'Consolas', monospace;
+}
+
+.console-lines-count {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Статус бар */
+.editor-status-bar {
+    padding: 8px 20px;
+    background: #f6f8fa;
+    border-top: 1px solid #e1e4e8;
+    border-radius: 0 0 8px 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    margin-top: 5px;
+}
+
+.status-stats {
+    display: flex;
+    gap: 25px;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #586069;
+    position: relative;
+    cursor: help;
+    padding: 2px 8px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.stat-item:hover {
+    background: #e1e4e8;
+}
+
+.stat-item i {
+    font-size: 14px;
+}
+
+.error-stat {
+    color: #d73a49;
+}
+
+.error-stat:hover {
+    background: rgba(215, 58, 73, 0.1);
+}
+
+.stat-item[data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 1000;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+/* Адаптивность */
+@media (max-width: 1200px) {
+    .editor-content-wrapper {
+        flex-direction: column;
+    }
+
+    .right-console {
+        flex: 0 0 300px;
+        min-width: 100%;
+        max-width: 100%;
+    }
+
+    .code-mirror-wrapper {
+        min-width: 100%;
+        min-height: 400px;
+    }
+}
+
+@media (max-width: 768px) {
+    .editor-content-wrapper {
+        min-height: 400px;
+    }
+
+    .console-header {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .console-header-info {
+        order: 3;
+        width: 100%;
+        text-align: center;
+        margin: 5px 0 0 0;
+    }
+
+    .status-stats {
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .stat-item {
+        font-size: 12px;
+    }
+}
+/* Обновленные стили для редактора с боковой консолью */
+
+.editor-content-wrapper {
+    display: flex;
+    flex: 1;
+    min-height: 400px;
+    position: relative;
+    overflow: hidden;
+    gap: 0;
+}
+
+.code-mirror-wrapper {
+    flex: 1;
+    position: relative;
+    background: var(--pycharm-bg);
+    border-right: 1px solid var(--pycharm-border);
+}
+
+/* Консоль - 30% ширины, минималистичная */
+.console-container {
+    width: 30%;
+    min-width: 250px;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    background: var(--pycharm-bg);
+    border-left: 1px solid var(--pycharm-border);
+    position: relative;
+    flex-shrink: 0;
+}
+
+/* Заголовок консоли - простой и чистый */
+.console-header {
+    background: var(--pycharm-gutter);
+    border-bottom: 1px solid var(--pycharm-border);
+    padding: 8px 15px;
+    flex-shrink: 0;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+}
+
+.console-title {
+    color: var(--pycharm-fg);
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.console-title i {
+    color: var(--pycharm-info);
+    font-size: 14px;
+}
+
+/* Полоска для изменения размера */
+.console-resize-handle {
+    position: absolute;
+    left: -2px;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    cursor: ew-resize;
+    z-index: 10;
+    background: transparent;
+    transition: background 0.2s;
+}
+
+.console-resize-handle:hover,
+.console-resize-handle.resizing {
+    background: var(--pycharm-info);
+}
+
+
+/* Строки консоли */
+.console-line {
+    padding: 2px 0;
+    margin: 1px 0;
+    white-space: pre-wrap;
+    word-break: break-all;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.console-line:last-child {
+    border-bottom: none;
+}
+
+.console-line.info {
+    color: var(--pycharm-info);
+}
+
+.console-line.success {
+    color: var(--pycharm-success);
+}
+
+.console-line.warning {
+    color: var(--pycharm-warning);
+}
+
+.console-line.error {
+    color: var(--pycharm-error);
+    font-weight: 500;
+}
+
+.console-line.output {
+    color: #e0e0e0;
+}
+
+.console-line.stdin {
+    color: #4ec9b0;
+    font-weight: 500;
+}
+
+.console-line.stdout {
+    color: #d4d4d4;
+}
+
+.console-line.stderr {
+    color: #f44747;
+}
+
+/* Прокрутка консоли */
+.console-output::-webkit-scrollbar {
+    width: 8px;
+}
+
+.console-output::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.console-output::-webkit-scrollbar-thumb {
+    background: #4c5052;
+    border-radius: 4px;
+}
+
+.console-output::-webkit-scrollbar-thumb:hover {
+    background: #5a5e5f;
+}
+
+/* Статус бар */
+.editor-status-bar {
+    background: var(--pycharm-gutter);
+    border-top: 1px solid var(--pycharm-border);
+    padding: 6px 15px;
+    display: flex;
+    justify-content: flex-end;
+    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    flex-shrink: 0;
+    min-height: 32px;
+}
+
+.status-stats {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--pycharm-gutter-fg);
+    cursor: default;
+    padding: 3px 8px;
+    border-radius: 3px;
+    transition: all 0.2s;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.stat-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--pycharm-fg);
+}
+
+.stat-item i {
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+.stat-item.error-stat {
+    color: var(--pycharm-error);
+}
+
+.stat-item.error-stat.has-errors {
+    background: rgba(255, 107, 107, 0.15);
+    cursor: pointer;
+    animation: pulse 2s infinite;
+}
+
+.stat-item.error-stat.has-errors:hover {
+    background: rgba(255, 107, 107, 0.25);
+}
+
+/* Адаптивность */
+@media (max-width: 1024px) {
+    .editor-content-wrapper {
+        flex-direction: column;
+    }
+
+    .code-mirror-wrapper {
+        width: 100% !important;
+        min-width: 100% !important;
+        height: 60vh;
+        border-right: none;
+        border-bottom: 1px solid var(--pycharm-border);
+    }
+
+    .console-container {
+        width: 100% !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
+        height: 40vh;
+        border-left: none;
+        border-top: 1px solid var(--pycharm-border);
+    }
+
+    .console-resize-handle {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .single-editor {
+        height: auto;
+        min-height: 500px;
+    }
+
+    .code-mirror-wrapper {
+        height: 50vh;
+    }
+
+    .console-container {
+        height: 30vh;
+    }
+
+    .status-stats {
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .stat-item {
+        font-size: 11px;
+    }
+}
+
+/* Стиль для Monaco Editor */
+.monaco-editor, .monaco-editor-background, .monaco-editor .margin {
+    background-color: var(--pycharm-bg) !important;
+}
+
+.monaco-editor .view-overlays .current-line {
+    border: none !important;
+    background-color: rgba(33, 66, 131, 0.15) !important;
+}
+
+.monaco-editor .selected-text {
+    background-color: var(--pycharm-selection) !important;
+}
+
+.monaco-editor .cursor {
+    background-color: var(--pycharm-fg) !important;
+    border-left: 2px solid var(--pycharm-fg) !important;
+}
+
+/* Обновленные стили для редактора с консолью СПРАВА */
+
+.editor-content-wrapper {
+    display: flex;
+    flex: 1;
+    min-height: 400px;
+    position: relative;
+    overflow: hidden;
+    gap: 0;
+}
+
+/* Редактор кода - слева, занимает оставшееся пространство */
+.code-mirror-wrapper {
+    flex: 1;
+    position: relative;
+    background: var(--pycharm-bg);
+    border-right: 1px solid var(--pycharm-border); /* Граница справа от редактора */
+}
+
+/* Консоль - СПРАВА, 30% ширины */
+.console-container {
+    width: 40%;
+    min-width: 250px;
+    max-width: 650px;
+    display: flex;
+    flex-direction: column;
+    background: var(--pycharm-bg);
+    border-left: 1px solid var(--pycharm-border);
+    position: relative;
+    flex-shrink: 0;
+    order: 2; /* Убедимся, что консоль справа */
+}
+
+/* Полоска для изменения размера - теперь слева от консоли */
+.console-resize-handle {
+    position: absolute;
+    left: -2px; /* Смещаем влево от консоли */
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    cursor: ew-resize;
+    z-index: 10;
+    background: transparent;
+    transition: background 0.2s;
+}
+
+.console-resize-handle:hover,
+.console-resize-handle.resizing {
+    background: var(--pycharm-info);
+}
+
+/* Остальные стили консоли остаются без изменений */
+.console-header {
+    background: var(--pycharm-gutter);
+    border-bottom: 1px solid var(--pycharm-border);
+    padding: 8px 15px;
+    flex-shrink: 0;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+}
+
+.console-title {
+    color: var(--pycharm-fg);
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.console-title i {
+    color: var(--pycharm-info);
+    font-size: 14px;
+}
+
+.console-output {
+    flex: 1;
+    padding: 12px;
+    overflow-y: auto;
+    background: var(--pycharm-bg);
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-size: 12px;
+    line-height: 1.4;
+    color: var(--pycharm-fg);
+    user-select: text !important;
+    -webkit-user-select: text !important;
+    -moz-user-select: text !important;
+    -ms-user-select: text !important;
+    cursor: text;
+
+}
+
+.console-line {
+    padding: 2px 0;
+    margin: 1px 0;
+    white-space: pre-wrap;
+    word-break: break-all;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.console-line:last-child {
+    border-bottom: none;
+}
+
+.console-line.info {
+    color: var(--pycharm-info);
+}
+
+.console-line.success {
+    color: var(--pycharm-success);
+}
+
+.console-line.warning {
+    color: var(--pycharm-warning);
+}
+
+.console-line.error {
+    color: var(--pycharm-error);
+    font-weight: 500;
+}
+
+.console-line.output {
+    color: #e0e0e0;
+}
+
+/* Прокрутка консоли */
+.console-output::-webkit-scrollbar {
+    width: 8px;
+}
+
+.console-output::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.console-output::-webkit-scrollbar-thumb {
+    background: #4c5052;
+    border-radius: 4px;
+}
+
+.console-output::-webkit-scrollbar-thumb:hover {
+    background: #5a5e5f;
+}
+
+/* Адаптивность */
+@media (max-width: 1024px) {
+    .editor-content-wrapper {
+        flex-direction: column;
+    }
+
+    .code-mirror-wrapper {
+        width: 100% !important;
+        min-width: 100% !important;
+        height: 60vh;
+        border-right: none;
+        border-bottom: 1px solid var(--pycharm-border);
+        order: 1; /* Редактор сверху */
+    }
+
+    .console-container {
+        width: 100% !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
+        height: 40vh;
+        border-left: none;
+        border-top: 1px solid var(--pycharm-border);
+        order: 2; /* Консоль снизу */
+    }
+
+    .console-resize-handle {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .single-editor {
+        height: auto;
+        min-height: 500px;
+    }
+
+    .code-mirror-wrapper {
+        height: 50vh;
+    }
+
+    .console-container {
+        height: 30vh;
+    }
+}
+
+/* Стили для поиска задач в редакторе */
+.task-search-container {
+    position: relative;
+    width: 250px;
+}
+
+.task-search-wrapper {
+    position: relative;
+}
+
+.task-search-input {
+    width: 100%;
+    padding: 6px 30px 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.task-search-input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+}
+
+.task-clear-btn {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    padding: 2px;
+    font-size: 12px;
+}
+
+.task-clear-btn:hover {
+    color: #666;
+}
+
+.task-results-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-top: 4px;
+}
+
+.task-result-item {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.task-result-item:hover {
+    background-color: #f5f5f5;
+}
+
+.task-result-item:last-child {
+    border-bottom: none;
+}
+
+.task-result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.task-result-title {
+    font-weight: bold;
+    color: #333;
+    font-size: 13px;
+}
+
+.task-difficulty {
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-weight: bold;
+}
+
+.task-difficulty.easy {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.task-difficulty.medium {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.task-difficulty.hard {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.task-result-description {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.3;
+}
+
+.selected-task-info {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    padding: 12px;
+    margin: 10px 0;
+    display: none;
+}
+
+.selected-task-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.selected-task-description {
+    color: #495057;
+    line-height: 1.5;
+    font-size: 13px;
+    margin-bottom: 10px;
+}
+
+.remove-task-btn {
+    background: none;
+    border: none;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 2px;
+    margin-left: auto;
+    font-size: 12px;
+}
+
+.remove-task-btn:hover {
+    color: #dc3545;
+}
+
+.selected-task-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-sm {
+    padding: 4px 10px;
+    font-size: 12px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #545b62;
+}
+
+.confirmation-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.confirmation-modal .modal-content {
+    background: white;
+    border-radius: 8px;
+    width: 400px;
+    max-width: 90%;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+
+.confirmation-modal .modal-header {
+    padding: 16px;
+    border-bottom: 1px solid #dee2e6;
+    background: #fff3cd;
+    color: #856404;
+    border-radius: 8px 8px 0 0;
+}
+
+.confirmation-modal .modal-body {
+    padding: 20px;
+}
+
+.confirmation-modal .modal-footer {
+    padding: 16px;
+    border-top: 1px solid #dee2e6;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.search-loading, .search-no-results, .search-error {
+    padding: 15px;
+    text-align: center;
+    color: #6c757d;
+    font-size: 13px;
+}
+
+.search-loading i {
+    margin-right: 8px;
+}

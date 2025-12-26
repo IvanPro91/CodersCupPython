@@ -1,9 +1,8 @@
-import uuid
+import json
 from uuid import uuid4
 
 from asgiref.sync import sync_to_async
 from django.db import models
-from django.utils.translation import gettext_lazy as _
 
 from user.models import User
 
@@ -71,317 +70,269 @@ class UserTabs(models.Model):
 
 
 class Task(models.Model):
-    """Модель задачи"""
+    LEVEL_CHOICES = [
+        ('junior', 'Начинающий'),
+        ('middle', 'Средний'),
+        ('hard', 'Сложный'),
+        ('expert', 'Эксперт'),
+    ]
 
-    class Difficulty(models.TextChoices):
-        EASY = 'easy', _('Легкий')
-        MEDIUM = 'medium', _('Средний')
-        HARD = 'hard', _('Сложный')
-        EXPERT = 'expert', _('Экспертный')
+    CATEGORY_CHOICES = [
+        ('algorithm', 'Алгоритмы'),
+        ('string', 'Строки'),
+        ('array', 'Массивы'),
+        ('math', 'Математика'),
+        ('logic', 'Логика'),
+        ('dynamic', 'Динамическое программирование'),
+        ('graph', 'Графы'),
+        ('holiday', 'Праздничные'),
+        ('google', 'Google'),
+        ('yandex', 'Yandex'),
+        ('other', 'Другое'),
+    ]
 
-    # Основные поля
-    id = models.CharField(
-        max_length=50,
-        primary_key=True,
-        verbose_name=_('ID задачи')
+    num = models.CharField(max_length=20, unique=True, verbose_name="Номер задачи")
+    name = models.CharField(max_length=255, verbose_name="Название задачи")
+    code = models.TextField(verbose_name="Шаблон кода")
+    level = models.CharField(max_length=20, choices=LEVEL_CHOICES, verbose_name="Уровень сложности")
+    task_text = models.TextField(verbose_name="Текст задачи")
+
+    # JSON поля как TextField с валидацией
+    exclude_json = models.TextField(
+        default='[]',
+        verbose_name="Запрещенные импорты",
+        help_text="JSON список запрещенных импортов"
+    )
+    hints_json = models.TextField(
+        default='{}',
+        verbose_name="Подсказки",
+        help_text="JSON словарь {секунды: текст_подсказки}"
+    )
+    test_code_json = models.TextField(
+        default='[]',
+        verbose_name="Тесты",
+        help_text="JSON список строк с тестами"
+    )
+    tags_json = models.TextField(
+        default='[]',
+        verbose_name="Теги",
+        help_text="JSON список тегов"
     )
 
-    share_token = models.UUIDField(
-        verbose_name=_('Токен для доступа'),
-        default=uuid.uuid4,
-        editable=False,
-        unique=True,
-        help_text=_('Уникальный токен для предоставления доступа к задаче')
-    )
-
-    is_public = models.BooleanField(
-        verbose_name=_('Публичная задача'),
-        default=False,
-        help_text=_('Доступна ли задача всем по токену')
-    )
-
-    title = models.CharField(
-        max_length=255,
-        verbose_name=_('Название задачи')
-    )
-
-    description = models.TextField(
-        verbose_name=_('Описание'),
-        blank=True
-    )
-
-    code = models.TextField(
-        verbose_name=_('Исходный код')
-    )
-
-    difficulty = models.CharField(
-        max_length=20,
-        choices=Difficulty.choices,
-        default=Difficulty.MEDIUM,
-        verbose_name=_('Сложность')
-    )
-
-    created = models.DateTimeField(
-        verbose_name=_('Дата создания'),
-        auto_now_add=True
-    )
-
-    # Связанные поля (создаются отдельными моделями)
-
-    class Meta:
-        verbose_name = _('Задача')
-        verbose_name_plural = _('Задачи')
-        ordering = ['-created']
-        indexes = [
-            models.Index(fields=['share_token']),
-            models.Index(fields=['is_public']),
-            models.Index(fields=['difficulty']),
-        ]
-
-    def __str__(self):
-        return f"{self.title} ({self.id})"
-
-    def generate_new_token(self):
-        """Сгенерировать новый токен доступа"""
-        self.share_token = uuid.uuid4()
-        self.save()
-        return self.share_token
-
-    def get_share_url(self, request=None):
-        """Получить URL для доступа к задаче"""
-        from django.urls import reverse
-        url = reverse('task-by-token', kwargs={'token': self.share_token})
-        if request:
-            return request.build_absolute_uri(url)
-        return url
-
-
-class TaskConstraints(models.Model):
-    """Модель ограничений задачи"""
-
-    task = models.OneToOneField(
-        Task,
-        on_delete=models.CASCADE,
-        related_name='constraints',
-        verbose_name=_('Задача'),
-        primary_key=False
-    )
-
-    max_lines = models.PositiveIntegerField(
-        verbose_name=_('Максимум строк'),
-        default=50
-    )
-
-    max_line_length = models.PositiveIntegerField(
-        verbose_name=_('Максимальная длина строки'),
-        default=80
-    )
-
-    max_chars = models.PositiveIntegerField(
-        verbose_name=_('Максимум символов'),
-        default=1000
-    )
-
-    max_functions = models.PositiveIntegerField(
-        verbose_name=_('Максимум функций'),
-        default=5
-    )
-
-    max_classes = models.PositiveIntegerField(
-        verbose_name=_('Максимум классов'),
-        default=3
-    )
-
-    class Meta:
-        verbose_name = _('Ограничение задачи')
-        verbose_name_plural = _('Ограничения задач')
-
-    def __str__(self):
-        return f"Ограничения для {self.task.title}"
-
-
-class ForbiddenWord(models.Model):
-    """Модель запрещенного слова"""
-
-    task = models.ForeignKey(
-        Task,
-        on_delete=models.CASCADE,
-        related_name='forbidden_words',
-        verbose_name=_('Задача')
-    )
-
-    word = models.CharField(
+    category = models.CharField(
         max_length=100,
-        verbose_name=_('Запрещенное слово')
+        choices=CATEGORY_CHOICES,
+        default='algorithm',
+        verbose_name="Категория"
     )
+
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
+    is_active = models.BooleanField(default=True, verbose_name="Активна")
+    time_limit = models.IntegerField(default=2, verbose_name="Ограничение времени (сек)")
+    memory_limit = models.IntegerField(default=256, verbose_name="Ограничение памяти (МБ)")
 
     class Meta:
-        verbose_name = _('Запрещенное слово')
-        verbose_name_plural = _('Запрещенные слова')
-        unique_together = ['task', 'word']
-        ordering = ['word']
-
-    def __str__(self):
-        return f"{self.word} (для {self.task.title})"
-
-
-class Example(models.Model):
-    """Модель примера ввода/вывода"""
-
-    task = models.ForeignKey(
-        Task,
-        on_delete=models.CASCADE,
-        related_name='examples',
-        verbose_name=_('Задача')
-    )
-
-    input_data = models.JSONField(
-        verbose_name=_('Входные данные'),
-        default=dict,
-        help_text=_('Данные на вход в формате JSON')
-    )
-
-    output_data = models.JSONField(
-        verbose_name=_('Выходные данные'),
-        default=dict,
-        help_text=_('Ожидаемый результат в формате JSON')
-    )
-
-    order = models.PositiveIntegerField(
-        verbose_name=_('Порядок'),
-        default=0,
-        help_text=_('Порядок отображения примеров')
-    )
-
-    class Meta:
-        verbose_name = _('Пример')
-        verbose_name_plural = _('Примеры')
-        ordering = ['order']
-
-    def __str__(self):
-        return f"Пример {self.order} для {self.task.title}"
-
-
-class Tag(models.Model):
-    """Модель тега"""
-
-    name = models.CharField(
-        max_length=50,
-        unique=True,
-        verbose_name=_('Название тега'),
-        help_text=_('Уникальное название тега')
-    )
-
-    tasks = models.ManyToManyField(
-        Task,
-        related_name='tags',
-        verbose_name=_('Задачи'),
-        blank=True
-    )
-
-    created = models.DateTimeField(
-        verbose_name=_('Дата создания'),
-        auto_now_add=True
-    )
-
-    class Meta:
-        verbose_name = _('Тег')
-        verbose_name_plural = _('Теги')
-        ordering = ['name']
-
-    def __str__(self):
-        return self.name
-
-
-class TaskStats(models.Model):
-    """Модель статистики задачи"""
-
-    task = models.OneToOneField(
-        Task,
-        on_delete=models.CASCADE,
-        related_name='stats',
-        verbose_name=_('Задача'),
-        primary_key=False
-    )
-
-    lines = models.PositiveIntegerField(
-        verbose_name=_('Количество строк'),
-        default=0
-    )
-
-    chars = models.PositiveIntegerField(
-        verbose_name=_('Количество символов'),
-        default=0
-    )
-
-    non_space_chars = models.PositiveIntegerField(
-        verbose_name=_('Символов без пробелов'),
-        default=0
-    )
-
-    functions = models.PositiveIntegerField(
-        verbose_name=_('Количество функций'),
-        default=0
-    )
-
-    classes = models.PositiveIntegerField(
-        verbose_name=_('Количество классов'),
-        default=0
-    )
-
-    analyzed_at = models.DateTimeField(
-        verbose_name=_('Время анализа'),
-        auto_now=True
-    )
-
-    class Meta:
-        verbose_name = _('Статистика задачи')
-        verbose_name_plural = _('Статистики задач')
-
-    def __str__(self):
-        return f"Статистика для {self.task.title}"
-
-
-class TaskAccessLog(models.Model):
-    """Модель лога доступа к задаче"""
-
-    task = models.ForeignKey(
-        Task,
-        on_delete=models.CASCADE,
-        related_name='access_logs',
-        verbose_name=_('Задача')
-    )
-
-    accessed_at = models.DateTimeField(
-        verbose_name=_('Время доступа'),
-        auto_now_add=True
-    )
-
-    ip_address = models.GenericIPAddressField(
-        verbose_name=_('IP адрес'),
-        null=True,
-        blank=True
-    )
-
-    user_agent = models.TextField(
-        verbose_name=_('User Agent'),
-        blank=True
-    )
-
-    referer = models.URLField(
-        verbose_name=_('Источник перехода'),
-        blank=True,
-        null=True
-    )
-
-    class Meta:
-        verbose_name = _('Лог доступа к задаче')
-        verbose_name_plural = _('Логи доступа к задачам')
-        ordering = ['-accessed_at']
+        verbose_name = "Задача"
+        verbose_name_plural = "Задачи"
+        ordering = ['num']
         indexes = [
-            models.Index(fields=['accessed_at']),
-            models.Index(fields=['ip_address']),
+            models.Index(fields=['level']),
+            models.Index(fields=['category']),
+            models.Index(fields=['is_active']),
         ]
 
     def __str__(self):
-        return f"Доступ к {self.task.title} в {self.accessed_at}"
+        return f"{self.num}: {self.name} ({self.get_level_display()})"
+
+    # Свойства для удобного доступа
+    @property
+    def exclude(self):
+        try:
+            return json.loads(self.exclude_json)
+        except (json.JSONDecodeError, TypeError):
+            return []
+
+    @exclude.setter
+    def exclude(self, value):
+        self.exclude_json = json.dumps(value, ensure_ascii=False)
+
+    @property
+    def hints(self):
+        try:
+            return json.loads(self.hints_json)
+        except (json.JSONDecodeError, TypeError):
+            return {}
+
+    @hints.setter
+    def hints(self, value):
+        self.hints_json = json.dumps(value, ensure_ascii=False)
+
+    @property
+    def test_code(self):
+        try:
+            return json.loads(self.test_code_json)
+        except (json.JSONDecodeError, TypeError):
+            return []
+
+    @test_code.setter
+    def test_code(self, value):
+        self.test_code_json = json.dumps(value, ensure_ascii=False)
+
+    @property
+    def tags(self):
+        try:
+            return json.loads(self.tags_json)
+        except (json.JSONDecodeError, TypeError):
+            return []
+
+    @tags.setter
+    def tags(self, value):
+        self.tags_json = json.dumps(value, ensure_ascii=False)
+
+    def clean(self):
+        """Валидация JSON полей перед сохранением"""
+        from django.core.exceptions import ValidationError
+
+        try:
+            json.loads(self.exclude_json)
+        except json.JSONDecodeError:
+            raise ValidationError({'exclude_json': 'Некорректный JSON'})
+
+        try:
+            json.loads(self.hints_json)
+        except json.JSONDecodeError:
+            raise ValidationError({'hints_json': 'Некорректный JSON'})
+
+        try:
+            json.loads(self.test_code_json)
+        except json.JSONDecodeError:
+            raise ValidationError({'test_code_json': 'Некорректный JSON'})
+
+        try:
+            json.loads(self.tags_json)
+        except json.JSONDecodeError:
+            raise ValidationError({'tags_json': 'Некорректный JSON'})
+
+    def save(self, *args, **kwargs):
+        # Убедимся, что JSON поля корректны
+        if not self.exclude_json or self.exclude_json.strip() == '':
+            self.exclude_json = '[]'
+        if not self.hints_json or self.hints_json.strip() == '':
+            self.hints_json = '{}'
+        if not self.test_code_json or self.test_code_json.strip() == '':
+            self.test_code_json = '[]'
+        if not self.tags_json or self.tags_json.strip() == '':
+            self.tags_json = '[]'
+
+        self.full_clean()  # Вызываем валидацию
+        super().save(*args, **kwargs)
+
+    def get_formatted_task_text(self):
+        """Возвращает текст задачи с HTML разметкой"""
+        import re
+        text = self.task_text
+
+        # Заменяем переносы строк на <br>
+        text = text.replace('\n', '<br>')
+
+        # Форматирование примеров
+        text = re.sub(r'Примеры?:<br>(.*?)(?=<br>|$)',
+                      r'<strong>Примеры:</strong><br>\1',
+                      text, flags=re.DOTALL)
+
+        return text
+
+
+class TaskTestCase(models.Model):
+    """Отдельная таблица для тестов"""
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='test_cases')
+    test_name = models.CharField(max_length=200, verbose_name="Название теста")
+    test_code = models.TextField(verbose_name="Код теста")
+    is_hidden = models.BooleanField(default=False, verbose_name="Скрытый тест")
+    order = models.IntegerField(default=0, verbose_name="Порядок")
+
+    class Meta:
+        verbose_name = "Тестовый случай"
+        verbose_name_plural = "Тестовые случаи"
+        ordering = ['order', 'id']
+        unique_together = ['task', 'test_name']
+
+    def __str__(self):
+        return f"{self.task.num}: {self.test_name}"
+
+
+class TaskHint(models.Model):
+    """Отдельная таблица для подсказок"""
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='task_hints')
+    seconds = models.IntegerField(verbose_name="Через сколько секунд показать")
+    text = models.TextField(verbose_name="Текст подсказки")
+    order = models.IntegerField(default=0, verbose_name="Порядок")
+
+    class Meta:
+        verbose_name = "Подсказка"
+        verbose_name_plural = "Подсказки"
+        ordering = ['seconds', 'order']
+        unique_together = ['task', 'seconds']
+
+    def __str__(self):
+        return f"Подсказка через {self.seconds}с"
+
+    def formatted_text(self):
+        """Возвращает текст с HTML разметкой"""
+        return self.text.replace('\n', '<br>')
+
+
+class UserSolution(models.Model):
+    """Модель для хранения решений пользователей"""
+    STATUS_CHOICES = [
+        ('pending', 'На проверке'),
+        ('passed', 'Пройдено'),
+        ('failed', 'Не пройдено'),
+        ('error', 'Ошибка'),
+        ('timeout', 'Превышено время'),
+    ]
+
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='solutions')
+    user_id = models.IntegerField(verbose_name="ID пользователя")
+    user_code = models.TextField(verbose_name="Код пользователя")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    passed_tests = models.IntegerField(default=0, verbose_name="Пройдено тестов")
+    total_tests = models.IntegerField(default=0, verbose_name="Всего тестов")
+    execution_time = models.FloatField(null=True, blank=True, verbose_name="Время выполнения (сек)")
+    memory_used = models.IntegerField(null=True, blank=True, verbose_name="Использовано памяти (КБ)")
+    error_message = models.TextField(blank=True, verbose_name="Сообщение об ошибке")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата отправки")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
+
+    class Meta:
+        verbose_name = "Решение пользователя"
+        verbose_name_plural = "Решения пользователей"
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['user_id']),
+            models.Index(fields=['task']),
+            models.Index(fields=['status']),
+            models.Index(fields=['created_at']),
+        ]
+
+    def __str__(self):
+        return f"{self.user_id} - {self.task.num} - {self.get_status_display()}"
+
+    @property
+    def success_rate(self):
+        """Процент успешных тестов"""
+        if self.total_tests > 0:
+            return round((self.passed_tests / self.total_tests) * 100, 2)
+        return 0
+
+    @property
+    def is_successful(self):
+        """Пройдены ли все тесты"""
+        return self.status == 'passed' and self.passed_tests == self.total_tests
+
+    def run_tests(self):
+        """Запуск тестов для решения (заглушка, реализуйте по необходимости)"""
+        # Здесь будет логика запуска тестов
+        # Например, использование exec() или отдельного процесса
+        pass
